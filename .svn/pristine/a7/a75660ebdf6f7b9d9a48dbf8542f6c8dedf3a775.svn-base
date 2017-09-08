@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:sf="http://www.springframework.org/tags/faces"
+                xmlns:sec="http://www.springframework.org/security/tags"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+	
+	<p:outputPanel >
+		<p:dataTable id="genericReport" value="#{mbReporte.dtoParametros.listaDatos}"
+			var="lineResult" widgetVar="tabla" paginator="true" rows="20"
+			currentPageReportTemplate="({currentPage} de {totalPages})"
+			paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+			rowsPerPageTemplate="20,80,150,200" emptyMessage="No se encontraron datos."
+			resizableColumns="false" resizeMode="expand" tableStyle="table-layout: auto;"
+			binding="#{mbReporte.dataTable}">
+			<!-- ENNCABEZADO TABLA -->
+			<f:facet name="header">
+				<h:outputText value="" />
+			</f:facet>
+			<p:columnGroup type="header">
+				<c:if test="#{mbReporte.dtoParametros.columnas != null and mbReporte.dtoParametros.columnas > 0
+							and mbReporte.dtoParametros.listaDatos.size() != 0}">
+		            <p:row>
+		            	<p:column colspan="#{mbReporte.dtoParametros.columnas}" 
+									  	headerText="#{mbReporte.dtoParametros.tituloReporte}"
+									  		styleClass="ui-state-default" style="text-align: center"/>
+		            </p:row>
+		            <p:row>
+						<p:column colspan="#{mbReporte.dtoParametros.anchoEntidad}" 
+								  	headerText="Entidad federativa: #{mbReporte.dtoParametros.descEntidad}"
+								  		styleClass="ui-state-default" style="text-align: left"/>
+						<c:if test="#{mbReporte.dtoParametros.anchoDistrito ne null}">
+							<p:column colspan="#{mbReporte.dtoParametros.anchoDistrito}" 
+									  	headerText="Distrito electoral: #{mbReporte.usuario.idDistritoSeleccionado} - #{mbReporte.dtoParametros.descDistrito}"
+									  		styleClass="ui-state-default" style="text-align: center"/>
+<!-- 							<p:column colspan="#{mbReporte.dtoParametros.anchoDistrito}"  -->
+<!-- 									  	headerText="Cabecera: #{mbReporte.dtoParametros.descDistrito}" -->
+<!-- 									  		styleClass="ui-state-default" style="text-align: center"/> -->
+						</c:if>
+						<c:if test="#{mbReporte.dtoParametros.anchoDistritoLocal ne null}">
+							<p:column colspan="#{mbReporte.dtoParametros.anchoDistritoLocal}" 
+									  	headerText="Distrito local: #{mbReporte.dtoParametros.descDistritoLocal}"
+									  		styleClass="ui-state-default" style="text-align: center"/>
+						</c:if>
+						<c:if test="#{mbReporte.dtoParametros.anchoMunicipioLocal ne null}">
+							<p:column colspan="#{mbReporte.dtoParametros.anchoMunicipioLocal}" 
+									  	headerText="Municipio: #{mbReporte.dtoParametros.descMunicipioLocal}"
+									  		styleClass="ui-state-default" style="text-align: center"/>
+						</c:if>
+						<c:if test="#{mbReporte.dtoParametros.anchoFechaHora != mbReporte.dtoParametros.columnas}">
+							<p:column colspan="#{mbReporte.dtoParametros.anchoFechaHora}" 
+									  	headerText="Fecha y hora de impresión: #{mbReporte.dtoParametros.fechaHora} hrs."
+									  		styleClass="ui-state-default" style="text-align: right"/>
+						</c:if>
+					</p:row>
+					<c:if test="#{mbReporte.dtoParametros.anchoFechaHora eq mbReporte.dtoParametros.columnas}">
+						<p:row>
+							<p:column colspan="#{mbReporte.dtoParametros.anchoFechaHora}" 
+									  	headerText="Fecha y hora de impresión: #{mbReporte.dtoParametros.fechaHora} hrs."
+									  		styleClass="ui-state-default" style="text-align: right"/>
+						</p:row>
+					</c:if>
+					<c:forEach items="#{mbReporte.dtoParametros.encabezado}" var="e">
+						<p:row>		
+							<c:forEach items="#{e.index}" var="i">
+								<c:if test="#{e.tipoFila.get(i) != 3}">
+									<p:column colspan="#{e.ancho.get(i)}" rowspan="#{e.alto.get(i)}" 
+											styleClass="ui-state-default" >
+										<f:facet name="header">
+											<h:outputText value="#{e.descEncabezado.get(i)}"></h:outputText>
+										</f:facet>
+									</p:column>
+								</c:if>
+							</c:forEach>
+						</p:row>
+					</c:forEach>
+				</c:if>
+	        </p:columnGroup>
+			<!-- ENCABEZADO -->
+			<c:forEach var="j" begin="0" end="#{mbReporte.dtoParametros.columnas-1}">
+					<p:column style="text-align: center">
+						<c:if test="${ j == 0 and mbReporte.nivelOficinas != 3
+											and (mbReporte.usuario.idEstadoSeleccionado eq null 
+													or mbReporte.usuario.idEstadoSeleccionado eq 0)}">
+<!-- 							<p:commandLink update="@form" actionListener="#{mbReporte.link(lineResult[j],'E')}" -->
+<!-- 											onstart="PF('progress').block()"  -->
+<!-- 			 								oncomplete="PF('progress').unblock();PF('poll').start()">									         -->
+<!-- 						        <h:outputText value="#{lineResult[j]}" /> -->
+<!-- 						    </p:commandLink> -->
+
+						    <h:outputText value="#{lineResult[j]}" />
+						</c:if>
+						<c:if test="${ j == 0 and mbReporte.nivelOficinas != 3
+											and  (mbReporte.usuario.idEstadoSeleccionado != null 
+													and mbReporte.usuario.idEstadoSeleccionado > 0)}">
+<!-- 							<p:commandLink update="@form" actionListener="#{mbReporte.link(lineResult[j],'D')}" -->
+<!-- 											onstart="PF('progress').block()"  -->
+<!-- 			 								oncomplete="PF('progress').unblock();PF('poll').start()">									         -->
+<!-- 						        <h:outputText value="#{lineResult[j]}" /> -->
+<!-- 						    </p:commandLink> -->
+						    
+						    <h:outputText value="#{lineResult[j]}" />
+						</c:if>
+						<c:if test="${ j != 0 and mbReporte.nivelOficinas != 3}">
+							<h:outputText value="#{lineResult[j]}" style="width:20px;" />
+						</c:if>
+						<c:if test="${mbReporte.nivelOficinas eq 3}">
+                    		<h:outputText value="#{lineResult[j]}" style="width:20px;" />
+			            </c:if>
+<!-- 			            <c:if test="${mbReporte.nivelOficinas eq 3}"> -->
+<!-- 			              <c:if test="${j lt 3 or j eq 2 or j eq mbReporte.dtoParametros.columnas-1}"> -->
+<!-- 			                <h:outputText value="#{lineResult[j]}" style="width:20px;" /> -->
+<!-- 			              </c:if> -->
+<!-- 			              <c:if test="${j gt 2 and j lt mbReporte.dtoParametros.columnas-1}"> -->
+<!-- 			                  <h:outputText rendered="#{lineResult[j] == 0}" value="#{lineResult[j]}" style="width:20px;"/> -->
+<!-- 			                      <p:commandLink rendered="#{lineResult[j] != 0}" update="@form" -->
+<!-- 			                      				 actionListener="#{mbReporte.reportesBisIncidentes(j-2, lineResult[0], lineResult[1])}" -->
+<!-- 			                      				 onstart="PF('progress').block()"  -->
+<!-- 			 									 oncomplete="PF('progress').unblock();">                          -->
+<!-- 			                    <h:outputText value="#{lineResult[j]}" /> -->
+<!-- 			                </p:commandLink> -->
+<!-- 			                <h:outputText value="#{lineResult[j]}" /> -->
+<!-- 			              </c:if> -->
+<!-- 			            </c:if> -->
+					</p:column>
+			</c:forEach>
+			<p:columnGroup type="footer">
+				<c:if test="#{mbReporte.dtoParametros.columnas != null and mbReporte.dtoParametros.columnas > 0 
+								and mbReporte.dtoParametros.listaDatos.size() != 0}">
+		            <c:forEach items="#{mbReporte.dtoParametros.encabezado}" var="e">
+						<p:row>		
+							<c:forEach items="#{e.index}" var="i">
+							 	<c:if test="#{e.tipoFila.get(i) eq 2}">
+									<p:column colspan="#{e.ancho.get(i)}" rowspan="#{e.alto.get(i)}" 
+											styleClass="ui-state-default" footerText="#{e.descEncabezado.get(i)}"
+											style="background-color:#E8E8E8" />
+								</c:if>
+								<c:if test="#{e.tipoFila.get(i) eq 3}">
+									<p:column colspan="#{e.ancho.get(i)}" rowspan="#{e.alto.get(i)}" 
+											styleClass="ui-state-default" footerText="#{e.descEncabezado.get(i)}"
+											style="background-color:#E8E8E8;border: #E8E8E8; text-align: left"/>
+								</c:if>
+							</c:forEach>
+						</p:row>
+					</c:forEach>
+				</c:if>
+			</p:columnGroup>
+		</p:dataTable>
+		<br />
+		<h3>Exporta solo tabla</h3>
+
+		<h:commandLink disabled="#{mbReporte.dtoParametros.listaDatos.size() eq 0}">
+		<i class="fa fa-file-excel-o  fa-4x" aria-hidden="true"></i>
+			<p:dataExporter type="xls" target="genericReport" 
+				fileName="#{mbReporte.nombreReporte}" pageOnly="false" 
+				postProcessor="#{mbReporte.postProcessXLS}"/>
+		</h:commandLink>
+		
+		<h:commandLink disabled="#{mbReporte.dtoParametros.listaDatos.size() eq 0}"
+						update="@form"
+						action="#{mbReporte.exportPDF}" 
+						onstart="PF('progress').block()" 
+						oncomplete="PF('progress').unblock()">
+		<i class="fa fa-file-pdf-o  fa-4x" aria-hidden="true"></i>
+		</h:commandLink>
+
+	</p:outputPanel>  
+</ui:composition>

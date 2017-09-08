@@ -1,0 +1,368 @@
+/**
+ * @(#)MBReportesMenu.java 10/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.faces.context.FacesContext;
+
+import mx.ine.common.enums.EnumAmbitoSistema;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleProcesoWS;
+import mx.ine.observadoresINE.bsd.BSDServiciosGeneralesInterface;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+import mx.ine.observadoresINE.helper.HLPPDFExporter;
+import mx.ine.observadoresINE.util.ApplicationContextUtils;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+import mx.org.ine.servicios.dto.db.DTODistrito;
+import mx.org.ine.servicios.dto.db.DTOEstado;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.primefaces.component.datatable.DataTable;
+import org.primefaces.component.export.Exporter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+/**
+ * Clase para el manejo del menu de los reportes en el sistema de SIJEINE
+ *
+ * @author Carlos Augusto Escalona Navarro
+ * @since 16/03/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class MBReportesMenu extends MBGeneric implements Serializable {
+
+    private static final Log log = LogFactory.getLog(MBReportesMenu.class);
+
+    private static final long serialVersionUID = -3133864829547474819L;
+
+    
+    /**
+     * Data table ligada a la tabla de reporte
+     */
+    private transient DataTable dataTable;
+    
+    /**
+     * Parámetros para manipular excel y pdf
+     */
+    private Map<String, Serializable> parametros;
+    
+	@Autowired
+	@Qualifier("bsdServiciosGenerales")
+	private transient BSDServiciosGeneralesInterface bsdServicios;
+	
+	private List<DTOEstado> entidadesFederativas;
+	private List<DTODistrito> distritos;
+	
+    protected List<Integer> procesos;
+
+	protected String procesosString;
+    protected DTOReportesParametros dtoParametros;
+    protected String nombreReporte;
+    private static Locale MEX = new Locale("es", "MX");
+    protected DTOUsuarioLogin usuario;
+    protected String nivelOficinaSeleccionado;
+	// Nivel de oficinas
+	//  1 .- OC, 2.- JL   , 3.- JD
+	protected Integer nivelOficinas;
+	protected MBAdministradorSistema mbAdmin;
+	private Boolean muestraTotales = false;
+	private Boolean otrosTotales = false;
+
+	/**
+     * Metodo para inicializar los valores de los combos del menu de reportes
+     * segun el nivel del rol de usuario logeado
+     *
+     */
+    public void init() {
+    	try {
+            mbAdmin = (MBAdministradorSistema) ApplicationContextUtils.getApplicationContext().getBean(Constantes.MB_ADMIN);
+            setUsuario(mbAdmin.obtenUsuario());
+            setNivelOficinas(obtenNivelOficinas());
+            log.info("Nivel Oficinas " + getNivelOficinas());
+            setEntidadesFederativas(bsdServicios.obtenEstados());
+            if (getUsuario().getVersion().equalsIgnoreCase(Utilidades.mensajeProperties("constante_version_rol_oc"))) {
+                obtenProceso();
+            }     	
+            obtenVersion();
+    	} catch (Exception e){
+    		log.error("Error en MBReportesMenu - init()");
+    		log.error(e);
+    		e.printStackTrace();
+    	}
+
+    }
+    
+    /**
+     * Obtiene el nivel en el que se encuentra el usuario 
+     * según la grografía seleccionada en el menú.
+     * @return
+     */
+    private Integer obtenNivelOficinas(){
+    	
+    	Integer nivel = 0;
+    	Integer idEstado = getUsuario().getIdEstadoSeleccionado();
+    	Integer idDistrito = getUsuario().getIdDistritoSeleccionado();
+    	
+    	if(idEstado != null && idEstado.intValue() == 0){
+    		nivel = 1;
+    	}
+    	if(idEstado != null && idEstado.intValue() > 0){
+    		nivel = 2;
+    		if(idDistrito != null && idDistrito.intValue() > 0){
+    			nivel = 3;
+    		}
+    	}
+    	
+    	return nivel;
+    }
+    
+    protected void obtenProceso() {
+        String idProcesos = "";
+        if (getUsuario().getListaDetalles() != null) {
+            procesos = new ArrayList<>();
+            Integer proceso = 0;
+            for (DTODetalleProcesoWS detalle : getUsuario().getListaDetalles()) {
+                if (detalle.getIdProcesoElectoral() != proceso) {
+                    if (idProcesos != null && !idProcesos.isEmpty()) {
+                        idProcesos += ", ";
+                    }
+                    idProcesos += detalle.getIdProcesoElectoral();
+                    procesos.add(detalle.getIdProcesoElectoral());
+                }
+                proceso = detalle.getIdProcesoElectoral();
+            }
+            if (idProcesos != null && !idProcesos.isEmpty()) {
+                setProcesosString(idProcesos);
+            }
+        }
+    }
+
+    protected String regresaRol() {
+        String rolUsuario = getUsuario().getRolUsuario();
+        if (rolUsuario.matches(".*OC.*")) {
+            return "OC";
+        } else if (rolUsuario.matches(".*JL.*")) {
+            return "JL";
+        } else if (rolUsuario.matches(".*JD.*")) {
+            return "JD";
+        }
+        return null;
+    }
+
+    protected void inicializaParametrosEncabezado() {
+        dtoParametros = new DTOReportesParametros();
+        Date fecha = new Date();
+        SimpleDateFormat formateador = new SimpleDateFormat("dd/MMMM/yyyy HH:mm", MEX);
+        Integer idEstado = getUsuario().getIdEstadoSeleccionado();
+        Integer idDistrito = getUsuario().getIdDistritoSeleccionado();
+        if (idEstado != null && idEstado > 0) {
+            localizaEstado(idEstado);
+        } else {
+            dtoParametros.setDescEntidad("OFICINAS CENTRALES");
+        }
+        if (idDistrito != null && idDistrito > 0) {
+            dtoParametros.setIdDistrito(getUsuario().getIdDistritoSeleccionado());            
+            localizaDistrito(idDistrito);
+        }
+        dtoParametros.setFechaHora(formateador.format(fecha));
+    }
+
+    /**
+     * Método encargado de localizar el estado seleccionado de una lista
+     * @param idEstado 
+     */
+    private void localizaEstado(Integer idEstado) {
+        for (DTOEstado estado : entidadesFederativas) {
+            if (estado.getIdEstado().equals(idEstado)) {
+                dtoParametros.setDescEntidad(estado.getNombreEstado());
+                break;
+            }
+        }
+    }
+
+    /**
+     * Método encargado de localizar el distrito seleccionado de una lista
+     * @param idDistrito 
+     */
+    private void localizaDistrito(Integer idDistrito) {
+    	try {
+        	setDistritos(bsdServicios.obtenDistritos(usuario.getIdEstadoSeleccionado(), EnumAmbitoSistema.F));
+            for (DTODistrito distrito : distritos) {
+                if (distrito.getIdDistrito().equals(idDistrito)) {
+                    dtoParametros.setDescDistrito(distrito.getCabeceraDistrital());
+                    break;
+                }
+            }
+    	} catch(Exception e){
+    		log.error("Error en localizaDistrito para idDistrito: " + idDistrito);
+    		log.error(e);
+    		e.printStackTrace();
+    	}
+    }
+    
+    /**
+     * Método encargado de exportar la tabla a formato PDF
+     *
+     */
+	protected void exportPDF() throws IOException {
+		FacesContext context = FacesContext.getCurrentInstance();
+		Exporter exporter = new HLPPDFExporter(parametros);
+		exporter.export(context, dataTable,
+				parametros.get(Constantes.PARAMETRO_STRING_FILENAME).toString(), false,
+				false, "ISO-8859-1", null, null);
+		context.responseComplete();
+	}
+    
+    /**
+     * Método encargado de obtener la versión del sistema al entrar al reporte
+     * 
+     */
+    protected void obtenVersion(){
+    	DTOUsuarioLogin usuario = getUsuario();
+        Integer idEstado = usuario.getIdEstadoSeleccionado() == null ? 0 : 
+        	usuario.getIdEstadoSeleccionado();
+        Integer idDistrito = usuario.getIdDistritoSeleccionado() == null ? 0 : 
+        	usuario.getIdDistritoSeleccionado();
+        //Version OC y JL
+        if(idEstado.intValue() >= 0 && idDistrito.intValue() == 0){
+        	this.nivelOficinaSeleccionado = "OC";
+        }
+        else if(idEstado.intValue() > 0 & idDistrito.intValue() > 0){
+        	this.nivelOficinaSeleccionado = "JD";
+        }else{
+        	this.nivelOficinaSeleccionado = "JL";
+        }
+    }
+
+	protected void postProcessXLS(Object document) {
+		dtoParametros.setRutaImgEstado("");
+		dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+	}
+
+    /**
+     * Metodo que revisa el nivel de oficina seleccionado del menu
+     * y regresa un true si este nivel de oficina es OC
+     * @return boolean
+     */
+    protected boolean esNivelOC(){
+        MBAdministradorSistema mbAdmin = (MBAdministradorSistema) ApplicationContextUtils.getApplicationContext().getBean(Constantes.MB_ADMIN);
+        DTOUsuarioLogin usuarioMenu = mbAdmin.obtenUsuario();
+        Integer idEstado = usuarioMenu.getIdEstadoSeleccionado() == null ? 0 : 
+        	usuarioMenu.getIdEstadoSeleccionado();
+        Integer idDistrito = usuarioMenu.getIdDistritoSeleccionado() == null ? 0 : 
+        	usuarioMenu.getIdDistritoSeleccionado();
+        return (idEstado == 0 && idDistrito == 0);
+    }
+    
+    public int getOtroTotal(){
+    	return 0;
+    }
+    
+    /*****************************GETTERS AND SETTERS**************************************/
+
+	public Integer getNivelOficinas() {
+		return nivelOficinas;
+	}
+
+	public void setNivelOficinas(Integer nivelOficinas) {
+		this.nivelOficinas = nivelOficinas;
+	}
+    
+    public DTOUsuarioLogin getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(DTOUsuarioLogin usuario) {
+		this.usuario = usuario;
+	}
+
+    public DTOReportesParametros getDtoParametros() {
+        return dtoParametros;
+    }
+
+    public void setDtoParametros(DTOReportesParametros dtoParametros) {
+        this.dtoParametros = dtoParametros;
+    }
+    
+	public DataTable getDataTable() {
+		return dataTable;
+	}
+
+	public void setDataTable(DataTable dataTable) {
+		this.dataTable = dataTable;
+	}
+	
+    public String getProcesosString() {
+		return procesosString;
+	}
+	public void setProcesosString(String procesosString) {
+		this.procesosString = procesosString;
+	}
+	public void setParametros(Map<String, Serializable> parametros) {
+		this.parametros = parametros;
+	}
+
+	public List<DTOEstado> getEntidadesFederativas() {
+		return entidadesFederativas;
+	}
+
+	public void setEntidadesFederativas(List<DTOEstado> entidadesFederativas) {
+		this.entidadesFederativas = entidadesFederativas;
+	}
+
+	public List<DTODistrito> getDistritos() {
+		return distritos;
+	}
+
+	public void setDistritos(List<DTODistrito> distritos) {
+		this.distritos = distritos;
+	}
+
+	public String getNombreReporte() {
+		return nombreReporte;
+	}
+
+	public void setNombreReporte(String nombreReporte) {
+		this.nombreReporte = nombreReporte;
+	}
+	
+	public String getNivelOficinaSeleccionado() {
+		return nivelOficinaSeleccionado;
+	}
+
+	public void setNivelOficinaSeleccionado(String nivelOficinaSeleccionado) {
+		this.nivelOficinaSeleccionado = nivelOficinaSeleccionado;
+	}
+
+	public Boolean getMuestraTotales() {
+		return muestraTotales;
+	}
+
+	public void setMuestraTotales(Boolean muestraTotales) {
+		this.muestraTotales = muestraTotales;
+	}
+
+	public Boolean getOtrosTotales() {
+		return otrosTotales;
+	}
+
+	public void setOtrosTotales(Boolean otrosTotales) {
+		this.otrosTotales = otrosTotales;
+	}
+
+}

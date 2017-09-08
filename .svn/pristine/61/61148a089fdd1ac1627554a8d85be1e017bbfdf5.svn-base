@@ -1,0 +1,59 @@
+package mx.ine.observadoresINE.dto;
+
+import java.io.Serializable;
+import java.util.Date;
+
+public class DTOFiltroReporteAcciones implements Serializable{
+
+	/**
+	 * Serial
+	 */
+	private static final long serialVersionUID = -1473622999530784879L;
+
+	/**
+	 * Filtros del reporte
+	 */
+	private DTOUsuarioLogin usuario;
+	private String nivel;
+	private String tipoReporte;
+	private Date fechaIni;
+	private Date fechaFin;
+	private String tipoFiltroEspecifico;
+	
+	public String getTipoReporte() {
+		return tipoReporte;
+	}
+	public void setTipoReporte(String tipoReporte) {
+		this.tipoReporte = tipoReporte;
+	}
+	public Date getFechaIni() {
+		return fechaIni;
+	}
+	public void setFechaIni(Date fechaIni) {
+		this.fechaIni = fechaIni;
+	}
+	public Date getFechaFin() {
+		return fechaFin;
+	}
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
+	public String getNivel() {
+		return nivel;
+	}
+	public void setNivel(String nivel) {
+		this.nivel = nivel;
+	}
+	public DTOUsuarioLogin getUsuario() {
+		return usuario;
+	}
+	public void setUsuario(DTOUsuarioLogin usuario) {
+		this.usuario = usuario;
+	}
+	public String getTipoFiltroEspecifico() {
+		return tipoFiltroEspecifico;
+	}
+	public void setTipoFiltroEspecifico(String tipoFiltroEspecifico) {
+		this.tipoFiltroEspecifico = tipoFiltroEspecifico;
+	}
+}

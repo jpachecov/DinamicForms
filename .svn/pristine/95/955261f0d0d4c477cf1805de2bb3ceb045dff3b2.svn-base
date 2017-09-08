@@ -1,0 +1,5 @@
+package mx.ine.observadoresINE.bsd;
+
+public interface BSDReportesCursosInterface {
+
+}

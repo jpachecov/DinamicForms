@@ -1,0 +1,21 @@
+package mx.ine.observadoresINE.as.impl;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import mx.ine.observadoresINE.as.ASReportesCursosInterface;
+import mx.ine.observadoresINE.dao.DAOObservadoresInterface;
+import mx.ine.observadoresINE.dao.DAOReportesCursosInterface;
+
+@Service("asReportesCursos")
+@Scope("prototype")
+@Transactional(readOnly = true)
+public class ASReportesCursosImpl implements ASReportesCursosInterface {
+
+	@Autowired
+	@Qualifier("daoReportesCursos")
+	private transient DAOReportesCursosInterface daoReportesCursos;
+}

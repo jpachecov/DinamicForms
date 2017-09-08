@@ -1,0 +1,172 @@
+ /**
+ * @(#)HLPReporteDetalleObservadores.java 15/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.helper;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+ /**
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 15/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class HLPReporteDetalleObservadores implements Serializable{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2627712288332464981L;
+	private List<HLPReportesEncabezado> listaEncabezados;
+	private String tituloReporte;
+	private Integer columnas;
+	private List<Object[]> listaDatos = new ArrayList<Object[]>();
+	
+	/**
+	 * Constructor de la clase
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public HLPReporteDetalleObservadores (Integer nivelOficinas, List<Object[]> listaDatos){
+		this.listaDatos = listaDatos;
+		
+		switch(nivelOficinas){
+			case 1:
+				this.tituloReporte = "Reporte OC";
+				crearEncabezadoOC();
+			case 2:
+				this.tituloReporte = "Reporte JL";
+				
+			case 3:
+				this.tituloReporte = "Reporte JD";
+		}
+	}
+
+	/**
+	 * Método que crea el encabezado del reporte de OC de Detalles de observadores registrados
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public void crearEncabezadoOC(){
+		this.columnas = listaDatos.get(0).length;
+		this.listaEncabezados = new ArrayList<HLPReportesEncabezado>();
+		
+		HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+		hlpEncabezado.ingresarEncabezado(0, 1, 1, "Nombre de la o el observador", 1);
+		hlpEncabezado.ingresarEncabezado(1, 1, 1, "Clave de elector", 1);
+		hlpEncabezado.ingresarEncabezado(2, 1, 1, "Edad", 1);
+		hlpEncabezado.ingresarEncabezado(3, 1, 1, "Genero", 1);
+		hlpEncabezado.ingresarEncabezado(4, 1, 1, "Fecha de solicitud", 1);
+		hlpEncabezado.ingresarEncabezado(5, 1, 1, "Procedencia de la solicitud", 1);
+		hlpEncabezado.ingresarEncabezado(6, 1, 1, "Solicitud", 1);
+		hlpEncabezado.ingresarEncabezado(7, 1, 1, "Estatus de acreditacion", 1);
+		hlpEncabezado.ingresarEncabezado(8, 1, 1, "Curso", 1);
+		hlpEncabezado.ingresarEncabezado(9, 1, 1, "Fecha de sesion", 1);
+		hlpEncabezado.ingresarEncabezado(10, 1, 1, "Folio", 1);
+		listaEncabezados.add(hlpEncabezado);
+	}
+	
+	/**
+	 * Método que obtiene el valor de el atributo listaEncabezados
+	 *
+	 * @return List<HLPReportesEncabezado> : valor que tiene el atributo listaEncabezados
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public List<HLPReportesEncabezado> getListaEncabezados() {
+		return listaEncabezados;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo listaEncabezados
+	 *
+	 * @param listaEncabezados : valor que ingresa a el atributo listaEncabezados
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public void setListaEncabezados(List<HLPReportesEncabezado> listaEncabezados) {
+		this.listaEncabezados = listaEncabezados;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo tituloReporte
+	 *
+	 * @return String : valor que tiene el atributo tituloReporte
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public String getTituloReporte() {
+		return tituloReporte;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo tituloReporte
+	 *
+	 * @param tituloReporte : valor que ingresa a el atributo tituloReporte
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public void setTituloReporte(String tituloReporte) {
+		this.tituloReporte = tituloReporte;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo columnas
+	 *
+	 * @return Integer : valor que tiene el atributo columnas
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public Integer getColumnas() {
+		return columnas;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo columnas
+	 *
+	 * @param columnas : valor que ingresa a el atributo columnas
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public void setColumnas(Integer columnas) {
+		this.columnas = columnas;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo listaDatos
+	 *
+	 * @return List<Object[]> : valor que tiene el atributo listaDatos
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public List<Object[]> getListaDatos() {
+		return listaDatos;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo listaDatos
+	 *
+	 * @param listaDatos : valor que ingresa a el atributo listaDatos
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 16/08/2017
+	 */
+	public void setListaDatos(List<Object[]> listaDatos) {
+		this.listaDatos = listaDatos;
+	}
+}

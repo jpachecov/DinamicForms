@@ -1,0 +1,305 @@
+package mx.ine.observadoresINE.mb;
+
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import mx.ine.observadoresINE.bsd.BSDReportesCursosInterface;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+public class MBReportesCursos extends MBReportesMenu {
+	private static final long serialVersionUID = 3113130095648135798L;
+	private static final Log LOGGER = LogFactory.getLog(MBReportesCursos.class);	 
+	@Autowired
+	@Qualifier("bsdReportesCursos")
+	private transient BSDReportesCursosInterface bsdReportesCursos;
+	private DTOFiltroReporteAcciones filtroReportes;
+	private boolean muestraTabla;
+	private Map<String, Serializable> parametrosPDF;
+	private Integer tipoListado;
+	private Integer tipoCurso;
+	private String[] selectTipoCurso;
+	private boolean habilitaFiltroCursos;
+	private boolean habilitaFiltroCursos1;
+	private boolean habilitaListadoCursos;
+	private boolean habilitaListadoIntegrantes;
+
+	
+	@Override
+	public void init() {
+		try {
+			super.init();
+			
+			this.filtroReportes = new DTOFiltroReporteAcciones();
+//			this.filtroReportes.setNivel(this.obtenNivelReporte());
+			this.filtroReportes.setUsuario(this.getUsuario());
+			this.setMuestraTabla(false);
+			this.habilitaFiltroCursos = false;
+			this.habilitaFiltroCursos1 = false;
+			this.habilitaListadoCursos = false;
+			this.habilitaListadoIntegrantes = false;
+		
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en :: " , e);
+		}
+	}
+
+	
+//	public String obtenNivelReporte(){
+//		Integer idEstado = getUsuario().getIdEstadoSeleccionado();
+//		Integer idDistrito = getUsuario().getIdDistritoSeleccionado();
+//		if(idEstado != null && idEstado.intValue() == 0){
+//			return "OC";
+//		}
+//		if(idEstado != null && idEstado > 0){
+//			if(idDistrito != null && idDistrito.intValue() == 0){
+//				return "JL";
+//			}
+//			if(idDistrito != null && idDistrito.intValue() > 0){
+//				return "JD";
+//			}
+//		}
+//		return "";
+//	}
+	
+	
+	/**
+	 * Método para crear reporte
+	 */
+	public void consultaReporte(){
+		try {
+			asignaParametrosReporte(bsdReportesCursos.obtenReporteCursos(filtroReportes));
+			setMuestraTabla(true);
+			setDatosPdf();
+		} catch(Exception e){
+			LOGGER.error("Error en MBReporteCurso - consultaReporte()" , e);
+		}
+	}
+	
+	
+	private void setDatosPdf(){
+		this.parametrosPDF = new LinkedHashMap<>();
+		this.parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS,3);
+		this.parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO, Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion"));
+		Integer idEstado = this.getUsuario().getIdEstadoSeleccionado() == null ? 0
+				: this.getUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = this.getUsuario().getIdDistritoSeleccionado() == null ? 0
+				: this.getUsuario().getIdDistritoSeleccionado();
+		// Version OC y JL
+		if (idEstado.intValue() >= 0 && idDistrito.intValue() == 0) {
+			this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, this.getUsuario() .getEstadoSeleccionado());
+		}
+		// Version JD
+		else if (idEstado.intValue() > 0 & idDistrito.intValue() > 0) {
+			this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, this.getUsuario() .getEstadoSeleccionado());
+			this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, this.getUsuario().getDistritoSeleccionado());
+		}
+	}
+	
+	private void inicializaDimensionesEncabezado() {
+		Integer idEstado = obtenUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = obtenUsuario().getIdDistritoSeleccionado();
+		if (idEstado == null || idEstado.equals(0)) {
+			this.dtoParametros.setAnchoEntidad(2);
+			this.dtoParametros.setAnchoFechaHora(2);
+		} else if (!idEstado.equals(0) && idDistrito.equals(0)) {
+			this.dtoParametros.setAnchoEntidad(2);
+			this.dtoParametros.setAnchoFechaHora(2);
+		} else if (!idEstado.equals(0) && !idDistrito.equals(0)) {
+			this.dtoParametros.setAnchoEntidad(1);
+			this.dtoParametros.setAnchoDistrito(1);
+			this.dtoParametros.setAnchoFechaHora(1);
+		}
+	}
+	
+	/**
+	 * Método que asigna en la clase padre los
+	 * datos para la visuzalición de la tabla del reporte.
+	 * @param dto
+	 */
+	public void asignaParametrosReporte(DTOReportesParametros dto){
+		super.inicializaParametrosEncabezado();
+		inicializaDimensionesEncabezado();
+		this.dtoParametros.setTituloReporte(dto.getTituloReporte());
+		this.dtoParametros.setEncabezado(dto.getEncabezado());
+		this.dtoParametros.setColumnas(dto.getColumnas());
+		this.dtoParametros.setListaDatos(dto.getListaDatos());
+	}
+	
+	/**
+	 * 
+	 */
+	public void postProcessXLS(Object document) {
+		try {
+			this.dtoParametros.setRutaImgEstado("");
+			this.dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+		} catch(Exception e){
+			LOGGER.error("Error en postProcessXLS" , e );
+		}
+	}
+	
+	
+	/**
+	 * 
+	 */
+	public void exportPDF(){
+		try {
+			this.setParametros(parametrosPDF);
+			super.exportPDF();
+		} catch(Exception e){
+			LOGGER.error("Error en exportPDF" , e);
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	
+	public Map<String,Serializable> getParametrosPdf(){
+		Map<String, Serializable> mapaParametros = new LinkedHashMap<String, Serializable>();
+		mapaParametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, usuario.getEstadoSeleccionado());
+		mapaParametros.put(Constantes.PARAMETRO_OBJECT_DISTRITO, usuario.getDistritoSeleccionado());
+		mapaParametros.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 8);
+		mapaParametros.put(Constantes.PARAMETRO_ANCHOS_COLUMNAS, 4);
+		mapaParametros.put(Constantes.PARAMETRO_STRING_TITULO, "un titulo");
+		return mapaParametros;
+	}
+	
+	public void test(){
+		this.habilitaFiltroCursos = !this.habilitaFiltroCursos;
+		
+
+		if(this.filtroReportes.getTipoReporte() != null){
+		
+			if(this.filtroReportes.getTipoReporte().equals("C")){
+				this.habilitaFiltroCursos = true;
+				this.habilitaFiltroCursos1 = false;
+				this.filtroReportes.setTipoFiltroEspecifico(null);
+			}else{
+				this.habilitaFiltroCursos1 = true;
+				this.habilitaFiltroCursos = false;
+				
+			}
+		
+		}else{
+			this.filtroReportes.setTipoFiltroEspecifico(null);
+			this.selectTipoCurso = new String[2];
+		}
+		
+		
+		
+		if(this.filtroReportes.getTipoFiltroEspecifico() != null){
+			
+		if(this.filtroReportes.getTipoFiltroEspecifico().equals("C")){
+			this.habilitaListadoCursos = true;
+			this.habilitaListadoIntegrantes = false;
+			this.selectTipoCurso = new String[2];
+		}else{
+			this.habilitaListadoCursos = false;
+			this.habilitaListadoIntegrantes = true;
+		}
+		
+		}else{
+			this.habilitaListadoIntegrantes = false;
+			this.habilitaListadoCursos = false;
+			this.selectTipoCurso = new String[2];
+			LOGGER.info("aun no estoy inicializado");
+		}
+		
+		
+		LOGGER.info("habilitaFiltroCursos :::" + this.habilitaFiltroCursos);
+		LOGGER.info("getTipoFiltroEspecifico :::" + this.filtroReportes.getTipoFiltroEspecifico() );
+		
+		
+	}
+
+	public boolean isMuestraTabla() {
+		return muestraTabla;
+	}
+
+	public void setMuestraTabla(boolean muestraTabla) {
+		this.muestraTabla = muestraTabla;
+	}
+
+	public DTOFiltroReporteAcciones getFiltroReportes() {
+		return filtroReportes;
+	}
+
+	public void setFiltroReportes(DTOFiltroReporteAcciones datos) {
+		this.filtroReportes = datos;
+	}
+
+	public Integer getTipoListado() {
+		return tipoListado;
+	}
+
+	public void setTipoListado(Integer tipoListado) {
+		this.tipoListado = tipoListado;
+	}
+
+	public Integer getTipoCurso() {
+		return tipoCurso;
+	}
+
+	public void setTipoCurso(Integer tipoCurso) {
+		this.tipoCurso = tipoCurso;
+	}
+
+	public String[] getSelectTipoCurso() {
+		return selectTipoCurso;
+	}
+
+	public void setSelectTipoCurso(String[] selectTipoCurso) {
+		this.selectTipoCurso = selectTipoCurso;
+	}
+
+
+	public boolean isHabilitaFiltroCursos() {
+		return habilitaFiltroCursos;
+	}
+
+
+	public void setHabilitaFiltroCursos(boolean habilitaFiltroCursos) {
+		this.habilitaFiltroCursos = habilitaFiltroCursos;
+	}
+
+
+	public boolean isHabilitaListadoCursos() {
+		return habilitaListadoCursos;
+	}
+
+
+	public void setHabilitaListadoCursos(boolean habilitaListadoCursos) {
+		this.habilitaListadoCursos = habilitaListadoCursos;
+	}
+
+
+	public boolean isHabilitaListadoIntegrantes() {
+		return habilitaListadoIntegrantes;
+	}
+
+
+	public void setHabilitaListadoIntegrantes(boolean habilitaListadoIntegrantes) {
+		this.habilitaListadoIntegrantes = habilitaListadoIntegrantes;
+	}
+
+
+	public boolean isHabilitaFiltroCursos1() {
+		return habilitaFiltroCursos1;
+	}
+
+
+	public void setHabilitaFiltroCursos1(boolean habilitaFiltroCursos1) {
+		this.habilitaFiltroCursos1 = habilitaFiltroCursos1;
+	}
+}

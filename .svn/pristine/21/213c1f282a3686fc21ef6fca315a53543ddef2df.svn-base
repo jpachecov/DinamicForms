@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ine="http://www.ine.mx/custom/tags"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:mp="http://primefaces.org/ui/material"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	<c:if test="#{SPRING_SECURITY_CONTEXT != null}">
+		<div class="container-fluid">
+<!-- CAMBIO MUCHO A VERSION ANTERIOR, HAY QUE REVISAR COMPORTAMIENTO -->
+			<div class="card acciones-container">
+				<c:if test="#{mbAdmin.dto.idAccion != null }">
+					<nav class="menu-acciones">
+					<!-- Liga que determina el color que se mostrará en el barra de acciones dependiendo del idAccion  -->
+					<div
+						class="#{mbAdmin.dto.idAccion eq null?'':(mbAdmin.dto.idAccion eq 1?'captura-color':(mbAdmin.dto.idAccion eq 2?'consulta-color':(mbAdmin.dto.idAccion eq 3? 'modifica-color':'elimina-color')))}"
+						id="barra-acciones">
+						<div class="container-fluid" id="menuAcciones">
+<!-- Lista de ligas con las acciones ejecutables en el modulo,
+				                         manda a llamar a los remoteCommand definidios en el archivo acciones.xhtml-->
+							<ul class="right">
+								<c:forEach items="#{mbAdmin.dto.listaAcciones}"
+									var="accion" varStatus="indexVar">
+									<li
+										class="#{mbAdmin.dto.idAccion eq accion.idAccion ?'active':'unactive'} #{accion.idAccion eq 10 ?'ayuda':''}">
+										<c:choose>
+												<c:when test="#{accion.idAccion ne 10}">
+													<c:if test="#{mbAdmin.dto.idAccion eq accion.idAccion}">
+														<p:commandLink process="@this" value="#{accion.accionDescrip}"
+														           immediate="true" />
+													</c:if>
+													<c:if test="#{mbAdmin.dto.idAccion ne accion.idAccion}">
+														<p:commandLink process="@this" value="#{accion.accionDescrip}"
+														           onclick="#{accion.action}()" 
+														           immediate="true" />
+													</c:if>
+												</c:when>
+												<c:otherwise>
+													<a href="#"> 
+														<i class="icon-menu fa fa-question-circle"
+														   onclick="PF('ayuda').show();" />
+													</a>
+													<p:dialog styleClass="ayudaDialog" widgetVar="ayuda"
+														      dynamic="true" width="70%" height="400" resizable="true"
+														      closeOnEscape="true" minimizable="true"
+														      onShow="ayudaEjecutaMB()">
+														<p:remoteCommand name="ayudaEjecutaMB"
+															             actionListener="#{mbAdmin.ejecutaAyuda()}">
+													    </p:remoteCommand>
+														<f:facet name="header">
+															<span id="tituloCAyuda"/>
+														</f:facet>
+														<div id="contenedorCA">
+															<div class="text-center" style="color: #db46a3 !important;">
+																<br></br> <i class="fa fa-spinner fa-spin fa-3x fa-fw"/>
+																<span class="sr-only">Cargando...</span>
+															</div>
+														</div>
+														<div class="notasDialogoCA">
+															<i class="fa fa-info-circle fa-1x" aria-hidden="true"
+																style="color: #5373bb"/> 
+																Puedes cambiar el tamaño de la ayuda arrastrando por los bordes el cuadro.
+														</div>
+													</p:dialog>
+												</c:otherwise>
+											</c:choose>
+									</li>
+								</c:forEach>
+							</ul>
+						</div>
+					</div>
+					</nav>
+					<div class="clearfix"></div>
+					<div class="requerido">Los datos con ( * ) son requeridos.</div>
+
+					<div class="bar-acciones-flotante">
+						<div class="reportes-flotante">
+							<a href="${request.contextPath}/app/reportes"><i
+								class="fa fa-bar-chart fa-2x" aria-hidden="true"></i></a>
+						</div>
+						<c:forEach items="#{mbAdmin.dto.listaAcciones}" var="accion"
+							varStatus="indexVar">
+							<c:if test="#{accion.idAccion eq 10}">
+								<div class="ayuda-flotante">
+									<a href="#" onclick="PF('ayuda').show();"><i
+										class="fa fa-question-circle fa-2x" aria-hidden="true"></i></a>
+								</div>
+							</c:if>
+						</c:forEach>
+					</div>
+				</c:if>
+			</div>
+		</div>
+		<div id="bar-title">
+			<div class="left">
+				<div id="menu-button-acciones" class="colapser" href="#">
+					<h:graphicImage library="img" name="bt_menu.png" />
+				</div>
+			</div>
+			<h2 class="left form-title">#{mbAdmin.dto.tituloModulo}</h2>
+			<div class="right">
+				<p:button href="/app/reportes" value="Reportes"
+					styleClass="reportes-btn flat" />
+			</div>
+		</div>
+
+		<script id="datos-menu-acciones" type="text/x-handlebars-template"> 
+							{{#ifNotE idAccion 0}}									
+								<ul class="right">
+									{{#datos}}
+										{{#notNull idModulo}}
+											{{#listUrlModulos}}
+													{{#ifCond idAccion ../../../idAccion}}
+														<li class="active"> 
+															<a href="#{request.contextPath}{{urlModulo}}"> {{accionDescrip}} </a> 
+														</li >
+													{{else}}
+														<li class="unactive"> 
+															<a href="#{request.contextPath}{{urlModulo}}"> {{accionDescrip}} </a> 
+														</li >
+													{{/ifCond}}
+											{{/listUrlModulos}}
+										{{/notNull}}		
+									{{/datos}}	
+								</ul> 
+							{{/ifNotE}}
+					</script>
+
+	</c:if>
+
+</ui:component>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://ine.mx/ui" xmlns:deceyec="http://ine.mx/ui"
+	template="/templates/template.xhtml">
+
+	<h:head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</h:head>
+
+	<ui:define name="CONTENT">
+		<!-- Block UI -->
+		<pe:blockUI id="idProgress" target="formCapturaAgrupaciones"
+			content="blockUIContent" widgetVar="progress" />
+		<!-- 			BLOCKUICONTENT -->
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText
+				value="#{messageSource['mensaje_generales_procesando']}"
+				style="white-space: nowrap;" />
+		</h:panelGrid>
+		<!-- GROWL -->
+		<p:growl id="growl" showDetail="true" sticky="false" life="8000"
+			globalOnly="true" />
+
+
+		<h:form id="formCapturaAgrupaciones" styleClass="container-fluid"
+			enctype="multipart/form-data">
+			<!-- Mensajes -->
+			<p:messages id="msj" closable="true" for="mensaje"
+				styleClass="ui-md-12 ui-g-12 ui-sm-12" style="margin-top: 0px;" />
+			<div id="mensaje" class="ui-md-12 ui-g-12 ui-sm-12"
+				style="padding: 0px" />
+
+			<p:messages for="mensajesError" autoUpdate="false" />
+			<p:messages for="mensajesInfo" autoUpdate="false" />
+			<p:growl for="mensajesExito" autoUpdate="false" />
+			<div class="ui-g card" style="margin: 15px 0px">
+				<h2 class="ui-g-12 ui-md-12">#{messageSource['etiqueta_nombre_modulo_agrupaciones']}</h2>
+				<h:outputLabel id="msjCamposRequeridos" class="ui-g-12 ui-md-12"
+					value="#{messageSource['validacion_mensaje_generales_campos_requeridos']}"
+					escape="false" />
+			</div>
+
+			<p:panel id="panel" rendered="#{mbAgrupaciones.showForm}">
+				<div class="ui-g">
+
+					<ui:include src="../componentes/datos.xhtml" />
+
+					<div class="center-block">
+
+						<sec:authorize
+							ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,ROLE_OBSERVADORES.ADMIN.CAPTURA.OC, ROLE_OBSERVADORES.CAU.OC">
+
+
+							<!-- BOTONES -->
+							<p:commandButton id="guardaCap"
+								value="#{messageSource['etiqueta_boton_guardar']}"
+								style="margin-bottom:10px;" process="@form"
+								actionListener="#{mbAgrupaciones.validaGuarda()}"
+								update="formCapturaAgrupaciones growl"
+								onclick="javascript:window.location='#msj;"
+								disabled="#{mbAgrupaciones.esCau}">
+							</p:commandButton>
+
+						</sec:authorize>
+					</div>
+				</div>
+			</p:panel>
+		</h:form>
+
+	</ui:define>
+</ui:composition>

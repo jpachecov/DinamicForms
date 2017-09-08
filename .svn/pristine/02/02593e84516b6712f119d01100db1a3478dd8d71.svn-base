@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="moduloInicio">
+						 
+	<var name="constantes" class="mx.ine.observadoresINE.util.Constantes"/>
+
+	<view-state id="moduloInicio" view="consultar.xhtml">
+		<on-entry>
+			<evaluate expression="mbConfigCat.setCatalogo(constantes.CATALOGO_CARGO_RESPONSABLE)" />
+			<evaluate expression="mbConfigCat.initConsulta()" />
+			
+			<evaluate expression="mbAdmin.dto.setIdModulo(1)"></evaluate>
+            <evaluate expression="mbAdmin.dto.setIdAccion(2)"></evaluate>
+            
+		</on-entry>
+		<transition on="captura" to="capturar" />
+		<transition on="modifica" to="modificar" />
+	</view-state>
+	
+	<view-state id="capturar"
+		view="externalRedirect:servletRelative:/modulos/catalogoCargoResponsable/capturar"/>
+	<view-state id="modificar"
+		view="externalRedirect:servletRelative:/modulos/catalogoCargoResponsable/modificar" />
+
+
+</flow>

@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:component xmlns="http://www.w3.org/1999/xhtml"
+			  xmlns:h="http://java.sun.com/jsf/html"
+			  xmlns:f="http://java.sun.com/jsf/core"
+			  xmlns:ui="http://java.sun.com/jsf/facelets"
+			  xmlns:c="http://java.sun.com/jsp/jstl/core"
+			  xmlns:ine="http://www.ine.mx/custom/tags"
+			  xmlns:sec="http://www.springframework.org/security/tags"
+			  xmlns:p="http://primefaces.org/ui"
+			  xmlns:pu="http://primefaces.org/ultima">
+	 <c:if test="#{SPRING_SECURITY_CONTEXT != null}">
+	
+	<!-- Declaración del menú lateral, poblado por el servicio web -->
+	 <h:form>
+	 	<div class="layout-menu ">
+         							
+            <div class="nano">
+                <div class="nano-content menu-scroll-content">
+                    <div class="ui-grid">
+                    	<div class="ui-grid-row menu-title">
+				            <div class="ui-grid-col-9 right">
+				            </div>
+				            <h5>MENÚ </h5>
+				            <div class="ui-grid-col-2 container-colapser right">
+					                  
+				                <i id="menu-button-lateral" class="fa-angle-double-left colapser cierra-btn fa fa-times fa-2x" aria-hidden="true"></i>
+				            </div>
+				        </div>
+                    </div>
+                    <div class="label-junta"><i class="fa fa-map-marker" aria-hidden="true"></i><h:outputText value=" #{mbAdmin.dto.usuario.ubicacion}" /></div>
+					<div class="ui-grid ui-fluid">
+			            <div class="ui-grid ui-lg-12">
+			            
+			               
+			               		<div class="ui-g geo-combos">
+			               			<div class="ui-g-12">
+			               				<p:selectOneMenu id="comboProceso" value="#{mbAdmin.dto.idDetalleProceso}" 
+														 disabled="#{mbAdmin.dto.disableDetalle}">
+					                            <f:selectItem 
+					                            	itemLabel="Proceso electoral" 
+					                            	noSelectionOption="true" 
+					                            	itemValue="#{null}" />
+					                            <f:selectItems 
+					                            	value="#{mbAdmin.dto.usuario.listaDetalles}" 
+					                            	var="proceso" 
+					                            	itemValue="#{proceso.idDetalleProceso}" 
+					                            	itemLabel="#{proceso.descripcion}"/>
+					                            <p:ajax 
+					                            	process="@this"
+					                            	event="change"
+					                            	update="comboEstados, comboDistritos"
+					                            	onstart="PF('progressMenu').block();"
+					                            	oncomplete="PF('progressMenu').unblock();"
+					                            	listener="#{mbAdmin.cambiaDetalle()}"/>
+					                        </p:selectOneMenu>
+				                        
+			               			</div>
+			               		</div>
+			               				
+			               		<div class="ui-g geo-combos">
+			               		<div>
+															</div>
+			               			<div class="ui-g-12">
+			               				<p:selectOneMenu id="comboEstados" value="#{mbAdmin.dto.usuario.idEstadoSeleccionado}" 
+				               								disabled="#{mbAdmin.dto.disableEstado}">
+					                            <f:selectItem 
+					                            	itemLabel="Entidad" 
+					                            	noSelectionOption="true" 
+					                            	itemValue="#{0}" />
+					                            <f:selectItems 
+					                            	value="#{mbAdmin.dto.usuario.listaEstados}"
+					                            	var="estado"
+					                            	itemLabel="#{estado.nombreEstado}" 
+					                            	itemValue="#{estado.idEstado}" />
+					                        	 <p:ajax 
+					                            	process="@this"
+					                            	event="change"
+					                            	update="comboDistritos"
+					                            	onstart="PF('progressMenu').block();"
+					                            	oncomplete="PF('progressMenu').unblock();"
+					                            	listener="#{mbAdmin.cambiaEstado()}"
+					                            	/>
+					                        </p:selectOneMenu>
+				                        
+			               			</div>
+			               		</div>
+			               		<div class="ui-g geo-combos">
+				               			<div class="ui-g-12">
+						                       <p:selectOneMenu id="comboDistritos" value="#{mbAdmin.dto.usuario.idDistritoSeleccionado}"
+						                       					disabled="#{mbAdmin.dto.disableDistrito}">
+						                           	<f:selectItem
+					                            		itemLabel="Distrito" 
+						                           		noSelectionOption="true" 
+						                           		itemValue="#{0}" />
+						                           	<f:selectItems 
+						                           		value="#{mbAdmin.dto.usuario.listaDistritos}"
+						                           		var="distrito"
+						                           		itemLabel="#{distrito.idDistrito eq 0 ?'':distrito.idDistrito}#{distrito.idDistrito eq 0 ?'':' - '}#{distrito.nombreDistrito}"
+						                           		itemValue="#{distrito.idDistrito}"/>
+						                           	<p:ajax event="change" process="@this"
+						                           	onstart="PF('progressMenu').block();"
+					                            	oncomplete="PF('progressMenu').unblock();"
+						                           	listener="#{mbAdmin.cambiaDistrito()}"/>
+					                           </p:selectOneMenu>
+						                </div>
+									</div>
+			               		
+			              		               		
+			               		 <!--
+			               		 ***Se agregó en la nueva interfaz**
+			               		 
+			               		 <h:panelGroup id="combosMtoDto">
+			               		<div class="ui-g geo-combos">
+			               	
+			               			<div class="ui-g-12">
+					                      <p:selectOneMenu id="comboDistritos" value="#{mbAdmin.adminData.idEntornoMunDtoSeleccionado}"
+					                      rendered="#{mbAdmin.adminData.procesoSeleccionado.tipoCapturaSistema ne null 
+															and mbAdmin.adminData.procesoSeleccionado.tipoCapturaSistema ne '' 
+															and mbAdmin.adminData.procesoSeleccionado.tipoCapturaSistema eq 'D'
+															and mbAdmin.adminData.idEstadoSeleccionado ne null
+															and mbAdmin.adminData.idEstadoSeleccionado ne 0
+															and not mbAdmin.adminData.comboMunDto}"
+					                       disabled="#{mbAdmin.adminData.comboMunDto}">
+					                           	<f:selectItem
+				                            		itemLabel="Junta Local" 
+					                           		noSelectionOption="true" 
+					                           		itemValue="#{null}" />
+					                           	<f:selectItems 
+					                           		value="#{mbAdmin.adminData.listaDistritos}"
+					                           		var="distrito"
+					                           		itemLabel="#{distrito.idDistrito} - #{distrito.nombreDistrito}"
+					                           		itemValue="#{distrito.idDistrito}"
+					                           	/>
+					                           	<p:ajax event="change" process="@this"
+					                           	onstart="PF('progressMenu').block();"
+				                            	oncomplete="PF('progressMenu').unblock();"
+					                           	listener="#{mbAdmin.cambiaMtoDto()}"/>
+				                           </p:selectOneMenu>
+
+											<p:selectOneMenu id="comboMunicipios"
+												value="#{mbAdmin.adminData.idEntornoMunDtoSeleccionado}"
+												rendered="#{mbAdmin.adminData.procesoSeleccionado.tipoCapturaSistema ne null 
+															and mbAdmin.adminData.procesoSeleccionado.tipoCapturaSistema ne '' 
+															and mbAdmin.adminData.procesoSeleccionado.tipoCapturaSistema ne 'D'
+															and mbAdmin.adminData.idEstadoSeleccionado ne null
+															and mbAdmin.adminData.idEstadoSeleccionado ne 0
+															and not mbAdmin.adminData.comboMunDto}"
+												disabled="#{mbAdmin.adminData.comboMunDto}">
+												<f:selectItem itemLabel="Junta Local"
+													noSelectionOption="true" itemValue="#{null}" />
+												<f:selectItems value="#{mbAdmin.adminData.listaMunicipios}"
+													var="municipio"
+													itemLabel="#{municipio.idMunicipio} - #{municipio.nombreMunicipio}"
+													itemValue="#{municipio.idMunicipio}" />
+												<p:ajax event="change" process="@this"
+													onstart="PF('progressMenu').block();"
+													oncomplete="PF('progressMenu').unblock();"
+													listener="#{mbAdmin.cambiaMtoDto()}" />
+											</p:selectOneMenu>
+										</div>
+								</div>
+								</h:panelGroup>***Se agregó en la nueva interfaz**-->
+								
+			               
+                		</div>
+              		</div>
+              		
+              		
+              		<!-- Se quita botón debajo de los combos de la geografía, y se deja en el lugar actual de la nueva interfaz -->
+              		<!--<div class="ui-grid ui-fluid fondo-menu">
+				            <div class="ui-g-6 ui-lg-6">
+				            	<p:button  href="/app/reportes" value="Reportes" styleClass="reportes-btn flat"/>
+				            </div>
+			            </div>-->
+              		
+                   	<!-- 
+                   		Declaración del widget de menú para que funcione correctamente el slide, podrían haberse empleado menús de primefaces
+                   		pero el diseño requería otro tipo de aproximación
+                   	 --> 
+                    <pu:menu widgetVar="me" />
+						<div class="dTree" id="menu-result" style="display: block;" />
+                        <script id="datos-menu-lateral" type="text/x-handlebars-template">
+                            {{#datos}}
+		                        <ul class="accordion">
+		                        {{#listMenu}}
+		                        	<li>
+		                        	{{#ifLCond subMenus}}
+		                        		<div class="ui-grid-row toggle titulo-menu no-margen-bottom padding-top-10">
+		                        			{{nombreMenu}}<i class="fa fa-angle-down right" aria-hidden="true"/>
+		                        		</div>
+		                        	{{else}}
+		                        		<div class="ui-grid-row titulo-menu no-margen-bottom padding-top-10">
+		                        			<a class="titulo-menu liga-modulonu " href="">{{nombreMenu}}</a>
+		                        		</div>
+		                        	{{/ifLCond}}
+		                        	<ul class="inner">
+		                        	{{#subMenus}}
+		                        		{{#ifSCond ../nombreMenu nombreSubMenu}}
+		                        			{{#modulos}}
+      	                        				<li>
+		                        				{{#ifCond idModulo ../../../../modulo}}
+		                        					<div class="ui-grid-row padding-top-10 titulo-submenu  modulo-select no-margen-bottom"> 
+		                        						<a class="titulo-submenu liga-modulo" href="#{request.contextPath}{{urlModulo}}">{{nombreModulo}}</a>
+		                        					</div>	
+		                        				{{else}}
+		                        					<div class="ui-grid-row padding-top-10 titulo-submenu  no-margen-bottom" >
+		                        						<a class="titulo-submenu liga-modulo" href="#{request.contextPath}{{urlModulo}}">{{nombreModulo}}</a>
+		                        					</div>
+		                        				{{/ifCond}}	
+  	                            				</li>
+		                        			{{/modulos}}
+		                        			{{else}}
+		                        			<li>
+		                        			<div class="ui-grid-row padding-top-10 titulo-submenu toggle no-margen-bottom">
+		                        				{{nombreSubMenu}}<i class="fa fa-angle-down right" aria-hidden="true"/>
+		                        			</div>
+	                            			<div class="inner">
+		                        			{{#modulos}}
+		                        				{{#ifCond idModulo ../../../../../modulo}}
+		                        					<div class="ui-grid-row padding-top-10 titulo-modulo modulo-select no-margen-bottom"> 
+		                        						<span class="join"></span><a class="titulo-submenu2  liga-modulo" href="#{request.contextPath}{{urlModulo}}">{{nombreModulo}}</a>
+		                        					</div>	
+		                        				{{else}}
+		                        					<div class="ui-grid-row padding-top-10 row-submenu titulo-modulo no-margen-bottom" >
+		                        						<span class="join"></span><a class="titulo-submenu2  liga-modulo" href="#{request.contextPath}{{urlModulo}}">{{nombreModulo}}</a>
+		                        					</div>
+		                        				{{/ifCond}}	
+		                        			{{/modulos}}
+		                        			</div>
+  	                            			</li>
+		                        		{{/ifSCond}}
+		                        	{{/subMenus}}
+		                        	</ul>
+		                        	</li>
+		                        {{/listMenu}}
+		                        </ul>
+							{{/datos}}
+                        </script>
+                </div>
+            </div>
+        </div>
+
+        </h:form>
+        </c:if>
+</ui:component>

@@ -1,0 +1,141 @@
+/**
+ * @(#)DTOFiltrosReporte.java 10/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+
+package mx.ine.observadoresINE.dto;
+
+import java.io.Serializable;
+
+/**
+ * Clase que provee los filtros necesarios para el manejo de reportes
+ *
+ * @author Carlos Augusto Escalona Navarro
+ * @since 08/02/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class DTOFiltrosReporte  implements Serializable{
+
+    private static final long serialVersionUID = -3152867882901714653L;
+    private DTOUsuarioLogin usuario;
+    private Integer idEstado;
+    private Integer idDistrito;
+    private Integer idEstadoSeleccionado;
+    private Integer idDistritoSeleccionado;
+    private String rolUsuario; // solo te podra ser OC o JL o JD
+    private Integer nivelGeografico; // 1.- Federal , 2.- Distritos Locales , 3.- Distritos y Municipio Locales
+    private Integer nivelOficinas; //  1 .- OC, 2.- JL   , 3.- JD
+    private String procesos;
+    private Integer filtroAcreditacion; //1.-Solicitudes de Acreditación, 2.-Acreditaciones Aprobadas, 3. Acreditaciones No Aprobadas
+    private Integer[] filtroCheckBox;
+    private Integer filtroRadio;
+    
+    public Integer regresaNivelOficinas(){
+    	if(this.idEstadoSeleccionado == 0){
+    		return 2;
+    	}else if(this.idEstadoSeleccionado != 0 && this.idDistritoSeleccionado == 0){
+    		return 1;
+    	}else if(this.idEstadoSeleccionado != 0 && this.idDistritoSeleccionado != 0){
+    		return 3;
+    	}
+    	
+    	return 1;
+    }
+
+    /***********************GETTERS AND SETTERS****************** ***/
+    public DTOUsuarioLogin getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(DTOUsuarioLogin usuario) {
+        this.usuario = usuario;
+    }
+
+    public Integer getIdEstadoSeleccionado() {
+        return idEstadoSeleccionado;
+    }
+
+    public void setIdEstadoSeleccionado(Integer idEstadoSeleccionado) {
+        this.idEstadoSeleccionado = idEstadoSeleccionado;
+    }
+
+    public Integer getIdDistritoSeleccionado() {
+        return idDistritoSeleccionado;
+    }
+
+    public void setIdDistritoSeleccionado(Integer idDistritoSeleccionado) {
+        this.idDistritoSeleccionado = idDistritoSeleccionado;
+    }
+
+    public String getRolUsuario() {
+        return rolUsuario;
+    }
+
+    public void setRolUsuario(String rolUsuario) {
+        this.rolUsuario = rolUsuario;
+    }
+
+    public String getProcesos() {
+        return procesos;
+    }
+
+    public void setProcesos(String procesos) {
+        this.procesos = procesos;
+    }
+
+    public Integer getIdEstado() {
+        return idEstado;
+    }
+
+    public void setIdEstado(Integer idEstado) {
+        this.idEstado = idEstado;
+    }
+
+    public Integer getNivelGeografico() {
+        return nivelGeografico;
+    }
+
+    public void setNivelGeografico(Integer nivelGeografico) {
+        this.nivelGeografico = nivelGeografico;
+    }
+
+    public Integer getFiltroAcreditacion() {
+        return filtroAcreditacion;
+    }
+
+    public void setFiltroAcreditacion(Integer filtroAcreditacion) {
+        this.filtroAcreditacion = filtroAcreditacion;
+    }
+
+    public Integer getNivelOficinas() {
+        return nivelOficinas;
+    }
+
+    public void setNivelOficinas(Integer nivelOficinas) {
+        this.nivelOficinas = nivelOficinas;
+    }
+
+    public Integer[] getFiltroCheckBox() {
+        return filtroCheckBox;
+    }
+
+    public void setFiltroCheckBox(Integer[] filtroCheckBox) {
+        this.filtroCheckBox = filtroCheckBox;
+    }
+
+    public Integer getFiltroRadio() {
+        return filtroRadio;
+    }
+
+    public void setFiltroRadio(Integer filtroRadio) {
+        this.filtroRadio = filtroRadio;
+    }
+
+    
+    
+   
+
+}

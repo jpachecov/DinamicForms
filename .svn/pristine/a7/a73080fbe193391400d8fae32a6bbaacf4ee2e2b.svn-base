@@ -1,0 +1,243 @@
+package mx.ine.observadoresINE.mb;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.hibernate.mapping.Fetchable;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import mx.ine.common.fechas.impl.ValidacionFechas;
+import mx.ine.observadoresINE.bsd.BSDReporteAccionesInterface;
+import mx.ine.observadoresINE.bsd.impl.BSDReportesCursosImpl;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.helper.HLPReporteAgrupaciones;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+/**
+ * Clase para el reporte de Acciones de Promoción
+ * 
+ * @author jpachecov
+ *
+ */
+public class MBReporteAcciones extends MBReportesMenu {
+
+	/**
+	 * Serial
+	 */
+//	private static final long serialVersionUID = -3943834454564170075L;
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -521137180955103187L;
+
+	/**
+	 * Log
+	 */
+	private static final Log log = LogFactory.getLog(MBReporteAcciones.class);
+
+	/**
+	 * BSD 
+	 */
+	@Autowired
+	@Qualifier("bsdReporteAcciones")
+	private transient BSDReporteAccionesInterface bsdReporte;
+
+	/**
+	 * Para los filtros
+	 */
+	private DTOFiltroReporteAcciones datos;
+	
+	/**
+	 * Para mostrar la tabla
+	 */
+	private boolean muestraTabla;
+	
+	/**
+	 * 
+	 */
+	private Map<String, Serializable> parametrosPDF;
+	
+	/**
+	 * Método init
+	 */
+	@Override
+	public void init() {
+		try {
+			super.init();
+			datos = new DTOFiltroReporteAcciones();
+			datos.setNivel(obtenNivelReporte());
+			datos.setUsuario(getUsuario());
+			setMuestraTabla(false);
+			if(datos.getNivel().equals("JD"))
+				datos.setTipoReporte("L");
+			setNombreReporte("Acciones de promoción.");
+			log.info("Nivel: " + datos.getNivel());
+
+			
+		} catch (Exception e) {
+			log.error("Error en MBReporteAcciones - init()");
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	public String obtenNivelReporte(){
+		Integer idEstado = getUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = getUsuario().getIdDistritoSeleccionado();
+		
+		if(idEstado != null && idEstado.intValue() == 0){
+			return "OC";
+			
+		}
+		if(idEstado != null && idEstado > 0){
+			if(idDistrito != null && idDistrito.intValue() == 0){
+				return "JL";
+			}
+			if(idDistrito != null && idDistrito.intValue() > 0){
+				return "JD";
+			}
+		}
+		return "";
+	}
+	
+	/**
+	 * Método para crear reporte
+	 */
+	public void consultaReporte(){
+		try {
+			asignaParametrosReporte(bsdReporte.obtenReporte(datos));
+			setMuestraTabla(true);
+			setDatosPdf();
+		} catch(Exception e){
+			log.error("Error en MBReporteAcciones - consultaReporte()");
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	private void setDatosPdf(){
+		parametrosPDF = new LinkedHashMap<>();
+		parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS,3);
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO,
+				Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion"));
+		
+		Integer idEstado = getUsuario().getIdEstadoSeleccionado() == null ? 0
+				: getUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = getUsuario().getIdDistritoSeleccionado() == null ? 0
+				: getUsuario().getIdDistritoSeleccionado();
+		// Version OC y JL
+		if (idEstado.intValue() >= 0 && idDistrito.intValue() == 0) {
+			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario()
+					.getEstadoSeleccionado());
+		}
+		// Version JD
+		else if (idEstado.intValue() > 0 & idDistrito.intValue() > 0) {
+			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario()
+					.getEstadoSeleccionado());
+			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO,
+					getUsuario().getDistritoSeleccionado());
+		}
+	}
+	
+	private void inicializaDimensionesEncabezado() {
+		Integer idEstado = obtenUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = obtenUsuario().getIdDistritoSeleccionado();
+		if (idEstado == null || idEstado.equals(0)) {
+			dtoParametros.setAnchoEntidad(2);
+			dtoParametros.setAnchoFechaHora(2);
+		} else if (!idEstado.equals(0) && idDistrito.equals(0)) {
+			dtoParametros.setAnchoEntidad(2);
+			dtoParametros.setAnchoFechaHora(2);
+		} else if (!idEstado.equals(0) && !idDistrito.equals(0)) {
+			dtoParametros.setAnchoEntidad(1);
+			dtoParametros.setAnchoDistrito(1);
+			dtoParametros.setAnchoFechaHora(1);
+		}
+	}
+	
+	/**
+	 * Método que asigna en la clase padre los
+	 * datos para la visuzalición de la tabla del reporte.
+	 * @param dto
+	 */
+	public void asignaParametrosReporte(DTOReportesParametros dto){
+		super.inicializaParametrosEncabezado();
+		inicializaDimensionesEncabezado();
+		dtoParametros.setTituloReporte(dto.getTituloReporte());
+		dtoParametros.setEncabezado(dto.getEncabezado());
+		dtoParametros.setColumnas(dto.getColumnas());
+		dtoParametros.setListaDatos(dto.getListaDatos());
+	}
+	
+	/**
+	 * 
+	 */
+	public void postProcessXLS(Object document) {
+		try {
+			dtoParametros.setRutaImgEstado("");
+			dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+		} catch(Exception e){
+			log.error("Error en postProcessXLS");
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void exportPDF(){
+		try {
+			setParametros(parametrosPDF);
+			super.exportPDF();
+		} catch(Exception e){
+			log.error("Error en exportPDF");
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * 
+	 * @return
+	 */
+	public Map<String,Serializable> getParametrosPdf(){
+		Map<String, Serializable> p = new LinkedHashMap<String, Serializable>();
+		p.put(Constantes.PARAMETRO_OBJECT_ESTADO, usuario.getEstadoSeleccionado());
+		p.put(Constantes.PARAMETRO_OBJECT_DISTRITO, usuario.getDistritoSeleccionado());
+		p.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 8);
+		p.put(Constantes.PARAMETRO_ANCHOS_COLUMNAS, 4);
+		p.put(Constantes.PARAMETRO_STRING_TITULO, "un titulo");
+		return p;
+	}
+	
+	public void test(){
+		log.info("tipoReporte:  " + datos.getTipoReporte());
+	}
+
+	public boolean isMuestraTabla() {
+		return muestraTabla;
+	}
+
+	public void setMuestraTabla(boolean muestraTabla) {
+		this.muestraTabla = muestraTabla;
+	}
+
+	public DTOFiltroReporteAcciones getDatos() {
+		return datos;
+	}
+
+	public void setDatos(DTOFiltroReporteAcciones datos) {
+		this.datos = datos;
+	}
+}

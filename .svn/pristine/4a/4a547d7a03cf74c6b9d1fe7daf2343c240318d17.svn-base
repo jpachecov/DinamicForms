@@ -1,0 +1,107 @@
+package mx.ine.observadoresINE.util;
+
+import java.io.Serializable;
+
+import org.springframework.stereotype.Component;
+
+/**
+ * Clase auxiliar para el uso de constantes en java
+ * 
+ * @author Gerardo López
+ * @version 1.0
+ * @since 27/06/2017
+ * 
+ */
+@Component("constantes")
+public class Constantes implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7537560454010168656L;
+
+	/**
+	 * Qualifier de la clase administrador
+	 */
+	public static final String MB_ADMIN = "mbAdmin";
+
+	/**
+	 * Constantes para las acciones de los modulos
+	 */
+	public static final String ACCION_CAPTURAR = "CAPTURA";
+	public static final String ACCION_MODIFICAR = "MODIFICA";
+	public static final String ACCION_CONSULTAR = "CONSULTA";
+
+	/**
+	 * Constantes de configuración de catalogos
+	 */
+	public static final String CATALOGO_ACCIONES = "CATALOGO DE ACCIONES";
+	public static final String CATALOGO_CARGO_RESPONSABLE = "CATALOGO DE CARGO DE RESPONSABLE";
+	public static final String CATALOGO_ESCOLARIDADES = "CATALOGO DE ESCOLARIDADES";
+	public static final String CATALOGO_JUSTIFICACIONES = "CATALOGO DE JUSTIFICACIONES";
+	public static final String CATALOGO_EVALUACIONES = "CATALOGO DE EVALUACIONES";
+
+	/**
+	 * Constante de justifiación por defecto
+	 */
+	public static final Integer ID_JUSTIFICACION_POR_DEFECTO_CATALOGO = 6;
+	public static final Integer ID_JUSTIFICACION_POR_DEFECTO_CATALOGO_GUARDADO = 0;
+	public static final String JUSTIFICACION_POR_DEFECTO_CATALOGO = "DENEGADA POR NO HABER ACREDITADO EL CURSO DE CAPACITACIÓN CORRESPONDIENTE";
+	
+	/**
+	 * Constantes de Evaluaciones por defecto
+	 */
+	public static final Integer ID_EVALUACION_POR_DEFECTO_NA = 3;
+	public static final String EVALUACION_POR_DEFECTO_NA = "NO ACREDITÓ";
+	public static final Integer ID_EVALUACION_POR_DEFECTO_P = 4;
+	public static final String EVALUACION_POR_DEFECTO_P = "PENDIENTE";
+	public static final Integer ID_REGLA_CURSO = 1;
+
+	/**
+	 * Constantes para identificar cuando no se tiene ninguno de los datos
+	 */
+	public static final Integer SIN_PROCESO_ELECTORAL = -1;
+	public static final Integer SIN_DETALLE_PROCESO = -2;
+
+	/**
+	 * Constantes para definir los tipos de roles
+	 */
+	public static final String ADMIN_PARAM_CAPTURA_OC = "OBSERVADORES.ADMIN.PARAM.CAPTURA.OC";
+	public static final String ADMIN_CAPTURA_OC = "OBSERVADORES.ADMIN.CAPTURA.OC";
+	public static final String CONSULTA_CONSEJERO_OC = "OBSERVADORES.CONSEJERO.OC";
+	public static final String CONSULTA_OC = "OBSERVADORES.CONSULTA.OC";
+	public static final String CONSULTA_CAU_OC = "OBSERVADORES.CAU.OC";
+	public static final String CAPTURA_JL = "OBSERVADORES.CAPTURA.JL";
+	public static final String CONSULTA_JL = "OBSERVADORES.CONSULTA.JL";
+	public static final String CAPTURA_JD = "OBSERVADORES.CAPTURA.JD";
+	public static final String CONSULTA_JD = "OBSERVADORES.CONSULTA.JD";
+	public static final String CONSULTA_OPLE = "OBSERVADORES.ADMIN.EXT.OPLE.JL";
+
+	/**
+	 * Código enviado como parámetro a ApplicationException para distinguir
+	 * codigo de exception
+	 */
+	public static final int CODIGO_EXEPTION = 1;
+	/**
+	 * Código enviado como parámetro a ApplicationException para distinguir
+	 * codigo de validación a null
+	 */
+	public static final int CODIGO_ADVERTENCIA = 2;
+	
+	/**
+     * Constantes para exportar aexcel y pdf
+     */
+	public static final String PARAMETRO_OBJECT_ESTADO              = "estado";
+	public static final String PARAMETRO_STRING_TITULO              = "titulo";
+	public static final String PARAMETRO_ANCHOS_COLUMNAS            = "anchos";
+	public static final String PARAMETRO_INTEGER_COLUMNAS           = "columnas";
+	public static final String PARAMETRO_OBJECT_DISTRITO            = "distrito";
+	public static final String PARAMETRO_STRING_TOTALES             = "totales";
+	public static final String PARAMETRO_STRING_FILENAME            = "filename";
+	
+	/**
+	 * Constante de idImagen para ruta del reporte de Solcitud de Acreditacion
+	 */
+	public static final Integer ID_RUTA_SOLICITUD_ACREDITACION		= 4;
+
+}

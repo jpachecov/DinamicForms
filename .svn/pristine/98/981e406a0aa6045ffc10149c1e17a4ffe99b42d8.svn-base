@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+	<div class="ui-g">
+		<h2>#{messageSource['etiqueta_solicitudes_titulo']}</h2>
+	</div>
+	<div class="ui-g" id="datosObs">
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="md-inputfield ui-g-3 ui-md-3 ui-sm-12">
+				<br/>
+				<p:inputText id="claveElector1"
+					onblur="this.value=this.value.trim();"
+					onkeyup="this.value=this.value.toUpperCase();"
+					onkeypress="if (event.keyCode == 13) { return false; }"
+					maxlength="6" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					value="#{mbObservadores.parteClaveElector1}" placeholder="XAXAXA">
+					<pe:keyFilter regEx="/[a-zA-Z]/" preventPaste="false"  />
+					<f:validateLength minimum="6" />
+					<p:ajax event="blur" process="@this" update="msgClaveElector1" />
+				</p:inputText>
+				<p:messages id="msgClaveElector1" for="claveElector1" />
+				<p:outputLabel value="#{messageSource['etiqueta_clave_elector']}" for="claveElector1" />
+			</div>
+
+			<div class="md-inputfield ui-g-3 ui-md-3 ui-sm-12">
+				<br />
+				<p:inputText id="claveElector2"
+					onblur="this.value=this.value.trim();"
+					onkeypress="if (event.keyCode == 13) { return false; }"
+					maxlength="6" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					value="#{mbObservadores.parteClaveElector2}" placeholder="010101">
+					<pe:keyFilter regEx="/[0-9 ]/" preventPaste="false" />
+				</p:inputText>
+				<p:messages id="msgClaveElector2" for="claveElector2" />
+			</div>
+			<div class="md-inputfield ui-g-3 ui-md-3 ui-sm-12">
+				<br />
+				<p:inputText id="claveElector3"
+					validatorMessage="#{messageSource['etiqueta_clave_elector_validador']}"
+					onblur="this.value=this.value.trim();"
+					onkeyup="this.value=this.value.toUpperCase();"
+					onkeypress="if (event.keyCode == 13) { return false; }"
+					maxlength="6" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					value="#{mbObservadores.parteClaveElector3}" placeholder="01H101">
+					<f:validateRegex pattern="^([0-9][0-9][H|M][0-9][0-9][0-9])" />
+					<p:ajax event="blur"
+						listener="#{mbObservadores.generaDatosComplementario()}"
+						process="@this claveElector2 claveElector1"
+						update="msgClaveElector3 radioSexo fechaNacimiento edad mensajes" />
+					<pe:keyFilter regEx="/[0-9 a-zA-Z]/" preventPaste="false" />
+				</p:inputText>
+				<p:messages id="msgClaveElector3" for="claveElector3" />
+			</div>
+		</div>
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-5 ui-md-5 ui-sm-12">
+				<p:outputLabel for="radioSexo"
+					style="font-weight: bold;margin: 8px 0;width: 100%;display: block;"
+					value="#{messageSource['etiqueta_sexo']}" />
+				<p:selectOneRadio layout="responsive" columns="2" id="radioSexo"
+					value="#{mbObservadores.observadorCaptura.sexo}" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+					<f:selectItem
+						itemLabel="#{messageSource['etiqueta_generales_hombre']}"
+						itemValue="H" />
+					<f:selectItem
+						itemLabel="#{messageSource['etiqueta_generales_mujer']}"
+						itemValue="M" />
+				</p:selectOneRadio>
+				<p:message for="radioSexo" display="text" id="msgSexo" />
+			</div>
+			<p:outputPanel  rendered="#{mbObservadores.habilitaRatifica}"  styleClass="ui-g-4 ui-md-4 ui-sm-12">
+				<p:outputLabel for="radioRatifica"
+					style="font-weight: bold;margin: 8px 0;width: 100%;display: block;"
+					value="#{messageSource['etiqueta_ratifica']}" />
+				<p:selectOneRadio layout="responsive" columns="2" id="radioRatifica"
+					value="#{mbObservadores.observadorCaptura.ratifica}"
+					required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+					<f:selectItem itemLabel="#{messageSource['etiqueta_generales_si']}"
+						itemValue="S" />
+					<f:selectItem itemLabel="#{messageSource['etiqueta_generales_no']}"
+						itemValue="N" />
+				</p:selectOneRadio>
+				<p:message for="radioRatifica" display="text" id="msgRatifica" />
+			</p:outputPanel>
+			
+		</div>
+		<span>#{messageSource['etiqueta_apellido_obligatorio']} </span>
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="md-inputfield ui-g-4 ui-md-4 ui-sm-12">
+				<p:inputText id="appPaterno" maxlength="40"
+					value="#{mbObservadores.observadorCaptura.apellidoPaterno}"
+					validatorMessage="#{messageSource['validacion_mensajes_generales_caracteresValidos_nombre']}"
+					onblur="this.value=this.value.trim();"
+					onkeypress="if (event.keyCode == 13) { return false; }">
+					<f:validateRegex
+						pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC ]*)|([+-]?)$" />
+					<p:ajax event="keyup" update="msgAppPaterno" />
+					<pe:keyFilter
+						regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC  ]/"
+						preventPaste="false" />
+				</p:inputText>
+				<p:outputLabel value="#{messageSource['etiqueta_apellido_paterno']}"
+					for="appPaterno" />
+				<p:messages id="msgAppPaterno" for="appPaterno" />
+			</div>
+			<div class="md-inputfield ui-g-4 ui-md-4 ui-sm-12">
+				<p:inputText id="appMaterno" maxlength="40"
+					value="#{mbObservadores.observadorCaptura.apellidoMaterno}"
+					validatorMessage="#{messageSource['validacion_mensajes_generales_caracteresValidos_nombre']}"
+					onblur="this.value=this.value.trim();"
+					onkeypress="if (event.keyCode == 13) { return false; }">
+					<f:validateRegex
+						pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC ]*)|([+-]?)$" />
+					<p:ajax event="keyup" update="msgAppMaterno" />
+					<pe:keyFilter
+						regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC  ]/"
+						preventPaste="false" />
+				</p:inputText>
+				<p:outputLabel value="#{messageSource['etiqueta_apellido_materno']}"
+					for="appMaterno" />
+				<p:messages id="msgAppMaterno" for="appMaterno" />
+			</div>
+
+			<div class="md-inputfield ui-g-4 ui-md-4 ui-sm-12">
+				<p:inputText id="nombre" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					validatorMessage="#{messageSource['validacion_mensajes_generales_caracteresValidos_nombre']}"
+					onblur="this.value=this.value.trim();"
+					onkeypress="if (event.keyCode == 13) { return false; }"
+					value="#{mbObservadores.observadorCaptura.nombre}" maxlength="50">
+					<f:validateRegex
+						pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC ]*)|([+-]?)$" />
+					<p:ajax event="keyup" update="msgNombre" />
+					<pe:keyFilter
+						regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC  ]/"
+						preventPaste="false" />
+				</p:inputText>
+				<p:outputLabel value="#{messageSource['etiqueta_nombre']}"
+					for="nombre" />
+				<p:messages id="msgNombre" for="nombre" />
+			</div>
+		</div>
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-4 ui-md-4 ui-sm-12">
+				<p:outputLabel for="fechaNacimiento"
+					value="#{messageSource['etiqueta_fecha_nacimiento']}" />
+				<br />
+				<p:calendar id="fechaNacimiento"
+					value="#{mbObservadores.fechaNacimiento}"
+					required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					pattern="dd/MM/yyyy" locale="es" mask="true" navigator="true"
+							converterMessage="#{messageSource['validacion_mensajes_generales_dato_requerido_fecha_invalida']}"
+					placeholder="dd/mm/yyyy">
+					<p:ajax event="blur" update="msgFechaNacimiento" />
+				</p:calendar>
+				<p:message for="fechaNacimiento" id="msgFechaNacimiento" />
+			</div>
+			<div class="md-inputfield ui-g-4 ui-md-4 ui-sm-12">
+				<br />
+				<p:inputText id="edad" maxlength="3" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					onblur="this.value=this.value.toUpperCase().trim();"
+					onkeypress="if (event.keyCode == 13) { return false; }"
+					value="#{mbObservadores.observadorCaptura.edad}">
+					<pe:keyFilter regEx="/[0-9]/" preventPaste="false" />
+				</p:inputText>
+				<p:outputLabel value="#{messageSource['etiqueta_edad']}" for="edad" />
+			</div>
+			<div class="ui-g-4 ui-md-4 ui-sm-12">
+				<p:outputLabel for="comboNivelEstudio"
+					value="#{messageSource['etiqueta_nivel_estudio']}" />
+				<p:selectOneMenu id="comboNivelEstudio"
+					value="#{mbObservadores.observadorCaptura.idEscolaridad}" >
+					<f:selectItem itemLabel="Selecciona " itemValue="#{null}" itemDisabled="true" noSelectionOption="true" />
+					<f:selectItems value="#{mbObservadores.listaEscolaridad}"
+						var="educacion" itemLabel="#{educacion.descripcion}"
+						itemValue="#{educacion.getDTOCEscolaridadesPK().idEscolaridad}" />
+<!-- 					<p:ajax event="change" process="@this" update="mensajeComboEstudio" /> -->
+				</p:selectOneMenu>
+<!-- 				<p:messages id="mensajeComboEstudio" for="comboNivelEstudio" -->
+<!-- 					showIcon="false" autoUpdate="true" /> -->
+			</div>
+		</div>
+	</div>
+</ui:composition>

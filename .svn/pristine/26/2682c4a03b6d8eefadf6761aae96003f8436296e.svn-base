@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://ine.mx/ui" xmlns:deceyec="http://ine.mx/ui"
+	template="/templates/template.xhtml">
+
+	<h:head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</h:head>
+	<ui:define name="CONTENT">
+		<!-- Block UI -->
+		<pe:blockUI id="idProgress" target="formCapturaAgrupaciones"
+			content="blockUIContent" widgetVar="progress" />
+		<!-- 			BLOCKUICONTENT -->
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText
+				value="#{messageSource['mensaje_generales_procesando']}"
+				style="white-space: nowrap;" />
+		</h:panelGrid>
+		<!-- GROWL -->
+		<p:growl id="growl" showDetail="true" sticky="true" life="8000" />
+
+
+		<h:form id="busquedaForm" styleClass="container-fluid">
+
+			<ui:include src="../componentes/busqueda.xhtml" />
+
+		</h:form>
+		<h:form id="formCapturaAgrupaciones" styleClass="container"
+			enctype="multipart/form-data">
+			<p:panel id="panel" rendered="#{mbAgrupaciones.showForm}">
+				<p:messages for="mensajesError" autoUpdate="false" />
+				<p:messages for="mensajesInfo" autoUpdate="false" />
+				<p:growl for="mensajesExito" autoUpdate="false" />
+				<div class="ui-g">
+					<!-- DATOS GENERALES -->
+					<div class="ui-g-12 ui-md-12">
+
+						<div class="ui-g-12 ui-md-12">
+							<h3 class="ui-g-12 ui-md-12">#{messageSource['etiqueta_agrupaciones_datos_generales']}</h3>
+							<!-- NOMBRE DE LA ASOCIACION -->
+							<div class="ui-g-4 ui-md-4 ui-sm-12">
+								<h4>#{messageSource['etiqueta_agrupaciones_nombre_agrup']}</h4>
+								<p:outputLabel id="nombreAgrupacion"
+									value="#{mbAgrupaciones.dto.nombreAgrupacion}" />
+							</div>
+							<!-- ABREVIATURA DE LA AGRUPACION -->
+							<div class="ui-g-4 ui-md-4 ui-sm-12">
+								<h4>#{messageSource['etiqueta_agrupaciones_abrevi_agrup']}</h4>
+								<p:outputLabel id="abrevAgrupacion"
+									value="#{mbAgrupaciones.dto.abreviAgrupacion}" />
+							</div>
+
+
+						</div>
+
+						<!-- NOMBRE DEL TITULAR -->
+						<p:panel
+							styleClass="ui-g-12 ui-md-12 card panel-card card-w-title"
+							style="margin-top:20px">
+							<h4 class="ui-g-12 ui-md-12" style="margin-bottom: 0px">#{messageSource['etiqueta_agrupaciones_titular_cons']}</h4>
+
+							<div class="ui-g-4 ui-md-4">
+								<h4>#{messageSource['etiqueta_agrupaciones_a_paterno']}</h4>
+								<c:if
+									test="#{mbAgrupaciones.dto.aPaternoTitular != null and mbAgrupaciones.dto.aPaternoTitular != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.aPaternoTitular}" />
+								</c:if>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.aPaternoTitular == null or mbAgrupaciones.dto.aPaternoTitular == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+
+							</div>
+
+							<div class="ui-g-4 ui-md-4">
+								<h4>#{messageSource['etiqueta_agrupaciones_a_materno']}</h4>
+								<c:if
+									test="#{mbAgrupaciones.dto.aMaternoTitular != null and mbAgrupaciones.dto.aMaternoTitular != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.aMaternoTitular}" />
+								</c:if>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.aMaternoTitular == null or mbAgrupaciones.dto.aMaternoTitular == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+
+							</div>
+
+							<div class="ui-g-4 ui-md-4">
+								<h4>#{messageSource['etiqueta_agrupaciones_nombre_s']}</h4>
+								<c:if
+									test="#{mbAgrupaciones.dto.nombreTitular != null and mbAgrupaciones.dto.nombreTitular != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.nombreTitular}" />
+								</c:if>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.nombreTitular == null or mbAgrupaciones.dto.nombreTitular == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+
+							</div>
+						</p:panel>
+					</div>
+
+
+
+					<div class="divider" />
+					<!-- DOMICILIO -->
+					<div class="ui-g-12 ui-md-12">
+						<h3 class="ui-g-12 ui-md-12">#{messageSource['etiqueta_agrupaciones_domicilio']}</h3>
+						<div class="ui-g-12 ui-md-12">
+
+							<div class="ui-g-12 ui-md-12">
+								<!-- CALLE -->
+								<div class="ui-g-5 ui-md-5 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_calle']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_calle']}:</strong>
+
+									<c:if
+										test="#{mbAgrupaciones.dto.calle != null and mbAgrupaciones.dto.calle != ''}">
+										<p:outputLabel id="calle" value="#{mbAgrupaciones.dto.calle}" />
+									</c:if>
+									<c:if
+										test="#{mbAgrupaciones.dto.calle == null or mbAgrupaciones.dto.calle == ''}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+								</div>
+								<!-- NUMERO EXTERIOR -->
+								<div class="ui-g-4 ui-md-4 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_numero_exterior']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_numero_exterior']}:</strong>
+									<c:if
+										test="#{mbAgrupaciones.dto.sinNumero and (mbAgrupaciones.dto.numExterior == null or mbAgrupaciones.dto.numExterior == '')}">
+										<p:outputLabel value="S/N" />
+									</c:if>
+									<c:if
+										test="#{(mbAgrupaciones.dto.sinNumero == false) or (mbAgrupaciones.dto.numExterior != null and mbAgrupaciones.dto.numExterior != '')}">
+										<p:outputLabel id="numExt"
+											value="#{mbAgrupaciones.dto.numExterior}" />
+									</c:if>
+									<c:if
+										test="#{(mbAgrupaciones.dto.sinNumero == false) and (mbAgrupaciones.dto.numExterior == null or mbAgrupaciones.dto.numExterior == '')}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+								</div>
+								<!-- NUMERO INTERIOR -->
+								<div class="ui-g-3 ui-md-3 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_numero_interior']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_numero_interior']}:</strong>
+									<c:if
+										test="#{mbAgrupaciones.dto.sinNumero and (mbAgrupaciones.dto.numInterior == null or mbAgrupaciones.dto.numInterior == '')}">
+										<p:outputLabel value="S/N" />
+									</c:if>
+									<c:if
+										test="#{(mbAgrupaciones.dto.sinNumero == false) or (mbAgrupaciones.dto.numInterior != null and mbAgrupaciones.dto.numInterior != '')}">
+										<p:outputLabel id="numInt"
+											value="#{mbAgrupaciones.dto.numInterior}" />
+									</c:if>
+									<c:if
+										test="#{(mbAgrupaciones.dto.sinNumero == false) and (mbAgrupaciones.dto.numInterior == null or mbAgrupaciones.dto.numInterior == '')}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+								</div>
+							</div>
+
+							<div class="ui-g-12 ui-md-12">
+								<!-- COLONIA / LOCALIDAD -->
+								<div class="ui-g-5 ui-md-5 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_localidad']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_localidad']}:</strong>
+									<c:if
+										test="#{mbAgrupaciones.dto.colonia != null and mbAgrupaciones.dto.colonia != ''}">
+										<p:outputLabel id="colonia"
+											value="#{mbAgrupaciones.dto.colonia}" />
+									</c:if>
+									<c:if
+										test="#{mbAgrupaciones.dto.colonia == null or mbAgrupaciones.dto.colonia == ''}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+								</div>
+
+								<!-- CODIGO POSTAL -->
+								<div class="ui-g-4 ui-md-4 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_codigo_postal']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_codigo_postal']}:</strong>
+									<c:if
+										test="#{mbAgrupaciones.dto.codigoPostal != null and mbAgrupaciones.dto.codigoPostal != ''}">
+										<p:outputLabel id="codigoPostal"
+											value="#{mbAgrupaciones.dto.codigoPostal}" />
+									</c:if>
+
+									<c:if
+										test="#{mbAgrupaciones.dto.codigoPostal == null or mbAgrupaciones.dto.codigoPostal == ''}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+
+								</div>
+							</div>
+
+
+
+							<div class="ui-g-12 ui-md-12">
+								<!-- ENTIDAD FEDERATIVA -->
+								<div class="ui-g-4 ui-md-4 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_estado']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_estado']}:</strong>
+									<c:if
+										test="#{mbAgrupaciones.dto.estadoC != null and mbAgrupaciones.dto.estadoC != ''}">
+										<p:outputLabel id="entidadF"
+											value="#{mbAgrupaciones.dto.estadoC}" />
+									</c:if>
+									<c:if
+										test="#{mbAgrupaciones.dto.estadoC == null or mbAgrupaciones.dto.estadoC == ''}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+								</div>
+								<!-- DELEGACION / MUNICIPIO -->
+								<div class="ui-g-5 ui-md-5 ui-sm-12">
+									<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_municipio']}</h4> -->
+									<strong style="margin-right: 5px">#{messageSource['etiqueta_agrupaciones_municipio']}:</strong>
+									<c:if
+										test="#{mbAgrupaciones.dto.municipioC != null and mbAgrupaciones.dto.municipioC != ''}">
+										<p:outputLabel id="municipio"
+											value="#{mbAgrupaciones.dto.municipioC}" />
+									</c:if>
+									<c:if
+										test="#{mbAgrupaciones.dto.municipioC == null or mbAgrupaciones.dto.municipioC == ''}">
+										<p:outputLabel value="Sin dato" style="font-style:italic" />
+									</c:if>
+
+								</div>
+
+							</div>
+
+
+
+						</div>
+					</div>
+					<div class="divider" />
+					<!-- DATOS DE CONTACTO -->
+					<div class="ui-g-12 ui-md-12">
+						<h3 class="ui-g-12 ui-md-12">#{messageSource['etiqueta_agrupaciones_datos_contacto']}</h3>
+
+						<!-- TELEFONO 1 -->
+						<div class="ui-g-6 ui-md-6 ui-sm-12">
+							<!-- LADA 1 -->
+							<div class="ui-g-3 ui-md-3 ui-sm-12">
+								<h4>#{messageSource['etiqueta_lada']}</h4>
+								<c:if
+									test="#{mbAgrupaciones.dto.lada1 != null and mbAgrupaciones.dto.lada1 != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.lada1}" />
+								</c:if>
+								<c:if
+									test="#{mbAgrupaciones.dto.lada1 == null or mbAgrupaciones.dto.lada1 == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+							</div>
+
+							<!-- NUMERO -->
+							<div class="ui-g-4 ui-md-4 ui-sm-12">
+								<h4>#{messageSource['etiqueta_agrupaciones_telefono_dom']}</h4>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.telefono1 != null and mbAgrupaciones.dto.telefono1 != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.telefono1}" />
+								</c:if>
+								<c:if
+									test="#{mbAgrupaciones.dto.telefono1 == null or mbAgrupaciones.dto.telefono1 == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+							</div>
+							<!-- EXTENSION -->
+							<div class="ui-g-3 ui-md-3 ui-sm-12">
+								<h4>#{messageSource['etiqueta_agrupaciones_extension']}</h4>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.extension1 != null and mbAgrupaciones.dto.extension1 != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.extension1}" />
+								</c:if>
+								<c:if
+									test="#{mbAgrupaciones.dto.extension1 == null or mbAgrupaciones.dto.extension1 == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+							</div>
+						</div>
+						<!-- TELEFONO 2 -->
+						<div class="ui-g-6 ui-md-6 ui-sm-12">
+
+							<!-- LADA 2 -->
+							<div class="ui-g-3 ui-md-3 ui-sm-12">
+								<h4>#{messageSource['etiqueta_lada']}</h4>
+								<c:if
+									test="#{mbAgrupaciones.dto.lada2 != null and mbAgrupaciones.dto.lada2 != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.lada2}" />
+								</c:if>
+								<c:if
+									test="#{mbAgrupaciones.dto.lada2 == null or mbAgrupaciones.dto.lada2 == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+
+							</div>
+
+							<!-- NUMERO -->
+							<div class="ui-g-4 ui-md-4 ui-sm-12">
+								<h4>#{messageSource['etiqueta_agrupaciones_telefono_2']}</h4>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.telefono2 != null and mbAgrupaciones.dto.telefono2 != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.telefono2}" />
+								</c:if>
+								<c:if
+									test="#{mbAgrupaciones.dto.telefono2 == null or mbAgrupaciones.dto.telefono2 == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+							</div>
+							<!-- EXTENSION -->
+							<div class="ui-g-3 ui-md-3 ui-sm-12">
+								<h4>#{messageSource['etiqueta_agrupaciones_extension']}</h4>
+
+								<c:if
+									test="#{mbAgrupaciones.dto.extension2 != null and mbAgrupaciones.dto.extension2 != ''}">
+									<p:outputLabel value="#{mbAgrupaciones.dto.extension2}" />
+								</c:if>
+								<c:if
+									test="#{mbAgrupaciones.dto.extension2 == null or mbAgrupaciones.dto.extension2 == ''}">
+									<p:outputLabel value="Sin dato" style="font-style:italic" />
+								</c:if>
+							</div>
+						</div>
+						<!-- CORREO ELECTRONICO -->
+						<!-- 						<div class="ui-g-12 ui-md-12"> -->
+						<!-- 							<div class="ui-g-6 ui-md-6 ui-sm-12"> -->
+						<!-- 								<h4>#{messageSource['etiqueta_agrupaciones_correo']}</h4> -->
+
+						<!-- 								<c:if -->
+						<!-- 									test="#{mbAgrupaciones.dto.correo != null and mbAgrupaciones.dto.correo != ''}"> -->
+						<!-- 								</c:if> -->
+						<!-- 								<p:outputLabel value="#{mbAgrupaciones.dto.correo}" /> -->
+						<!-- 								<c:if -->
+						<!-- 									test="#{mbAgrupaciones.dto.correo == null or mbAgrupaciones.dto.correo == ''}"> -->
+						<!-- 									<p:outputLabel value="Sin dato" style="font-style:italic" /> -->
+						<!-- 								</c:if> -->
+						<!-- 							</div> -->
+						<!-- 						</div> -->
+					</div>
+				</div>
+			</p:panel>
+		</h:form>
+	</ui:define>
+</ui:composition>

@@ -1,0 +1,390 @@
+/**
+ * @(#)DAOReportesImp.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dao.impl;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import mx.ine.observadoresINE.dao.DAOReportesInterface;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOList;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.db.DTOCursosPK;
+import mx.ine.observadoresINE.dto.db.DTOReportesBitacora;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import mx.ine.observadoresINE.helper.HLPReporteDetalleObservadores;
+import mx.ine.observadoresINE.mb.MBObservadores;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.SQLQuery;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.StringType;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+/**
+ * <code>DAOReportesImp.java</code>
+ *
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Repository("daoReportes")
+@Scope("prototype")
+public class DAOReportesImp extends DAOGeneric<DTOReportesBitacora, Long> implements DAOReportesInterface {
+	private static final Log LOGGER = LogFactory.getLog(DAOReportesImp.class);
+	
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+	@Override
+    public List<String> obtenerTabla(int numeroTabla) {
+
+        String nombreQuery;
+        switch (numeroTabla) {
+            case 1: //Tabla Agrupaciones
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaAgrupaciones");
+                break;
+            case 2: //Tabla Accion de Promoción
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaAccionesPromocion");
+                break;
+            case 3: //Cursos de capacitación
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaCursos");
+                break;
+            case 4: //Observadoras y Observadores
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaObservadores");
+                break;
+            default:
+                nombreQuery = null;
+                break;
+        }
+
+        SQLQuery query = getSession().createSQLQuery(nombreQuery);
+        List<String> tabla = (List<String>) query.list();
+        return tabla;
+
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object[]> consultarReporteControlObs(FormRepControlObs form) {
+        String sql ;
+        SQLQuery query; 
+        List<Object[]> reporte;
+        
+        sql = this.getContainer().getQuery(form.getNombreQuery());
+        sql = sql.replace("-idProcesoElectoral-", form.getUsuario().getIdProcesoElectoral().toString());
+        sql = sql.replace("-idDetalleProceso-", form.getUsuario().getIdDetalleProceso().toString());
+        sql = sql.replace("-idEstado-", form.getUsuario().getIdEstadoSeleccionado().toString());
+        sql = sql.replace("-idDistrito-", form.getUsuario().getIdDistritoSeleccionado().toString());
+        if(form.getFiltroReporte()!= null){
+          sql = sql.replace("-filtro-",form.getFiltroReporte().toString());
+        }
+        query = getSession().createSQLQuery(sql);
+        reporte = query.list();
+        return reporte;
+    }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> consultaDatosReporteAgrupaciones(
+			Integer idFiltroAgrupacion) throws Exception {
+		String sql = this.getContainer().getQuery("query_reporte_agrupaciones");
+		List<Object[]> resultado = null;
+		// Consulta las agrupaciones del periodo de Sep/17 - Jun/18
+		if (idFiltroAgrupacion.equals(2)) {
+			sql += " WHERE A.FECHA_HORA BETWEEN '01/09/17' AND '30/06/18'";
+		}
+
+		SQLQuery query = getSession().createSQLQuery(sql);
+		resultado = (List<Object[]>) query.list();
+		return resultado;
+	}
+	
+    /**
+     * {@inheritDoc}
+     */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> consultaDatosReporteAcciones(String query) throws Exception {
+		SQLQuery sqlQuery = getSession().createSQLQuery(query);
+		return sqlQuery.list();
+	}
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public HLPReporteDetalleObservadores generaReporteDetalleObs(LinkedHashMap<String, Integer> filtros)
+			throws Exception {
+		List<Object []> listaDatos = new ArrayList<Object[]>();
+		Integer nivelOficinas = filtros.get("nivelOficinas");
+		Integer idProceso = filtros.get("idProceso");
+		Integer idEstado;
+		Integer idDistrito;
+		String sql = "";
+		SQLQuery query = null;
+		switch (nivelOficinas) {
+		case 1:
+			sql = this.getContainer().getQuery("query_reporte_detalle_obs_OC");
+			sql = sql.replace("-procesosVigentes-", idProceso.toString());
+			query = getSession().createSQLQuery(sql);
+			break;
+
+		case 2:
+			idEstado = filtros.get("idEstado");
+			idDistrito = filtros.get("idDistrito");
+			sql = this.getContainer().getQuery("query_reporte_detalle_obs_JL");
+			query = getSession().createSQLQuery(sql);
+			query.setParameter("idProceso", idProceso);
+            query.setParameter("idEstado", idEstado);
+            query.setParameter("idDistrito", idDistrito);
+			break;
+		case 3:
+			idEstado = filtros.get("idEstado");
+			idDistrito = filtros.get("idDistrito");
+			sql = this.getContainer().getQuery("query_reporte_detalle_obs_JD");
+			query = getSession().createSQLQuery(sql);
+			query.setParameter("idProceso", idProceso);
+            query.setParameter("idEstado", idEstado);
+            query.setParameter("idDistrito", idDistrito);
+			break;
+		}
+		for(int i = 1; i <= 11; i++){
+        	query.addScalar("field"+i);
+        }
+        listaDatos = (List<Object []>) query.list();
+        
+		HLPReporteDetalleObservadores resultado = new HLPReporteDetalleObservadores(filtros.get("nivelOficinas"), listaDatos);
+		return resultado;
+	}
+	
+	
+	@Override
+	public DTOReportesParametros obtenReporteCursos(DTOFiltroReporteAcciones query) {
+		 
+		
+		LOGGER.info("::::::::::::::::::::::::::");
+		LOGGER.info(query.toString());
+		LOGGER.info("::::::::::::::::::::::::::");
+		SQLQuery sql;
+		DTOReportesParametros tmp = new DTOReportesParametros();
+		try{
+		sql = getSession().createSQLQuery(query.getQueryCurso());
+		LOGGER.info("Antes del query list");
+		 List<Object[]> objects = (List<Object[]> )  sql.list();
+		 if(!objects.isEmpty()){
+			  
+			 tmp.setListaDatos(objects);      
+                     }
+		}catch (Exception e) {
+			LOGGER.error("Ups ! se genero un error en obtenReporteCursos  ::::::" , e);
+		}
+		 
+         return tmp;   
+	}
+	
+        /**
+	* {@inheritDoc}
+	*/
+        @Override
+        public List<DTOList> obtenerAbreviaturaEstados(){
+            SQLQuery query;
+            query = getSession().createSQLQuery(this.getContainer().getQuery("query_reporte_controlObs_EncabezadosEstados"));
+                    
+            List<Object[]> objects =   query.list();
+            List<DTOList> resultado = null;
+            if(!objects.isEmpty()){
+                resultado = new ArrayList<>();
+                for (Object[] object : objects) {
+                    DTOList estado = new DTOList(Integer.parseInt(object[0].toString()),object[1].toString());
+                    resultado.add(estado);
+                }
+   
+            }
+            return resultado;   
+        }
+        /**
+	* {@inheritDoc}
+	*/
+        @Override
+        public List<Object[]> consultarReporteControlObsDinamico(FormRepControlObs form){
+        String sql ;
+        SQLQuery query; 
+        List<Object[]> reporte;
+        sql = this.getContainer().getQuery(form.getNombreQuery());
+        StringBuffer camposDinamicos;
+        StringBuffer pivotDinamico;
+        StringBuffer selectDinamico;
+        
+        if(form.getAbreviaturaEstados()!= null){
+             camposDinamicos = new StringBuffer();
+             pivotDinamico = new StringBuffer();
+             selectDinamico = new StringBuffer();
+             
+            for(DTOList estado :form.getAbreviaturaEstados()){
+                 // Se crea el pivot dinámico
+                    pivotDinamico.append(",").append(estado.getKey()).append(" AS EST").append(estado.getKey());
+                    camposDinamicos.append(",").append("NVL(EST").append(estado.getKey()).append(",0) EST").append(estado.getKey());
+                    selectDinamico.append(",").append("EST").append(estado.getKey());
+            }
+        sql = sql.replace("-camposDinamicos-", camposDinamicos.toString());
+        sql = sql.replace("-pivotDinamico-", pivotDinamico.toString().substring(1));
+        sql = sql.replace("-selectDinamico-", selectDinamico.toString());
+        sql = sql.replace("-idProcesoElectoral-", form.getUsuario().getIdProcesoElectoral().toString());  
+        if(form.getFiltroReporte()!= null){
+          sql = sql.replace("-filtro-",form.getFiltroReporte().toString());
+        }
+        }
+        query = getSession().createSQLQuery(sql);
+        reporte =  query.list();
+        return reporte;
+        }
+        
+        
+		@Override
+		public List<DTOCursos> obtenListaCursos(DTOFiltroReporteAcciones filtros) {
+			Integer edo = filtros.getUsuario().getIdEstado() > 0 ? 
+					filtros.getUsuario().getIdEstado() : filtros.getUsuario().getIdEstadoSeleccionado() ;
+			Integer dtt = filtros.getUsuario().getIdDistrito() > 0 ? 
+					filtros.getUsuario().getIdDistrito() : filtros.getUsuario().getIdDistritoSeleccionado();
+					 
+					
+			 List<DTOCursos> resultado = new ArrayList<DTOCursos>();
+				String sql =  this.getContainer().getQuery("query_obten_cursos_observadores_reporte");  
+				sql = sql.replace("-origenCurso-", filtros.getOrigenCurso());
+				Query query = getSession().createSQLQuery(sql)
+						  .addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+					      .addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+					      .addScalar("idCurso", StandardBasicTypes.INTEGER)
+							  .addScalar("etiqueta", StringType.INSTANCE );
+				
+				query.setInteger("idProceso", filtros.getUsuario().getIdProcesoElectoral() );
+		        query.setInteger("idDetalleProceso", filtros.getUsuario().getIdDetalleProceso() );
+		        query.setInteger("idEstado", edo);
+		        query.setInteger("idDistrito", dtt);
+		        
+		        try{
+		        List<Object[]> tmp = (List<Object[]>)query.list();
+		        for (Object[] objects : tmp) {
+		        	DTOCursosPK tmpPk = new DTOCursosPK ((Integer)objects[0]  , (Integer)objects[1] , (Integer)objects[2] ); 
+		        	DTOCursos observador = new DTOCursos(tmpPk , (String) objects[3]);  
+		        	resultado.add(observador);
+		        
+				}
+		        return resultado;
+		        }catch (Exception e) {
+		        	LOGGER.error("Ups! , se genero un error al tratar de obtener al obsevador", e);
+		        	return null;
+				}
+		}
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public List<DTOList> obtenerJustificacionesAprobadas(FormRepControlObs form) {
+            SQLQuery query;
+            query = getSession().createSQLQuery(this.getContainer().getQuery("query_reporte_controlObs_CJustificaciones"));
+            query.setParameter("idProcesoElectoral", form.getUsuario().getIdProcesoElectoral())
+                 .setParameter("idDetalleProceso", form.getUsuario().getIdDetalleProceso());
+            List<Object[]> objects = query.list();
+            List<DTOList> resultado = null;
+            if (!objects.isEmpty()) {
+                resultado = new ArrayList<>();
+                for (Object[] object : objects) {
+                    DTOList estado = new DTOList(Integer.parseInt(object[0].toString()), object[1].toString());
+                    resultado.add(estado);
+                }
+
+            }
+            return resultado;
+        }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object[]> consultarEncabezadoCanDenDecl(FormRepControlObs form) {
+        String sql;
+        SQLQuery query;
+        List<Object[]> encabezado;
+        sql = this.getContainer().getQuery("query_reporte_controlObs_EncabezdoCanDenDec");
+        sql = sql.replace("-idProcesoElectoral-", form.getUsuario().getIdProcesoElectoral().toString());
+        sql = sql.replace("-filtro-", form.getFiltroReporte().toString());
+        query = getSession().createSQLQuery(sql);
+        encabezado = query.list();
+        return encabezado;
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object[]> consultarRepAcreditacionesNoAprobadasPorEntidad(FormRepControlObs form){
+        String sql ;
+        SQLQuery query; 
+        List<Object[]> reporte;
+        sql = this.getContainer().getQuery(form.getNombreQuery());
+        StringBuffer camposDinamicos;
+        StringBuffer pivotDinamico;
+        StringBuffer selectDinamico;
+        StringBuffer totalResultado;
+        StringBuffer total;
+        
+        if(form.getJustificaciones()!= null){
+             camposDinamicos = new StringBuffer();
+             pivotDinamico = new StringBuffer();
+             selectDinamico = new StringBuffer();
+             totalResultado = new StringBuffer();
+             total = new StringBuffer();
+            for(Integer justificacion :form.getJustificaciones()){
+                 // Se crea el pivot dinámico
+                    camposDinamicos.append(",").append("NVL(ID").append(justificacion).append(",0) ID").append(justificacion);
+                    pivotDinamico.append(",").append(justificacion).append(" AS ID").append(justificacion);
+            }
+            if (form.getEncabezadoCanDenDecl() != null) {
+                int index =0;
+                int idJustificacion;
+                for (int[] resultado : form.getEncabezadoCanDenDecl()) {
+                   for(int i= 0; i< resultado[1];i++){
+                       idJustificacion = form.getJustificaciones().get(index);
+                       selectDinamico.append(",").append(" ID").append(idJustificacion);
+                       totalResultado.append("+ ID").append(idJustificacion);
+                       index++;
+
+                   }
+                   selectDinamico.append(",").append(totalResultado.toString().substring(1))
+                                             .append(" AS TOTALRESULTADO").append(resultado[0]);
+                   total.append("+").append(totalResultado.toString().substring(1));
+                   totalResultado = new StringBuffer();
+                }
+                if (form.getEncabezadoCanDenDecl().size()>1) {
+                  selectDinamico.append(',').append(total.substring(1)).append(" AS TOTAL");
+                }
+                
+            }
+        sql = sql.replace("-camposDinamicos-", camposDinamicos.toString().substring(1));
+        sql = sql.replace("-pivotDinamico-", pivotDinamico.toString().substring(1));
+        sql = sql.replace("-selectDinamico-", selectDinamico.toString().substring(1));
+        sql = sql.replace("-idProcesoElectoral-", form.getUsuario().getIdProcesoElectoral().toString());  
+        if(form.getFiltroReporte()!= null){
+          sql = sql.replace("-filtro-",form.getFiltroReporte().toString());
+        }
+        }
+        query = getSession().createSQLQuery(sql);
+        reporte =  query.list();
+        return reporte;
+    }
+        
+}

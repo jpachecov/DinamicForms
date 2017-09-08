@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sec="http://www.springframework.org/security/tags">
+	
+	<p:outputPanel id="idGafete" >
+		<table id="table" width="470px" 
+			style="background-color: #FFFEFE; border-style: solid;">
+			<tr>
+				<td colspan="2" align="center" height="30" valign="top">
+					<br/>
+					<p:graphicImage id="imgINE" width="110" height="30"
+						cache="false" value="#{mbAcreditacionGafete.rutaImg}" />
+					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 95%;" />
+					<h:outputText style="font-weight:bold;font-size: 110%" 
+						value="#{mbAcreditacionGafete.dtoFiltro.nombreProceso}" /><br/><br/>
+					<h:outputText style="font-size: 85%" 
+						value="#{messageSource['etiqueta_acreditacionGafete_noFolioAcreditacionGafete']} #{mbAcreditacionGafete.hlpAcreditacionGafete.folio}" /><br/>
+				</td>
+			</tr>
+			<tr>
+				<td colspan="2" align="center">
+					<h:outputText style="font-weight:bold;font-size: 75%"
+						value="#{messageSource['etiqueta_acreditacionGafete_ciudadano']}" /><br/>
+						
+					<h:outputText style="font-weight:bold;font-size: 85%" 
+						value="#{mbAcreditacionGafete.hlpAcreditacionGafete.apellidoPaterno} #{mbAcreditacionGafete.hlpAcreditacionGafete.apellidoMaterno} #{mbAcreditacionGafete.hlpAcreditacionGafete.nombre}" /><br/><br/>
+							
+					<h:outputText style="font-weight:bold;font-size: 80%"
+						value="#{messageSource['etiqueta_acreditacionGafete_comoObservadorElectoral']} " /><br/>
+					
+					<h:outputText style="font-weight:bold;font-size: 80%"
+						value="#{mbAcreditacionGafete.dtoFiltro.nombreProceso}" /><br/>
+					
+					<h:outputText  style="color: #7f7f7f;font-size: 75%"  
+						value="#{messageSource['etiqueta_acreditacionGafete_vigencia']} #{mbAcreditacionGafete.dtoFiltro.fechaVigencia}" /><br/>
+				</td>
+			</tr>
+			<tr>
+				<!-- <td align="center" width="25%" height="30">
+					<h:outputText style="color: #ffffff" value="#{messageSource['etiqueta_acreditacionGafete_firmaInteresado']}"/>
+				</td> -->
+				<td colspan="2" align="center" height="100">
+					<p:graphicImage id="fotoO"
+									width="80" height="90" cache="false"
+									value="#{mbAcreditacionGafete.fotoRutaCompleta}" />
+				</td>
+				<!-- <td align="center" width="25%">
+					<h:outputText style="color: #ffffff;font-size: 75%"
+						 value="#{messageSource['etiqueta_acreditacionGafete_firmaInteresado']}"/>
+				</td> -->
+			</tr>
+			<tr>
+				<td align="center" width="49%">
+					<h:outputText style="color: #7f7f7f;font-size: 75%"
+						value="#{messageSource['etiqueta_acreditacionGafete_interesado']}" /><br/><br/><br/>
+				</td>
+				<!-- <td align="center"/> -->
+				<td align="center" width="49%">
+					<h:outputText style="color: #7f7f7f;font-size: 75%"
+									value="#{messageSource['etiqueta_acreditacionGafete_consejeroPresidenteL']}" 
+									  rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2'}" />					
+					<h:outputText style="color: #7f7f7f;font-size: 75%" value="#{messageSource['etiqueta_acreditacionGafete_consejeroPresidenteD']}" 
+									  rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1'}" /><br/><br/><br/>
+				</td>
+			</tr>
+			<tr>
+				<td align="center" width="49%">
+					<h:outputText style="color: #ffffff;font-size: 55%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteD}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbAcreditacionGafete.hlpAcreditacionGafete.distrito ne '0'}"/>
+					<h:outputText style="color: #ffffff;font-size: 55%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteE}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2'}"/>
+					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 100%;" />
+					<h:outputText style="color: #7f7f7f;font-size: 75%"
+						value="#{messageSource['etiqueta_acreditacionGafete_firma']}" /><br/><br/>
+					<h:outputText style="font-size: 75%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.nombreestado}" />
+					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 100%;" />
+					<h:outputText style="color: #7f7f7f;font-size: 75%"
+						value="#{messageSource['etiqueta_acreditacionGafete_lugar']}" /><br/>
+				</td>
+				<!-- <td align="center"/> -->
+				<td align="center" width="49%">
+					<h:outputText style="text-transform:uppercase;font-size: 55%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteD}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbAcreditacionGafete.hlpAcreditacionGafete.distrito ne '0'}"/>
+					<h:outputText style="text-transform:uppercase;font-size: 55%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteE}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2'}"/>
+					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 100%;" />
+					<h:outputText style="color: #7f7f7f;font-size: 75%"
+						value="#{messageSource['etiqueta_acreditacionGafete_firma']}" /><br/><br/>
+					<h:outputText style="font-size: 75%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.fechasesion.getTime()}">
+							<f:convertDateTime pattern="dd' de 'MMMM' de 'yyyy" />
+					</h:outputText><br/>
+					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 100%;" />
+					<h:outputText style="color: #7f7f7f;font-size: 75%"
+						value="#{messageSource['etiqueta_generales_fecha']}" /><br/>
+				</td>
+				<!-- <td colspan="3" align="center">
+					<h:outputText style="font-size: 75%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.nombreestado}, " />
+					<h:outputText style="font-size: 75%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.fechasesion.getTime()}">
+							<f:convertDateTime pattern="dd' de 'MMMM' de 'yyyy" />
+						</h:outputText><br/>
+						
+					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 95%;" />
+					
+					<h:outputText style="color: #7f7f7f;font-size: 75%" value="#{messageSource['etiqueta_acreditacionGafete_firmaAutoriza']}"/><br/><br/>
+					
+					<h:outputText style="text-transform:uppercase;font-size: 80%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteD}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbAcreditacionGafete.hlpAcreditacionGafete.distrito ne '0'}"/>
+					<h:outputText style="text-transform:uppercase;font-size: 80%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteE}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '14'}"/><br/>
+					<h:outputText style="color: #ffffff" value="_____________" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '15' or mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2' or (mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbObservadores.hlpRptGafete.distrito eq '0')}"/><br/><br/>
+					
+					<h:outputText style="font-size: 75%"
+									value="#{messageSource['etiqueta_acreditacionGafete_consejeroPresidenteL']}" 
+									  rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '14'}" />
+					
+					<h:outputText style="font-size: 75%" value="#{messageSource['etiqueta_acreditacionGafete_consejeroPresidenteD']}" 
+									  rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1'}" />
+				</td> -->
+			</tr>
+		</table>
+	</p:outputPanel>
+</ui:composition>

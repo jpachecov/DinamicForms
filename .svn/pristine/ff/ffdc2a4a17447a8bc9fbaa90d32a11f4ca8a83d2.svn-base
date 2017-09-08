@@ -1,0 +1,526 @@
+package mx.ine.observadoresINE.dao.impl;
+
+import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Query;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.StringType;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+import mx.ine.observadoresINE.dao.DAOObservadoresInterface;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridades;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridadesPK;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacion;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacionPK;
+import mx.ine.observadoresINE.dto.db.DTOCJustificaciones;
+import mx.ine.observadoresINE.dto.db.DTOCJustificacionesPK;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.db.DTOCursosPK;
+import mx.ine.observadoresINE.dto.db.DTOObservadores;
+import mx.ine.observadoresINE.dto.db.DTOObservadoresPK;
+import mx.ine.observadoresINE.dto.db.DTOReglasEvalucaion;
+import mx.ine.observadoresINE.dto.db.DTOReglasEvalucaionPK;
+import mx.ine.observadoresINE.helper.HLPAcreditacionesGafeteAutocomplete;
+import mx.ine.observadoresINE.mb.MBObservadores; 
+
+@Repository("daoObservadores")
+@Scope("prototype")
+
+public class DAOObservadoresImpl extends DAOGeneric<DTOObservadores, DTOObservadoresPK>  implements DAOObservadoresInterface {
+	
+	private static final Log LOGGER = LogFactory.getLog(DAOObservadoresImpl.class);
+	private SimpleDateFormat formatoDelTexto = new SimpleDateFormat("dd/MM/yyyy");
+ 	//2017-07-27 00:00:00
+	@Override
+	public DTOObservadores consultaObservador(DTOObservadoresPK identificador) {
+		String sql =  this.getContainer().getQuery("query_obten_observador_id");
+		Query query = getSession().createSQLQuery(sql)
+				  .addScalar("idProcesoElectoral", StandardBasicTypes.SHORT)
+			      .addScalar("idDetalleProceso", StandardBasicTypes.SHORT)
+			      .addScalar("claveElector", StandardBasicTypes.STRING)
+				      .addScalar("idEstado", StandardBasicTypes.SHORT)
+					  .addScalar("idDistrito",StandardBasicTypes.SHORT)
+					  .addScalar("fechaSolicitudes", StringType.INSTANCE )
+					  .addScalar("nombre", StringType.INSTANCE )
+					  .addScalar("apellidoPaterno", StringType.INSTANCE )
+					  .addScalar("apellidoMaterno", StringType.INSTANCE )
+					  .addScalar("edad", StandardBasicTypes.SHORT)
+					  .addScalar("sexo",StandardBasicTypes.CHARACTER )
+					  .addScalar("idEvaluacion",StandardBasicTypes.SHORT )
+					  .addScalar("idAgupacion", StandardBasicTypes.SHORT )
+					  .addScalar("telefono", StringType.INSTANCE )
+					  .addScalar("telefonoCelular", StringType.INSTANCE )
+					  .addScalar("correoElectronico", StringType.INSTANCE )
+					  .addScalar("fechaNacimiento", StringType.INSTANCE )
+					  .addScalar("idJustificacion", StandardBasicTypes.SHORT)
+					  .addScalar("seccion", StandardBasicTypes.SHORT )
+					  .addScalar("folio", IntegerType.INSTANCE )
+					  .addScalar("calle", StringType.INSTANCE )
+					  .addScalar("numeroExterior", StringType.INSTANCE )
+					  .addScalar("numeroInterior", StringType.INSTANCE )
+					  .addScalar("colonia", StringType.INSTANCE )
+					  .addScalar("codigoPostal", StringType.INSTANCE )
+					  .addScalar("idMunicipio", StandardBasicTypes.SHORT )
+					  .addScalar("idEstadoDomicilio", StandardBasicTypes.SHORT )
+					  .addScalar("idEscolaridad", StandardBasicTypes.INTEGER)
+					  .addScalar("idCurso", StandardBasicTypes.INTEGER)
+					  .addScalar("fechaAcreditacion", StringType.INSTANCE )
+					  .addScalar("rutaFoto", StringType.INSTANCE )
+					  .addScalar("ratifica", StandardBasicTypes.CHARACTER  )
+					  .addScalar("fechaSesion", StringType.INSTANCE )
+					  .addScalar("origenSolicitud" , StandardBasicTypes.SHORT)
+					  .addScalar("ladaTel" , StandardBasicTypes.STRING)
+					  .addScalar("ladaCel" , StandardBasicTypes.STRING)
+					  .addScalar("extension" , StandardBasicTypes.STRING)
+					  .addScalar("sinNumero" , StandardBasicTypes.SHORT)
+					  .addScalar("idObservador", StandardBasicTypes.SHORT);
+		
+		query.setInteger("idProceso", identificador.getIdProcesoElectoral()  );
+        query.setInteger("idDetalleProceso", identificador.getIdDetalleProceso() );
+        query.setInteger("idObservador", identificador.getIdObservador() ); 
+        try{
+        Object[] tmp = (Object[])query.uniqueResult();
+        DTOObservadoresPK tmpPk = new DTOObservadoresPK ((Short)tmp[0]  , (Short)tmp[1] , (Short)tmp[38] );
+        DTOObservadores observador = new DTOObservadores(tmpPk , (Short)tmp[3] , (Short)tmp[4] , 
+        		(Date)this.regresaFecha((String)tmp[5]), (String)tmp[6] , (String)tmp[7] , (String)tmp[8]  , (Short)tmp[9] , (Character)tmp[10] ,
+        		(Short)tmp[11] ,  (Short)tmp[12] ,  (String)tmp[13]  , (String)tmp[14]  , (String)tmp[15]  ,
+        		(String)tmp[16] , (Short)tmp[17], (Short) tmp[18], (Integer)tmp[19], (String)tmp[20], 
+        		(String)tmp[21],(String)tmp[22],(String)tmp[23],(String)tmp[24],(Short)tmp[25], 
+        		(Short)tmp[26],(Integer)tmp[27], (Integer)tmp[28],(Date)this.regresaFecha((String)tmp[29]) , (String)tmp[30] , (Character)tmp[31] , (Date)this.regresaFecha((String)tmp[32]) , (Short) tmp[33] ,
+        		(String)tmp[34],(String)tmp[35],(String)tmp[36],(Short)tmp[37], (String) tmp[2]	);
+       
+        LOGGER.info("Se pudo contruir el observador");
+        
+        return observador;
+        }catch (Exception e) {
+        	LOGGER.error("Ups! , se genero un error al tratar de obtener al obsevador", e);
+        	return null;
+		}
+	}
+	
+	
+	/*
+	 * Método de la clase para comvertir una cadena a un objeto tipo Date
+	 * 
+	 */
+	
+	private Date regresaFecha(String fechaCadena) {
+
+		try {
+			LOGGER.info("Lo que se trata de parsear es ::: " + fechaCadena);
+			 
+			if(fechaCadena != null){
+			return formatoDelTexto.parse(fechaCadena);
+			
+			}else{
+				return null;
+			}
+		} catch (java.text.ParseException e) {
+
+			LOGGER.error("Ups! se genero un error al tratar de convertir la fecha" , e);
+			return null;
+		}
+
+	}
+
+	
+	
+
+	@Override 
+	public void guarda(DTOObservadores observador) throws Exception {
+		  guardar(observador);	 
+	}
+
+	@Override
+	public void modifica(DTOObservadores observador) {
+		modificar(observador);
+
+	}
+
+	@Override
+	public void elimina(DTOObservadores observador) {
+		eliminar(observador);
+
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<DTOCEscolaridades> obtenEscolaridad(DTOUsuarioLogin user) {
+		List<DTOCEscolaridades> resultado = new ArrayList<DTOCEscolaridades>();
+		String sql = this.getContainer().getQuery("query_obten_observador_catalogo_escolaridad");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idEscolaridad", StandardBasicTypes.INTEGER)
+				.addScalar("descripcion", StandardBasicTypes.STRING);
+		query.setInteger("idProceso",  user.getIdProcesoElectoral());
+		query.setInteger("idDetalle",   user.getIdDetalleProceso());
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOCEscolaridades objEsc = new DTOCEscolaridades();
+				DTOCEscolaridadesPK objEscPK = new DTOCEscolaridadesPK();
+				objEscPK = new DTOCEscolaridadesPK( (Integer) objects[0], (Integer) objects[1],(Integer) objects[2] );
+				objEsc = new DTOCEscolaridades (objEscPK , (String) objects[3]);
+				resultado.add(objEsc);
+			}
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenEscolaridad :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<DTOCEvaluacion> obtenListaEvaluaciones(DTOUsuarioLogin user) {
+		List<DTOCEvaluacion> resultado = new ArrayList<DTOCEvaluacion>();
+		String sql = this.getContainer().getQuery("query_obten_observador_catalogo_evaluaciones");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idEvaluacion", StandardBasicTypes.INTEGER)
+				.addScalar("descripcion", StandardBasicTypes.STRING);
+		query.setInteger("idProceso", user.getIdProcesoElectoral());
+		query.setInteger("idDetalle",   user.getIdDetalleProceso());
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOCEvaluacion objEsc = new DTOCEvaluacion();
+				DTOCEvaluacionPK objEscPK = new DTOCEvaluacionPK();
+				objEscPK = new DTOCEvaluacionPK( (Integer) objects[0] , (Integer) objects[1],(Integer) objects[2] );
+				objEsc = new DTOCEvaluacion (objEscPK , (String) objects[3]);
+				resultado.add(objEsc);
+			}
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenListaEvaluaciones :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<DTOCJustificaciones> obtenerJustificacion(DTOUsuarioLogin user) {
+		List<DTOCJustificaciones> resultado = new ArrayList<DTOCJustificaciones>();
+		String sql = this.getContainer().getQuery("query_obten_observador_catalogo_justificaciones");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idJustificacion", StandardBasicTypes.INTEGER)
+				.addScalar("descripcion", StandardBasicTypes.STRING);
+		query.setInteger("idProceso",   user.getIdProcesoElectoral());
+		query.setInteger("idDetalle",   user.getIdDetalleProceso());
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOCJustificaciones objEsc = new DTOCJustificaciones();
+				DTOCJustificacionesPK objEscPK = new DTOCJustificacionesPK();
+				objEscPK = new DTOCJustificacionesPK( (Integer) objects[0] , (Integer) objects[1],(Integer) objects[2] );
+				objEsc = new DTOCJustificaciones (objEscPK , (String) objects[3]);
+				resultado.add(objEsc);
+			}
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenerJustificacion :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	public List<DTOReglasEvalucaion> obtenReglasE(DTOObservadores obs) {
+		List<DTOReglasEvalucaion> resultado = new ArrayList<DTOReglasEvalucaion>();
+		String sql = this.getContainer().getQuery("query_obten_reglas_evaluacion");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idEvaluacion", StandardBasicTypes.INTEGER)
+				.addScalar("idRegla", StandardBasicTypes.INTEGER);
+		query.setInteger("idProceso",   obs.getDTOObservadoresPK().getIdProcesoElectoral());
+		query.setInteger("idDetalle",    obs.getDTOObservadoresPK().getIdDetalleProceso());
+		query.setInteger("idEvaluacion",  obs.getIdEvaluacion()); 
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOReglasEvalucaion objEsc = new DTOReglasEvalucaion();
+				DTOReglasEvalucaionPK objEscPK = new DTOReglasEvalucaionPK();
+				objEscPK = new DTOReglasEvalucaionPK( (Integer) objects[0] , (Integer) objects[1],(Integer) objects[2], (Integer) objects[3] );
+				objEsc = new DTOReglasEvalucaion (objEscPK);
+				resultado.add(objEsc);
+			}
+			LOGGER.info("La longitud de la lista ::" + resultado.size());
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenReglasE :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	public Boolean habilitaRatifica(DTOUsuarioLogin user) {
+		String sql = this.getContainer().getQuery("query_hablita_ratifica");
+		Query query = getSession().createSQLQuery(sql).addScalar("resultado", StandardBasicTypes.BIG_DECIMAL);
+		query.setInteger("idProceso",   user.getIdProcesoElectoral());
+		query.setInteger("idDetalle",   user.getIdDetalleProceso());
+		try {
+
+			 BigDecimal tmp = (BigDecimal) query.uniqueResult();
+			LOGGER.info("El resultado de la operacio para habilitaRatifica  es ::" + (tmp.intValue() > 0 ? true : false ) );
+			return (tmp.intValue() > 0 ? true : false );
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en habilitaRatifica ::", e);
+			return false;
+		}
+	}
+
+
+	@Override
+	public Short generaEdad(String fechaCadena) {
+		Short resultado = 0;
+		String  queryString = this.getContainer().getQuery("query_obten_edad");
+        Date nuevaFecha = new Date();
+		queryString = queryString.replace("-fechaActual-", "'"+ new SimpleDateFormat("dd/MM/yyyy").format(nuevaFecha)+"'");
+		queryString = queryString.replace("-fechaNacimiento-", "'"+ fechaCadena+"'");
+		Query query = getSession().createSQLQuery(queryString).addScalar("resultado", StandardBasicTypes.BIG_DECIMAL);
+		try {	
+			 BigDecimal tmp = (BigDecimal) query.uniqueResult();
+			LOGGER.info("El resultado de la EDAD es ::" + tmp.shortValueExact());
+			return tmp.shortValueExact();
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en generaEdad :" , e);
+			return resultado;
+		}
+	}
+
+
+	@Override
+	public List<DTOObservadores> obtenerObservadores(DTOUsuarioLogin user) {
+		List<DTOObservadores> resultado = new ArrayList<DTOObservadores>();
+		
+		String sql =  this.getContainer().getQuery("query_obten_observador_proceso");
+		Query query = getSession().createSQLQuery(sql)
+				  .addScalar("idProcesoElectoral", StandardBasicTypes.SHORT)
+			      .addScalar("idDetalleProceso", StandardBasicTypes.SHORT)
+			      .addScalar("claveElector", StandardBasicTypes.STRING)
+				      .addScalar("idEstado", StandardBasicTypes.SHORT)
+					  .addScalar("idDistrito",StandardBasicTypes.SHORT)
+					  .addScalar("fechaSolicitudes", StringType.INSTANCE )
+					  .addScalar("nombre", StringType.INSTANCE )
+					  .addScalar("apellidoPaterno", StringType.INSTANCE )
+					  .addScalar("apellidoMaterno", StringType.INSTANCE )
+					  .addScalar("edad", StandardBasicTypes.SHORT)
+					  .addScalar("sexo",StandardBasicTypes.CHARACTER )
+					  .addScalar("idEvaluacion",StandardBasicTypes.SHORT )
+					  .addScalar("idAgupacion", StandardBasicTypes.SHORT )
+					  .addScalar("telefono", StringType.INSTANCE )
+					  .addScalar("telefonoCelular", StringType.INSTANCE )
+					  .addScalar("correoElectronico", StringType.INSTANCE )
+					  .addScalar("fechaNacimiento", StringType.INSTANCE )
+					  .addScalar("idJustificacion", StandardBasicTypes.SHORT)
+					  .addScalar("seccion", StandardBasicTypes.SHORT )
+					  .addScalar("folio", IntegerType.INSTANCE )
+					  .addScalar("calle", StringType.INSTANCE )
+					  .addScalar("numeroExterior", StringType.INSTANCE )
+					  .addScalar("numeroInterior", StringType.INSTANCE )
+					  .addScalar("colonia", StringType.INSTANCE )
+					  .addScalar("codigoPostal", StringType.INSTANCE )
+					  .addScalar("idMunicipio", StandardBasicTypes.SHORT )
+					  .addScalar("idEstadoDomicilio", StandardBasicTypes.SHORT )
+					  .addScalar("idEscolaridad", StandardBasicTypes.INTEGER)
+					  .addScalar("idCurso", StandardBasicTypes.INTEGER)
+					  .addScalar("fechaAcreditacion", StringType.INSTANCE )
+					  .addScalar("rutaFoto", StringType.INSTANCE )
+					  .addScalar("ratifica", StandardBasicTypes.CHARACTER  )
+					  .addScalar("fechaSesion", StringType.INSTANCE )
+					  .addScalar("origenSolicitud" , StandardBasicTypes.SHORT)
+					  .addScalar("ladaTel" , StandardBasicTypes.STRING)
+					  .addScalar("ladaCel" , StandardBasicTypes.STRING)
+					  .addScalar("extension" , StandardBasicTypes.STRING)
+					  .addScalar("sinNumero" , StandardBasicTypes.SHORT)
+					  .addScalar("idObservador", StandardBasicTypes.SHORT);
+		
+		query.setInteger("idProceso", user.getIdProcesoElectoral()  );
+        query.setInteger("idDetalleProceso", user.getIdDetalleProceso() );
+        
+        try{
+        List<Object[]> objects = (List<Object[]>)query.list();
+        
+        for (Object[] tmp : objects) {
+
+            DTOObservadoresPK tmpPk = new DTOObservadoresPK ((Short)tmp[0]  , (Short)tmp[1] , (Short)tmp[38] );
+            DTOObservadores observador = new DTOObservadores(tmpPk , (Short)tmp[3] , (Short)tmp[4] , 
+            		(Date)this.regresaFecha((String)tmp[5]), (String)tmp[6] , (String)tmp[7] , (String)tmp[8]  , (Short)tmp[9] , (Character)tmp[10] ,
+            		(Short)tmp[11] ,  (Short)tmp[12] ,  (String)tmp[13]  , (String)tmp[14]  , (String)tmp[15]  ,
+            		(String)tmp[16] , (Short)tmp[17], (Short)tmp[18], (Integer)tmp[19], (String)tmp[20], 
+            		(String)tmp[21],(String)tmp[22],(String)tmp[23],(String)tmp[24],(Short)tmp[25], 
+            		(Short)tmp[26],(Integer)tmp[27], (Integer)tmp[28],(Date)this.regresaFecha((String)tmp[29]) , (String)tmp[30] , (Character)tmp[31] , (Date)this.regresaFecha((String)tmp[32]) , (Short) tmp[33] ,
+            		(String)tmp[34],(String)tmp[35],(String)tmp[36],(Short)tmp[37], (String) tmp[2]	);
+            resultado.add(observador);
+        LOGGER.info("Se pudo contruir el observador y agregarlo a la lista");
+		}
+
+        return resultado;
+        }catch (Exception e) {
+        	LOGGER.error("Ups! , se genero un error al tratar de obtener al obsevador", e);
+        	return null;
+		}
+	}
+
+
+	@Override
+	public List<DTOCEscolaridades> obtenEscolaridad(short idProcesoElectoral, short idDetalleProceso) {
+		List<DTOCEscolaridades> resultado = new ArrayList<DTOCEscolaridades>();
+		String sql = this.getContainer().getQuery("query_obten_observador_catalogo_escolaridad");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idEscolaridad", StandardBasicTypes.INTEGER)
+				.addScalar("descripcion", StandardBasicTypes.STRING);
+		query.setInteger("idProceso", idProcesoElectoral);
+		query.setInteger("idDetalle",  idDetalleProceso);
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOCEscolaridades objEsc = new DTOCEscolaridades();
+				DTOCEscolaridadesPK objEscPK = new DTOCEscolaridadesPK();
+				objEscPK = new DTOCEscolaridadesPK( (Integer) objects[0], (Integer) objects[1],(Integer) objects[2] );
+				objEsc = new DTOCEscolaridades (objEscPK , (String) objects[3]);
+				resultado.add(objEsc);
+			}
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenEscolaridad :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	public List<DTOCEvaluacion> obtenListaEvaluaciones(short idProcesoElectoral, short idDetalleProceso) {
+		List<DTOCEvaluacion> resultado = new ArrayList<DTOCEvaluacion>();
+		String sql = this.getContainer().getQuery("query_obten_observador_catalogo_evaluaciones");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idEvaluacion", StandardBasicTypes.INTEGER)
+				.addScalar("descripcion", StandardBasicTypes.STRING);
+		query.setInteger("idProceso", idProcesoElectoral);
+		query.setInteger("idDetalle",  idDetalleProceso );
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOCEvaluacion objEsc = new DTOCEvaluacion();
+				DTOCEvaluacionPK objEscPK = new DTOCEvaluacionPK();
+				objEscPK = new DTOCEvaluacionPK( (Integer) objects[0] , (Integer) objects[1],(Integer) objects[2] );
+				objEsc = new DTOCEvaluacion (objEscPK , (String) objects[3]);
+				resultado.add(objEsc);
+			}
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenListaEvaluaciones :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	public List<DTOCJustificaciones> obtenerJustificacion(short idProcesoElectoral, short idDetalleProceso) {
+		List<DTOCJustificaciones> resultado = new ArrayList<DTOCJustificaciones>();
+		String sql = this.getContainer().getQuery("query_obten_observador_catalogo_justificaciones");
+		Query query = getSession().createSQLQuery(sql)
+				.addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				.addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				.addScalar("idJustificacion", StandardBasicTypes.INTEGER)
+				.addScalar("descripcion", StandardBasicTypes.STRING);
+		query.setInteger("idProceso",   idProcesoElectoral);
+		query.setInteger("idDetalle",   idDetalleProceso);
+		try {	
+			List<Object[]> tmp = (List<Object[]>) query.list();	
+			for (Object[] objects : tmp) {
+				DTOCJustificaciones objEsc = new DTOCJustificaciones();
+				DTOCJustificacionesPK objEscPK = new DTOCJustificacionesPK();
+				objEscPK = new DTOCJustificacionesPK( (Integer) objects[0] , (Integer) objects[1],(Integer) objects[2] );
+				objEsc = new DTOCJustificaciones (objEscPK , (String) objects[3]);
+				resultado.add(objEsc);
+			}
+			return resultado;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenerJustificacion :" , e);
+			return null;
+		}
+	}
+
+
+	@Override
+	public List<DTOCursos> obtenCursos(Integer idProcesoElectoral, Integer idDetalleProceso) {
+		 List<DTOCursos> resultado = new ArrayList<DTOCursos>();
+		String sql =  this.getContainer().getQuery("query_obten_cursos_observadores");
+		Query query = getSession().createSQLQuery(sql)
+				  .addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+			      .addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+			      .addScalar("idCurso", StandardBasicTypes.INTEGER)
+				      .addScalar("origenCurso", StandardBasicTypes.INTEGER)
+					  .addScalar("fecha", StringType.INSTANCE )
+					  .addScalar("horaInicio", StringType.INSTANCE )
+					  .addScalar("horaFin", StringType.INSTANCE )
+					  .addScalar("observaciones", StringType.INSTANCE )
+					  .addScalar("etiqueta", StringType.INSTANCE );
+		
+		query.setInteger("idProceso", idProcesoElectoral );
+        query.setInteger("idDetalleProceso", idDetalleProceso );
+        try{
+        List<Object[]> tmp = (List<Object[]>)query.list();
+        for (Object[] objects : tmp) {
+        	DTOCursosPK tmpPk = new DTOCursosPK ((Integer)objects[0]  , (Integer)objects[1] , (Integer)objects[2] ); 
+        	DTOCursos observador = new DTOCursos(tmpPk , (Integer)objects[3] ,(Date)this.regresaFecha((String)objects[4]), 
+            (Date)this.regresaFecha((String)objects[5]),(Date)this.regresaFecha((String)objects[6]), (String)objects[7] , (String)objects[8]); 
+        	resultado.add(observador);
+        LOGGER.info("Se pudo contruir el curso");
+		}
+        return resultado;
+        }catch (Exception e) {
+        	LOGGER.error("Ups! , se genero un error al tratar de obtener al obsevador", e);
+        	return null;
+		}
+	}
+
+
+	@Override
+	public boolean claveElectorExiste(DTOUsuarioLogin user, String claveCompleta) {
+		Short resultado = 0;
+		String  queryString = this.getContainer().getQuery("query_existe_observador");
+        
+		
+		Query query = getSession().createSQLQuery(queryString).addScalar("resultado", StandardBasicTypes.BIG_DECIMAL);
+		query.setInteger("idProceso", user.getIdProcesoElectoral() );
+        query.setInteger("idDetalleProceso", user.getIdDetalleProceso() );
+        query.setString("clave", claveCompleta  );
+		try {	
+			 BigDecimal tmp = (BigDecimal) query.uniqueResult();
+			 LOGGER.info("El resultado de existe clave es ::  " + tmp.intValue());
+			return tmp.intValue() >  0 ? false : true;
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en claveElectorExiste :" , e);
+			return false;
+		}
+	}
+
+ 
+
+ 
+
+}

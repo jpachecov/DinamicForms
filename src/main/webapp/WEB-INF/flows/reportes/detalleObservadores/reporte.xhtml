@@ -1,0 +1,103 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:sf="http://www.springframework.org/tags/faces"
+                xmlns:sec="http://www.springframework.org/security/tags"
+                xmlns:pe="http://primefaces.org/ui/extensions"
+                xmlns:deceyec="http://ine.mx/ui" template="/templates/template.xhtml">
+	
+	<ui:define name="CONTENT">
+	<!-- LAS ETIQUETAS SE ENCUENTRAN EN APPLICATIONRESOURCES.PROPERTIES -->
+        <!-- LAS CONSTANTES SE ENCUENTRAN EN GENERICCONSTANTS.PROPERTIES -->
+        <!-- BLOCKUI-->
+        <pe:blockUI id="progress" target="formContent"
+                    content="blockUIContent" widgetVar="progress" />
+        <!-- BLOCKUICONTENT -->
+        <h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+            <h:graphicImage library="img" name="loader.gif" width="70" />
+            <h:outputText
+                value="#{messageSource['mensaje_generales_procesando']}"
+                style="white-space: nowrap;" />
+        </h:panelGrid>
+        <script type="text/javascript">
+            function handleResponse(xhr, status, args) {
+                if (args.validationFailed) {
+                    window.scrollTo(0, 0);
+                }
+            }
+            $("body").click(function (event) {
+                event.target.focus();
+            });
+        </script>
+
+        <h:form id="formContent" styleClass="container-fluid">
+            <!-- IMPORTANTE, DEJAR UN COMMAND BUTTON VACIO AL INICIO DEL FORM -->
+            <p:commandButton style="display: none;" />
+            <pe:inputNumber style="display:none" />
+            <p:messages for="mensajesError" autoUpdate="true" closable="true" />
+            <p:messages for="mensajesAdvertencia" autoUpdate="true" closable="true"/>
+            <p:growl for="mensajesInfo" sticky="true"/>
+            <p:messages id="msgGlobal" globalOnly="true" showDetail="true" closable="true" severity="info" life="5000"/>
+            <p:messages id="msgError" globalOnly="true" showDetail="true" closable="true" severity="error,fatal,warn"/>
+
+
+            
+           <p:outputPanel id="panelTabla" rendered="#{mbReporte.muestraTabla}" >
+                <div class="card">
+                    <ui:include  src="../componentes/tablaReporte.xhtml" />
+                </div>
+            </p:outputPanel>
+
+
+        </h:form>
+        <script>
+            $.datepicker.regional['es'] = {
+                closeText: 'Cerrar',
+                prevText: '&#x3c;Ant',
+                nextText: 'Sig&#x3e;',
+                currentText: 'Hoy',
+                monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo',
+                    'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre',
+                    'Noviembre', 'Diciembre'],
+                monthNamesShort: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun',
+                    'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+                dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles',
+                    'Jueves', 'Viernes', 'Sábado'],
+                dayNamesShort: ['Dom', 'Lun', 'Mar', 'Mié', 'Juv', 'Vie',
+                    'Sáb'],
+                dayNamesMin: ['Do', 'Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá'],
+                weekHeader: 'Sm',
+                dateFormat: 'dd/mm/yy',
+                firstDay: 1,
+                isRTL: false,
+                showMonthAfterYear: false,
+                yearSuffix: ''
+            };
+            $.datepicker.setDefaults($.datepicker.regional['es']);
+
+            jQuery(document).ready(function ($) {
+                $('.datepicker').each(function () {
+                    $(this).datepicker();
+                });
+            });
+        </script>
+        <!-- Script para recargar el reporte -->
+        <script>
+            // Reprogramamos la accion de F5 para que recargue la tabla 
+            $(document).ready(function () {
+                // Cuando se presiona el boton
+                $('body').keydown(function (event) {
+                    if (event.which == 116) {
+                        event.preventDefault();
+                        $('#formContent\\:botonReporte').click();
+                    }
+                });
+            });
+        </script>
+	</ui:define>
+</ui:composition>

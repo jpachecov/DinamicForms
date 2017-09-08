@@ -1,0 +1,1059 @@
+/**
+ * @(#)DTOObservadores.java 28/06/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+
+package mx.ine.observadoresINE.dto.db;
+
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import javax.persistence.Basic;
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.Transient;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import mx.org.ine.servicios.dto.DTOBase;
+
+/**
+ *
+ * @author Helaine Flores Cervantes
+ * @since 28/06/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Entity
+@Table(name = "OBSERVADORES", schema = "OBSERVADORESINE")
+public class DTOObservadores extends DTOBase implements Serializable {
+
+	private static final long serialVersionUID = 2550874016584949414L;
+	@EmbeddedId
+	protected DTOObservadoresPK dTOObservadoresPK;
+	@Basic(optional = false)
+	@NotNull
+	@Size(min = 1, max = 18)
+	@Column(name = "CLAVE_ELECTOR")
+	private String claveElector;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "ID_ESTADO")
+	private Short idEstado;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "ID_DISTRITO")
+	private Short idDistrito;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "FECHA_SOLICITUDES")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fechaSolicitudes;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "ORIGEN_SOLICITUD")
+	private Short origenSolicitud;
+	@Basic(optional = true)
+	@Column(name = "ID_AGRUPACION")
+	private Short idAgupacion;
+	@Basic(optional = true)
+	@Column(name = "ID_JUSTIFICACION")
+	private Short idJustificacion;
+	@Basic(optional = true)
+	@Column(name = "ID_ESCOLARIDAD")
+	private Integer idEscolaridad;
+	@Basic(optional = true)
+	@Column(name = "ID_CURSO")
+	private Integer idCurso;
+	@Basic(optional = false)
+	@NotNull
+	@Size(min = 1, max = 50)
+	@Column(name = "NOMBRE")
+	private String nombre;
+	@Size(max = 40)
+	@Column(name = "APELLIDO_PATERNO")
+	private String apellidoPaterno;
+	@Size(max = 40)
+	@Column(name = "APELLIDO_MATERNO")
+	private String apellidoMaterno;
+	@Size(max = 25)
+	@Column(name = "TELEFONO")
+	private String telefono;
+	@Size(max = 25)
+	@Column(name = "TELEFONO_CELULAR")
+	private String telefonoCelular;
+	@Size(max = 50)
+	@Column(name = "CORREO_ELECTRONICO")
+	private String correoElectronico;
+	@Size(max = 10)
+	@Column(name = "FECHA_NACIMIENTO")
+	private String fechaNacimiento;
+	
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "EDAD")
+	private Short edad;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "SEXO")
+	private Character sexo;
+	@Column(name = "FECHA_SESION")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fechaSesion;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "ID_EVALUACION")
+	private Short idEvaluacion;
+	@Column(name = "SECCION")
+	private Short seccion;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "SIN_NUMERO")
+	private Short sinNumero;
+	@Column(name = "FOLIO")
+	private Integer folio;
+	@Size(max = 50)
+	@Column(name = "CALLE")
+	private String calle;
+	@Size(max = 8)
+	@Column(name = "NUMERO_EXTERIOR")
+	private String numeroExterior;
+	@Size(max = 8)
+	@Column(name = "NUMERO_INTERIOR")
+	private String numeroInterior;
+	@Size(max = 60)
+	@Column(name = "COLONIA")
+	private String colonia;
+	@Size(max = 5)
+	@Column(name = "CODIGO_POSTAL")
+	private String codigoPostal;
+	@Column(name = "ID_MUNICIPIO")
+	private Short idMunicipio;
+	@Column(name = "ID_ESTADO_DOMICILIO")
+	private Short idEstadoDomicilio;
+	@Column(name = "FECHA_ACREDITACION")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fechaAcreditacion;
+
+	@Size(max = 3)
+	@Column(name = "LADA_TELEFONO")
+	private String ladaTel;
+
+	@Size(max = 3)
+	@Column(name = "LADA_CELULAR")
+	private String ladaCel;
+
+	@Size(max = 10)
+	@Column(name = "EXTENSION")
+	private String extension;
+
+	@Size(max = 100)
+	@Column(name = "RUTA_FOTO")
+	private String rutaFoto;
+	@Basic(optional = false)
+	@NotNull
+	@Size(min = 1, max = 50)
+	@Column(name = "USUARIO")
+	private String usuario;
+	@Basic(optional = false)
+	@NotNull
+	@Column(name = "FECHA_HORA")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date fechaHora;
+	@Column(name = "RATIFICA")
+	private Character ratifica;
+	@Transient
+	private String etiquetaNombre;
+	@Transient
+	private String etiquetaFechaSolicitudes;
+	@Transient
+	private String etiquetaFechaSesion;
+	@Transient
+	private SimpleDateFormat formatoDelTexto = new SimpleDateFormat("yyyy/mm/dd");
+	@Transient
+	private String  etiquetaAgrupacion;
+	@Transient
+	private String  etiquetaEstado;
+	@Transient
+	private String  etiquetaDistrito;
+	@Transient
+	private String  etiquetaCurso;
+	@Transient
+	private String  etiquetaRecibidoPor;
+	@Transient
+	private String  etiquetaEscolaridad;
+	@Transient
+	private String  etiquetaSexo;
+	@Transient
+	private String  etiquetaEvaluacion;
+	@Transient
+	private String  etiquetaResultadoSolicitud;
+	
+	@Transient
+	private String etiquetaAgrupacionNombre;
+	
+	
+
+	@JoinColumns({
+			@JoinColumn(name = "ID_PROCESO_ELECTORAL", referencedColumnName = "ID_PROCESO_ELECTORAL", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_DETALLE_PROCESO", referencedColumnName = "ID_DETALLE_PROCESO", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_CURSO", referencedColumnName = "ID_CURSO", insertable = false, updatable = false) })
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	private DTOCursos dTOCursos;
+	@JoinColumns({
+			@JoinColumn(name = "ID_PROCESO_ELECTORAL", referencedColumnName = "ID_PROCESO_ELECTORAL", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_DETALLE_PROCESO", referencedColumnName = "ID_DETALLE_PROCESO", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_JUSTIFICACION", referencedColumnName = "ID_JUSTIFICACION", insertable = false, updatable = false) })
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	private DTOCJustificaciones dTOCJustificaciones;
+	@JoinColumns({
+			@JoinColumn(name = "ID_PROCESO_ELECTORAL", referencedColumnName = "ID_PROCESO_ELECTORAL", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_DETALLE_PROCESO", referencedColumnName = "ID_DETALLE_PROCESO", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_ESCOLARIDAD", referencedColumnName = "ID_ESCOLARIDAD", insertable = false, updatable = false) })
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	private DTOCEscolaridades dTOCEscolaridades;
+	@JoinColumns({
+			@JoinColumn(name = "ID_PROCESO_ELECTORAL", referencedColumnName = "ID_PROCESO_ELECTORAL", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_DETALLE_PROCESO", referencedColumnName = "ID_DETALLE_PROCESO", insertable = false, updatable = false),
+			@JoinColumn(name = "ID_AGRUPACION", referencedColumnName = "ID_AGRUPACION", insertable = false, updatable = false) })
+	@ManyToOne(optional = false, fetch = FetchType.LAZY)
+	private DTOAgrupaciones dTOAgrupaciones;
+
+	public DTOObservadores() {
+	}
+
+	public DTOObservadores(DTOObservadoresPK dTOObservadoresPK) {
+		this.dTOObservadoresPK = dTOObservadoresPK;
+	}
+
+	public DTOObservadores(DTOObservadoresPK dTOObservadoresPK, Short idEstado, Short idDistrito, Date fechaSolicitudes,
+			String nombre, String appP, String appM, Short edad, Character sexo, Short acreditacionCurso,
+			Short idAgrupacion, String telefono, String celular, String mail, String fechaNacimiento,
+			Short idJustificacion, Short seccion, Integer folio, String calle, String numExterior, String numInter,
+			String colonia, String cp, Short idMuni, Short idEdoDom, Integer idEscolaridad, Integer idCurso,
+			Date fechaAcredita, String rutaFoto, Character ratifica, Date fechaSes, Short origenSoli, String ladaTel,
+			String ladaCel, String ext, Short sinNumero, String clave) {
+		this.dTOObservadoresPK = dTOObservadoresPK;
+		this.idEstado = idEstado;
+		this.idDistrito = idDistrito;
+		this.fechaSolicitudes = fechaSolicitudes;
+		this.nombre = nombre;
+		this.apellidoPaterno = appP;
+		this.apellidoMaterno = appM;
+		this.edad = edad;
+		this.sexo = sexo;
+		this.idEvaluacion = acreditacionCurso;
+		this.idAgupacion = idAgrupacion;
+		this.telefono = telefono;
+		this.telefonoCelular = celular;
+		this.correoElectronico = mail;
+		this.fechaNacimiento = fechaNacimiento;
+		this.idJustificacion = idJustificacion;
+		this.seccion = seccion;
+		this.folio = folio;
+		this.calle = calle;
+		this.numeroExterior = numExterior;
+		this.numeroInterior = numInter;
+		this.colonia = colonia;
+		this.codigoPostal = cp;
+		this.idMunicipio = idMuni;
+		this.idEstadoDomicilio = idEdoDom;
+		this.idEscolaridad = idEscolaridad;
+		this.idCurso = idCurso;
+		this.fechaAcreditacion = fechaAcredita;
+		this.rutaFoto = rutaFoto;
+		this.ratifica = ratifica;
+		this.fechaSesion = fechaSes;
+		this.origenSolicitud = origenSoli;
+		this.ladaTel = ladaTel;
+		this.ladaCel = ladaCel;
+		this.extension = ext;
+		this.sinNumero = sinNumero;
+		this.claveElector = clave;
+	}
+
+
+
+	public DTOObservadoresPK getDTOObservadoresPK() {
+		return dTOObservadoresPK;
+	}
+
+	public void setDTOObservadoresPK(DTOObservadoresPK dTOObservadoresPK) {
+		this.dTOObservadoresPK = dTOObservadoresPK;
+	}
+
+	public Short getIdEstado() {
+		return idEstado;
+	}
+
+	public void setIdEstado(Short idEstado) {
+		this.idEstado = idEstado;
+	}
+
+	public Short getIdDistrito() {
+		return idDistrito;
+	}
+
+	public void setIdDistrito(Short idDistrito) {
+		this.idDistrito = idDistrito;
+	}
+
+	public Date getFechaSolicitudes() {
+		return fechaSolicitudes;
+	}
+
+	public void setFechaSolicitudes(Date fechaSolicitudes) {
+		this.fechaSolicitudes = fechaSolicitudes;
+	}
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getApellidoPaterno() {
+		return apellidoPaterno;
+	}
+
+	public void setApellidoPaterno(String apellidoPaterno) {
+		this.apellidoPaterno = apellidoPaterno;
+	}
+
+	public String getApellidoMaterno() {
+		return apellidoMaterno;
+	}
+
+	public void setApellidoMaterno(String apellidoMaterno) {
+		this.apellidoMaterno = apellidoMaterno;
+	}
+
+	public String getTelefono() {
+		return telefono;
+	}
+
+	public void setTelefono(String telefono) {
+		this.telefono = telefono;
+	}
+
+	public String getTelefonoCelular() {
+		return telefonoCelular;
+	}
+
+	public void setTelefonoCelular(String telefonoCelular) {
+		this.telefonoCelular = telefonoCelular;
+	}
+
+	public String getCorreoElectronico() {
+		return correoElectronico;
+	}
+
+	public void setCorreoElectronico(String correoElectronico) {
+		this.correoElectronico = correoElectronico;
+	}
+
+	public String getFechaNacimiento() {
+		return fechaNacimiento;
+	}
+
+	public void setFechaNacimiento(String fechaNacimiento) {
+		this.fechaNacimiento = fechaNacimiento;
+	}
+
+	public Short getEdad() {
+		return edad;
+	}
+
+	public void setEdad(Short edad) {
+		this.edad = edad;
+	}
+
+	public Character getSexo() {
+		return sexo;
+	}
+
+	public void setSexo(Character sexo) {
+		this.sexo = sexo;
+	}
+
+	public Date getFechaSesion() {
+		return fechaSesion;
+	}
+
+	public void setFechaSesion(Date fechaSesion) {
+		this.fechaSesion = fechaSesion;
+	}
+
+	public Short getSeccion() {
+		return seccion;
+	}
+
+	public void setSeccion(Short seccion) {
+		this.seccion = seccion;
+	}
+
+	public Integer getFolio() {
+		return folio;
+	}
+
+	public void setFolio(Integer folio) {
+		this.folio = folio;
+	}
+
+	public String getCalle() {
+		return calle;
+	}
+
+	public void setCalle(String calle) {
+		this.calle = calle;
+	}
+
+	public String getNumeroExterior() {
+		return numeroExterior;
+	}
+
+	public void setNumeroExterior(String numeroExterior) {
+		this.numeroExterior = numeroExterior;
+	}
+
+	public String getNumeroInterior() {
+		return numeroInterior;
+	}
+
+	public void setNumeroInterior(String numeroInterior) {
+		this.numeroInterior = numeroInterior;
+	}
+
+	public String getColonia() {
+		return colonia;
+	}
+
+	public void setColonia(String colonia) {
+		this.colonia = colonia;
+	}
+
+	public String getCodigoPostal() {
+		return codigoPostal;
+	}
+
+	public void setCodigoPostal(String codigoPostal) {
+		this.codigoPostal = codigoPostal;
+	}
+
+	public Short getIdMunicipio() {
+		return idMunicipio;
+	}
+
+	public void setIdMunicipio(Short idMunicipio) {
+		this.idMunicipio = idMunicipio;
+	}
+
+	public Short getIdEstadoDomicilio() {
+		return idEstadoDomicilio;
+	}
+
+	public void setIdEstadoDomicilio(Short idEstadoDomicilio) {
+		this.idEstadoDomicilio = idEstadoDomicilio;
+	}
+
+	public Date getFechaAcreditacion() {
+		return fechaAcreditacion;
+	}
+
+	public void setFechaAcreditacion(Date fechaAcreditacion) {
+		this.fechaAcreditacion = fechaAcreditacion;
+	}
+
+	public String getRutaFoto() {
+		return   rutaFoto;
+	}
+
+	public void setRutaFoto(String rutaFoto) {
+		this.rutaFoto = rutaFoto;
+	}
+
+	public String getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(String usuario) {
+		this.usuario = usuario;
+	}
+
+	public Date getFechaHora() {
+		return fechaHora;
+	}
+
+	public void setFechaHora(Date fechaHora) {
+		this.fechaHora = fechaHora;
+	}
+
+	public Character getRatifica() {
+		return ratifica;
+	}
+
+	public void setRatifica(Character ratifica) {
+		this.ratifica = ratifica;
+	}
+
+	public DTOCursos getDTOCursos() {
+		return dTOCursos;
+	}
+
+	public void setDTOCursos(DTOCursos dTOCursos) {
+		this.dTOCursos = dTOCursos;
+	}
+
+	public DTOCJustificaciones getDTOCJustificaciones() {
+		return dTOCJustificaciones;
+	}
+
+	public void setDTOCJustificaciones(DTOCJustificaciones dTOCJustificaciones) {
+		this.dTOCJustificaciones = dTOCJustificaciones;
+	}
+
+	public DTOCEscolaridades getDTOCEscolaridades() {
+		return dTOCEscolaridades;
+	}
+
+	public void setDTOCEscolaridades(DTOCEscolaridades dTOCEscolaridades) {
+		this.dTOCEscolaridades = dTOCEscolaridades;
+	}
+
+	public DTOAgrupaciones getDTOAgrupaciones() {
+		return dTOAgrupaciones;
+	}
+
+	public void setDTOAgrupaciones(DTOAgrupaciones dTOAgrupaciones) {
+		this.dTOAgrupaciones = dTOAgrupaciones;
+	}
+
+	public Short getIdAgupacion() {
+		return idAgupacion;
+	}
+
+	public void setIdAgupacion(Short idAgupacion) {
+		this.idAgupacion = idAgupacion;
+	}
+
+	public Short getIdJustificacion() {
+		return idJustificacion;
+	}
+
+	public void setIdJustificacion(Short idJustificacion) {
+		this.idJustificacion = idJustificacion;
+	}
+
+	public Integer getIdEscolaridad() {
+		return idEscolaridad;
+	}
+
+	public void setIdEscolaridad(Integer idEscolaridad) {
+		this.idEscolaridad = idEscolaridad;
+	}
+
+	public Integer getIdCurso() {
+		return idCurso;
+	}
+
+	public void setIdCurso(Integer idCurso) {
+		this.idCurso = idCurso;
+	}
+
+	public String getClaveElector() {
+		return claveElector;
+	}
+
+	public void setClaveElector(String claveElector) {
+		this.claveElector = claveElector;
+	}
+
+	
+	public Short getOrigenSolicitud() {
+		return origenSolicitud;
+	}
+
+	public void setOrigenSolicitud(Short origenSolicitud) {
+		this.origenSolicitud = origenSolicitud;
+	}
+
+	public Short getSinNumero() {
+		return sinNumero;
+	}
+
+	public void setSinNumero(Short sinNumero) {
+		this.sinNumero = sinNumero;
+	}
+
+	public String getExtension() {
+		return extension;
+	}
+
+	public void setExtension(String extension) {
+		this.extension = extension;
+	}
+
+	public String getLadaTel() {
+		return ladaTel;
+	}
+
+	public void setLadaTel(String ladaTel) {
+		this.ladaTel = ladaTel;
+	}
+
+	public String getLadaCel() {
+		return ladaCel;
+	}
+
+	public void setLadaCel(String ladaCel) {
+		this.ladaCel = ladaCel;
+	}
+
+	public Short getIdEvaluacion() {
+		return idEvaluacion;
+	}
+
+	public void setIdEvaluacion(Short idEvaluacion) {
+		this.idEvaluacion = idEvaluacion;
+	}
+
+	public String getEtiquetaNombre() {
+		return this.nombre +" "+ this.apellidoPaterno +" "+ this.apellidoMaterno;
+	}
+
+	public void setEtiquetaNombre(String etiquetaNombre) {
+		this.etiquetaNombre = etiquetaNombre;
+	}
+
+	public String getEtiquetaFechaSolicitudes() {
+		try {
+			if(this.getFechaSolicitudes() != null){
+			return formatoDelTexto.format(this.getFechaSolicitudes())  ;
+			}else{
+				return "s/i";
+			}
+		} catch (Exception e) {
+			return "N/A";
+		}
+	}
+
+	public void setEtiquetaFechaSolicitudes(String etiquetaFechaSolicitudes) {
+		this.etiquetaFechaSolicitudes = etiquetaFechaSolicitudes;
+	}
+
+	public String getEtiquetaFechaSesion() {
+		try {
+			if(this.getFechaSesion() != null){
+			return formatoDelTexto.format(this.getFechaSesion())   ;
+			}else{
+				return "s/i";
+			}
+		} catch (Exception e) {
+			return "N/A";
+		}
+	}
+
+	public void setEtiquetaFechaSesion(String etiquetaFechaSesion) {
+		this.etiquetaFechaSesion = etiquetaFechaSesion;
+	}
+
+	public String getEtiquetaAgrupacion() {
+		return etiquetaAgrupacion;
+	}
+
+	public void setEtiquetaAgrupacion(String etiquetaAgrupacion) {
+		this.etiquetaAgrupacion = etiquetaAgrupacion;
+	}
+
+	public String getEtiquetaEstado() {
+		return etiquetaEstado;
+	}
+
+	public void setEtiquetaEstado(String etiquetaEstado) {
+		this.etiquetaEstado = etiquetaEstado;
+	}
+
+	public String getEtiquetaDistrito() {
+		return etiquetaDistrito;
+	}
+
+	public void setEtiquetaDistrito(String etiquetaDistrito) {
+		this.etiquetaDistrito = etiquetaDistrito;
+	}
+
+	public String getEtiquetaCurso() {
+		return etiquetaCurso;
+	}
+
+	public void setEtiquetaCurso(String etiquetaCurso) {
+		this.etiquetaCurso = etiquetaCurso;
+	}
+
+	public String getEtiquetaRecibidoPor() {
+		return etiquetaRecibidoPor;
+	}
+
+	public void setEtiquetaRecibidoPor(String etiquetaRecibidoPor) {
+		this.etiquetaRecibidoPor = etiquetaRecibidoPor;
+	}
+
+	public String getEtiquetaEscolaridad() {
+		return etiquetaEscolaridad;
+	}
+
+	public void setEtiquetaEscolaridad(String etiquetaEscolaridad) {
+		this.etiquetaEscolaridad = etiquetaEscolaridad;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((apellidoMaterno == null) ? 0 : apellidoMaterno.hashCode());
+		result = prime * result + ((apellidoPaterno == null) ? 0 : apellidoPaterno.hashCode());
+		result = prime * result + ((calle == null) ? 0 : calle.hashCode());
+		result = prime * result + ((claveElector == null) ? 0 : claveElector.hashCode());
+		result = prime * result + ((codigoPostal == null) ? 0 : codigoPostal.hashCode());
+		result = prime * result + ((colonia == null) ? 0 : colonia.hashCode());
+		result = prime * result + ((correoElectronico == null) ? 0 : correoElectronico.hashCode());
+		result = prime * result + ((dTOAgrupaciones == null) ? 0 : dTOAgrupaciones.hashCode());
+		result = prime * result + ((dTOCEscolaridades == null) ? 0 : dTOCEscolaridades.hashCode());
+		result = prime * result + ((dTOCJustificaciones == null) ? 0 : dTOCJustificaciones.hashCode());
+		result = prime * result + ((dTOCursos == null) ? 0 : dTOCursos.hashCode());
+		result = prime * result + ((dTOObservadoresPK == null) ? 0 : dTOObservadoresPK.hashCode());
+		result = prime * result + ((edad == null) ? 0 : edad.hashCode());
+		result = prime * result + ((extension == null) ? 0 : extension.hashCode());
+		result = prime * result + ((fechaAcreditacion == null) ? 0 : fechaAcreditacion.hashCode());
+		result = prime * result + ((fechaHora == null) ? 0 : fechaHora.hashCode());
+		result = prime * result + ((fechaNacimiento == null) ? 0 : fechaNacimiento.hashCode());
+		result = prime * result + ((fechaSesion == null) ? 0 : fechaSesion.hashCode());
+		result = prime * result + ((fechaSolicitudes == null) ? 0 : fechaSolicitudes.hashCode());
+		result = prime * result + ((folio == null) ? 0 : folio.hashCode());
+		result = prime * result + ((formatoDelTexto == null) ? 0 : formatoDelTexto.hashCode());
+		result = prime * result + ((idAgupacion == null) ? 0 : idAgupacion.hashCode());
+		result = prime * result + ((idCurso == null) ? 0 : idCurso.hashCode());
+		result = prime * result + ((idDistrito == null) ? 0 : idDistrito.hashCode());
+		result = prime * result + ((idEscolaridad == null) ? 0 : idEscolaridad.hashCode());
+		result = prime * result + ((idEstado == null) ? 0 : idEstado.hashCode());
+		result = prime * result + ((idEstadoDomicilio == null) ? 0 : idEstadoDomicilio.hashCode());
+		result = prime * result + ((idEvaluacion == null) ? 0 : idEvaluacion.hashCode());
+		result = prime * result + ((idJustificacion == null) ? 0 : idJustificacion.hashCode());
+		result = prime * result + ((idMunicipio == null) ? 0 : idMunicipio.hashCode());
+		result = prime * result + ((ladaCel == null) ? 0 : ladaCel.hashCode());
+		result = prime * result + ((ladaTel == null) ? 0 : ladaTel.hashCode());
+		result = prime * result + ((nombre == null) ? 0 : nombre.hashCode());
+		result = prime * result + ((numeroExterior == null) ? 0 : numeroExterior.hashCode());
+		result = prime * result + ((numeroInterior == null) ? 0 : numeroInterior.hashCode());
+		result = prime * result + ((origenSolicitud == null) ? 0 : origenSolicitud.hashCode());
+		result = prime * result + ((ratifica == null) ? 0 : ratifica.hashCode());
+		result = prime * result + ((rutaFoto == null) ? 0 : rutaFoto.hashCode());
+		result = prime * result + ((seccion == null) ? 0 : seccion.hashCode());
+		result = prime * result + ((sexo == null) ? 0 : sexo.hashCode());
+		result = prime * result + ((sinNumero == null) ? 0 : sinNumero.hashCode());
+		result = prime * result + ((telefono == null) ? 0 : telefono.hashCode());
+		result = prime * result + ((telefonoCelular == null) ? 0 : telefonoCelular.hashCode());
+		result = prime * result + ((usuario == null) ? 0 : usuario.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DTOObservadores other = (DTOObservadores) obj;
+		if (apellidoMaterno == null) {
+			if (other.apellidoMaterno != null)
+				return false;
+		} else if (!apellidoMaterno.equals(other.apellidoMaterno))
+			return false;
+		if (apellidoPaterno == null) {
+			if (other.apellidoPaterno != null)
+				return false;
+		} else if (!apellidoPaterno.equals(other.apellidoPaterno))
+			return false;
+		if (calle == null) {
+			if (other.calle != null)
+				return false;
+		} else if (!calle.equals(other.calle))
+			return false;
+		if (claveElector == null) {
+			if (other.claveElector != null)
+				return false;
+		} else if (!claveElector.equals(other.claveElector))
+			return false;
+		if (codigoPostal == null) {
+			if (other.codigoPostal != null)
+				return false;
+		} else if (!codigoPostal.equals(other.codigoPostal))
+			return false;
+		if (colonia == null) {
+			if (other.colonia != null)
+				return false;
+		} else if (!colonia.equals(other.colonia))
+			return false;
+		if (correoElectronico == null) {
+			if (other.correoElectronico != null)
+				return false;
+		} else if (!correoElectronico.equals(other.correoElectronico))
+			return false;
+		if (dTOAgrupaciones == null) {
+			if (other.dTOAgrupaciones != null)
+				return false;
+		} else if (!dTOAgrupaciones.equals(other.dTOAgrupaciones))
+			return false;
+		if (dTOCEscolaridades == null) {
+			if (other.dTOCEscolaridades != null)
+				return false;
+		} else if (!dTOCEscolaridades.equals(other.dTOCEscolaridades))
+			return false;
+		if (dTOCJustificaciones == null) {
+			if (other.dTOCJustificaciones != null)
+				return false;
+		} else if (!dTOCJustificaciones.equals(other.dTOCJustificaciones))
+			return false;
+		if (dTOCursos == null) {
+			if (other.dTOCursos != null)
+				return false;
+		} else if (!dTOCursos.equals(other.dTOCursos))
+			return false;
+		if (dTOObservadoresPK == null) {
+			if (other.dTOObservadoresPK != null)
+				return false;
+		} else if (!dTOObservadoresPK.equals(other.dTOObservadoresPK))
+			return false;
+		if (edad == null) {
+			if (other.edad != null)
+				return false;
+		} else if (!edad.equals(other.edad))
+			return false;
+		if (extension == null) {
+			if (other.extension != null)
+				return false;
+		} else if (!extension.equals(other.extension))
+			return false;
+		if (fechaAcreditacion == null) {
+			if (other.fechaAcreditacion != null)
+				return false;
+		} else if (!fechaAcreditacion.equals(other.fechaAcreditacion))
+			return false;
+		if (fechaHora == null) {
+			if (other.fechaHora != null)
+				return false;
+		} else if (!fechaHora.equals(other.fechaHora))
+			return false;
+		if (fechaNacimiento == null) {
+			if (other.fechaNacimiento != null)
+				return false;
+		} else if (!fechaNacimiento.equals(other.fechaNacimiento))
+			return false;
+		if (fechaSesion == null) {
+			if (other.fechaSesion != null)
+				return false;
+		} else if (!fechaSesion.equals(other.fechaSesion))
+			return false;
+		if (fechaSolicitudes == null) {
+			if (other.fechaSolicitudes != null)
+				return false;
+		} else if (!fechaSolicitudes.equals(other.fechaSolicitudes))
+			return false;
+		if (folio == null) {
+			if (other.folio != null)
+				return false;
+		} else if (!folio.equals(other.folio))
+			return false;
+		if (formatoDelTexto == null) {
+			if (other.formatoDelTexto != null)
+				return false;
+		} else if (!formatoDelTexto.equals(other.formatoDelTexto))
+			return false;
+		if (idAgupacion == null) {
+			if (other.idAgupacion != null)
+				return false;
+		} else if (!idAgupacion.equals(other.idAgupacion))
+			return false;
+		if (idCurso == null) {
+			if (other.idCurso != null)
+				return false;
+		} else if (!idCurso.equals(other.idCurso))
+			return false;
+		if (idDistrito == null) {
+			if (other.idDistrito != null)
+				return false;
+		} else if (!idDistrito.equals(other.idDistrito))
+			return false;
+		if (idEscolaridad == null) {
+			if (other.idEscolaridad != null)
+				return false;
+		} else if (!idEscolaridad.equals(other.idEscolaridad))
+			return false;
+		if (idEstado == null) {
+			if (other.idEstado != null)
+				return false;
+		} else if (!idEstado.equals(other.idEstado))
+			return false;
+		if (idEstadoDomicilio == null) {
+			if (other.idEstadoDomicilio != null)
+				return false;
+		} else if (!idEstadoDomicilio.equals(other.idEstadoDomicilio))
+			return false;
+		if (idEvaluacion == null) {
+			if (other.idEvaluacion != null)
+				return false;
+		} else if (!idEvaluacion.equals(other.idEvaluacion))
+			return false;
+		if (idJustificacion == null) {
+			if (other.idJustificacion != null)
+				return false;
+		} else if (!idJustificacion.equals(other.idJustificacion))
+			return false;
+		if (idMunicipio == null) {
+			if (other.idMunicipio != null)
+				return false;
+		} else if (!idMunicipio.equals(other.idMunicipio))
+			return false;
+		if (ladaCel == null) {
+			if (other.ladaCel != null)
+				return false;
+		} else if (!ladaCel.equals(other.ladaCel))
+			return false;
+		if (ladaTel == null) {
+			if (other.ladaTel != null)
+				return false;
+		} else if (!ladaTel.equals(other.ladaTel))
+			return false;
+		if (nombre == null) {
+			if (other.nombre != null)
+				return false;
+		} else if (!nombre.equals(other.nombre))
+			return false;
+		if (numeroExterior == null) {
+			if (other.numeroExterior != null)
+				return false;
+		} else if (!numeroExterior.equals(other.numeroExterior))
+			return false;
+		if (numeroInterior == null) {
+			if (other.numeroInterior != null)
+				return false;
+		} else if (!numeroInterior.equals(other.numeroInterior))
+			return false;
+		if (origenSolicitud == null) {
+			if (other.origenSolicitud != null)
+				return false;
+		} else if (!origenSolicitud.equals(other.origenSolicitud))
+			return false;
+		if (ratifica == null) {
+			if (other.ratifica != null)
+				return false;
+		} else if (!ratifica.equals(other.ratifica))
+			return false;
+		if (rutaFoto == null) {
+			if (other.rutaFoto != null)
+				return false;
+		} else if (!rutaFoto.equals(other.rutaFoto))
+			return false;
+		if (seccion == null) {
+			if (other.seccion != null)
+				return false;
+		} else if (!seccion.equals(other.seccion))
+			return false;
+		if (sexo == null) {
+			if (other.sexo != null)
+				return false;
+		} else if (!sexo.equals(other.sexo))
+			return false;
+		if (sinNumero == null) {
+			if (other.sinNumero != null)
+				return false;
+		} else if (!sinNumero.equals(other.sinNumero))
+			return false;
+		if (telefono == null) {
+			if (other.telefono != null)
+				return false;
+		} else if (!telefono.equals(other.telefono))
+			return false;
+		if (telefonoCelular == null) {
+			if (other.telefonoCelular != null)
+				return false;
+		} else if (!telefonoCelular.equals(other.telefonoCelular))
+			return false;
+		if (usuario == null) {
+			if (other.usuario != null)
+				return false;
+		} else if (!usuario.equals(other.usuario))
+			return false;
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "DTOObservadores [dTOObservadoresPK=" + dTOObservadoresPK + ", claveElector=" + claveElector
+				+ ", idEstado=" + idEstado + ", idDistrito=" + idDistrito + ", fechaSolicitudes=" + fechaSolicitudes
+				+ ", origenSolicitud=" + origenSolicitud + ", idAgupacion=" + idAgupacion + ", idJustificacion="
+				+ idJustificacion + ", idEscolaridad=" + idEscolaridad + ", idCurso=" + idCurso + ", nombre=" + nombre
+				+ ", apellidoPaterno=" + apellidoPaterno + ", apellidoMaterno=" + apellidoMaterno + ", telefono="
+				+ telefono + ", telefonoCelular=" + telefonoCelular + ", correoElectronico=" + correoElectronico
+				+ ", fechaNacimiento=" + fechaNacimiento + ", edad=" + edad + ", sexo=" + sexo + ", fechaSesion="
+				+ fechaSesion + ", idEvaluacion=" + idEvaluacion + ", seccion=" + seccion + ", sinNumero=" + sinNumero
+				+ ", folio=" + folio + ", calle=" + calle + ", numeroExterior=" + numeroExterior + ", numeroInterior="
+				+ numeroInterior + ", colonia=" + colonia + ", codigoPostal=" + codigoPostal + ", idMunicipio="
+				+ idMunicipio + ", idEstadoDomicilio=" + idEstadoDomicilio + ", fechaAcreditacion=" + fechaAcreditacion
+				+ ", ladaTel=" + ladaTel + ", ladaCel=" + ladaCel + ", extension=" + extension + ", rutaFoto="
+				+ rutaFoto + ", usuario=" + usuario + ", fechaHora=" + fechaHora + ", ratifica=" + ratifica
+				+ ", etiquetaNombre=" + etiquetaNombre + ", etiquetaFechaSolicitudes=" + etiquetaFechaSolicitudes
+				+ ", etiquetaFechaSesion=" + etiquetaFechaSesion + ", formatoDelTexto=" + formatoDelTexto
+				+ ", dTOCursos=" + dTOCursos + ", dTOCJustificaciones=" + dTOCJustificaciones + ", dTOCEscolaridades="
+				+ dTOCEscolaridades + ", dTOAgrupaciones=" + dTOAgrupaciones + "]";
+	}
+
+	public String getEtiquetaSexo() {
+		return etiquetaSexo;
+	}
+
+	public void setEtiquetaSexo(String etiquetaSexo) {
+		this.etiquetaSexo = etiquetaSexo;
+	}
+
+	public String getEtiquetaEvaluacion() {
+		return etiquetaEvaluacion;
+	}
+
+	public void setEtiquetaEvaluacion(String etiquetaEvaluacion) {
+		this.etiquetaEvaluacion = etiquetaEvaluacion;
+	}
+
+	public String getEtiquetaResultadoSolicitud() {
+		return etiquetaResultadoSolicitud;
+	}
+
+	public void setEtiquetaResultadoSolicitud(String etiquetaResultadoSolicitud) {
+		this.etiquetaResultadoSolicitud = etiquetaResultadoSolicitud;
+	}
+	
+	
+	
+	public String getEtiquetaAgrupacionNombre() {
+		return etiquetaAgrupacionNombre;
+	}
+
+	public void setEtiquetaAgrupacionNombre(String etiquetaAgrupacionNombre) {
+		this.etiquetaAgrupacionNombre = etiquetaAgrupacionNombre;
+	}
+
+
+}

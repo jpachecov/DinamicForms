@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+	  start-state="home_view" parent="parent-flow">
+	  	
+	<view-state id="home_view" model="mbAdmin" view="home.xhtml">
+		<on-entry>
+			<!-- 
+				Al inciar el flujo del home es necesario settear el idAccion en nulo para que no 
+				mantenga algún otro color del menu de acciones
+			 -->
+			<evaluate expression="mbAdmin.dto.setIdAccion(null)"></evaluate>
+			<evaluate expression="mbAdmin.dto.setIdModulo(null)"></evaluate>
+			<evaluate expression="mbAdmin.dto.setJsonMenuAcciones(null)"></evaluate>
+			<evaluate expression="mbAdmin.inicializaMenu()"/>
+		</on-entry>
+	</view-state>
+	  
+</flow>

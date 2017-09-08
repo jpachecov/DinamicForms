@@ -1,0 +1,83 @@
+package mx.ine.observadoresINE.helper;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import mx.ine.observadoresINE.bsd.BSDReporteAgrupacionesInterface;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class HLPReporteAgrupaciones implements Serializable {
+
+	private static final long serialVersionUID = 200720170123L;
+	private List<HLPReportesEncabezado> listaEncabezados;
+	private String tituloReporte;
+	public static final Integer COLUMNAS = 4;
+	private List<Object[]> listaDatos;
+	private static final Log logger = LogFactory
+			.getLog(HLPReporteAgrupaciones.class);
+
+	public HLPReporteAgrupaciones() {
+
+	}
+
+	public HLPReporteAgrupaciones(
+			BSDReporteAgrupacionesInterface bsdReporteAgrupaciones,
+			Integer idFiltroAgrupacion) {
+		try {
+			this.listaDatos = bsdReporteAgrupaciones
+					.consultaDatosReporte(idFiltroAgrupacion);
+			this.tituloReporte = "Resultados Agrupaciones";
+			crearTablaAgrupacion();
+		} catch (Exception e) {
+			logger.error("Error al generar reporte ", e);
+		}
+	}
+
+	private void crearTablaAgrupacion() {
+
+		listaEncabezados = new ArrayList<>();
+		// Primer encabezado
+		HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+		hlpEncabezado.ingresarEncabezado(0, 3, 1, "Listado de Agrupaciones", 1);
+		hlpEncabezado.ingresarEncabezado(1, 1, 1,
+				"Total: " + listaDatos.size(), 1);
+		listaEncabezados.add(hlpEncabezado);
+
+		// Segundo encabezado
+		hlpEncabezado = new HLPReportesEncabezado();
+		hlpEncabezado.ingresarEncabezado(0, 1, 2, "Nombre de la agrupación", 1);
+		hlpEncabezado.ingresarEncabezado(1, 1, 2, "Siglas", 1);
+		hlpEncabezado.ingresarEncabezado(2, 1, 2, "Titular", 1);
+		hlpEncabezado.ingresarEncabezado(3, 1, 2, "Domicilio", 1);
+		listaEncabezados.add(hlpEncabezado);
+
+	}
+
+	public List<HLPReportesEncabezado> getListaEncabezados() {
+		return listaEncabezados;
+	}
+
+	public void setListaEncabezados(List<HLPReportesEncabezado> listaEncabezados) {
+		this.listaEncabezados = listaEncabezados;
+	}
+
+	public String getTituloReporte() {
+		return tituloReporte;
+	}
+
+	public void setTituloReporte(String tituloReporte) {
+		this.tituloReporte = tituloReporte;
+	}
+
+	public List<Object[]> getListaDatos() {
+		return listaDatos;
+	}
+
+	public void setListaDatos(List<Object[]> listaDatos) {
+		this.listaDatos = listaDatos;
+	}
+
+}

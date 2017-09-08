@@ -1,0 +1,181 @@
+/**
+ * @(#)Utilidades.java 06/06/2016
+ *
+ * Copyright (C) 2014 Instituto Nacional Electoral (INE).
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.util;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Locale;
+
+import mx.ine.common.ws.administracion.dto.response.DTODetalleProcesoWS;
+import mx.ine.observadoresINE.util.ApplicationContextUtils;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.primefaces.context.RequestContext;
+import org.primefaces.json.JSONObject;
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.support.ResourceBundleMessageSource;
+import org.springframework.stereotype.Component;
+
+@Scope("prototype")
+@Component("util")
+public class Utilidades implements Serializable {
+
+    /**
+     * Elemento necesario para la serialización de los objetos generados de esta
+     * clase.
+     */
+    private static final long serialVersionUID = 1686800470041866721L;
+
+    /**
+     * Objeto para el servicio de bitácora de mensajes de la aplicación.
+     */
+    private static final Log LOGGER = LogFactory.getLog(Utilidades.class);
+    
+    /**
+     * Agregamos objeto Locale para decodificar correctamente las cadenas
+     * de los archivos de properties según la localidad.
+     * @since 31/08/2017
+     * @author jpachecov
+     */
+    private static Locale mex = new Locale("es", "MX");
+
+    /**
+     * Método que extrae una variable de properties para mostrar los mensajes
+     *
+     * @param String : Identificador del valor a extraer
+     * @return String : Mensaje en forma de cadena
+     *
+     * @author Israel V�zquez Jim�nez
+     * @since 06/06/2016
+     * 
+     * Se agregó objeto Locale a la llamada al método getMessage
+     * @since 31/08/2017
+     * @author jpachecov
+     */
+    public static String mensajeProperties(String llave) {
+        ResourceBundleMessageSource messageSource = null;
+        try {
+            messageSource = ((ResourceBundleMessageSource) ApplicationContextUtils.getApplicationContext().getBean("messageSource"));
+            return messageSource.getMessage(llave, null, mex);  
+        } catch (Exception e) {
+            LOGGER.error("Error Utilidades -  mensajeProperties()", e);
+            return null;
+        }
+    }
+
+    /**
+     * Método que filtra los detalles del proceso de acuerdo al identificador de
+     * proceso enviado.
+     *
+     * @param listDetalleProcesoWS
+     * @param idProceso
+     * @return Lista : lista filtrada por proceso
+     *
+     * @author Helaine Flores Cervantes
+     * @since 01/12/2016
+     */
+    public List<DTODetalleProcesoWS> filtrarDetalleProceso(List<DTODetalleProcesoWS> listDetalleProcesoWS, Integer idProceso) {
+        List<DTODetalleProcesoWS> removedList;
+        if (listDetalleProcesoWS != null) {
+            removedList = new ArrayList();
+
+            for (DTODetalleProcesoWS detalleProcesoWS : listDetalleProcesoWS) {
+
+                if (!detalleProcesoWS.getIdProcesoElectoral().equals(idProceso)) {
+
+                    removedList.add(detalleProcesoWS);
+                }
+            }
+            listDetalleProcesoWS.removeAll(removedList);
+        }
+
+        return listDetalleProcesoWS;
+    }
+    
+    /**
+     * Obtiene el color a asignarse en los mapas a los distritos, de acuerdo a su porcentaje
+     * @param valor El porcentaje de avance de un distrito
+     * @return El color asociado al porcentaje de avance
+     */
+    public static String getColorMapaPorPorcentaje(Double valor){
+            //String[] COLORES_SIE = {"#FFACFF", "#FFBF00", "#E1E94C", "#2BF7FC", "#8796FA", "#FF9C9A"};
+            String[] COLORES_SIE = {"#FAE0EF", "#F7CCE5", "#EE99CC", "#E666B2", "#D5007F", "#A0005F", "#83155C"};
+            String color = "";
+            
+            //Double valor = Double.parseDouble(porcentaje);
+            if(valor.doubleValue() == 0){
+                    color = COLORES_SIE[0];
+            }else{
+                    if(valor.doubleValue() > 0 && valor.doubleValue() <= 20){
+                            color = COLORES_SIE[1]; 
+                    }else{
+                            if(valor.doubleValue() > 20 && valor.doubleValue() <= 40){
+                                    color = COLORES_SIE[2]; 
+                            }else{
+                                    if(valor.doubleValue() > 40 && valor.doubleValue() <= 60){
+                                            color = COLORES_SIE[3];
+                                    }else{
+                                            if(valor.doubleValue() > 60 && valor.doubleValue() <= 80){
+                                                    color = COLORES_SIE[4];
+                                            }else{
+                                                    if(valor.doubleValue() > 80 && valor.doubleValue() < 100){
+                                                            color = COLORES_SIE[5];
+                                                    }else{
+                                                            if(valor.doubleValue() == 100){
+                                                                    color = COLORES_SIE[6];
+                                                            }
+                                                    }
+                                            }
+                                    }
+                            }
+                    }
+            }
+            
+            return color;
+    }
+    
+    /**
+     * Método encargado de validar los datos del menú lateral
+     * 
+     * @param json : json obtenido del ws
+     * @return Integer : codigo
+     *
+     * @author José Antonio López Torres 
+     * @since 09/02/2017
+     */
+    public static Integer validaDatosMenu(String json) {
+        try {
+            JSONObject menuJson = new JSONObject(json);
+            // /Obtenemos la lista principal
+            Integer code = (Integer) menuJson.getInt("code");
+            return code;
+        } catch (Exception e) {
+            LOGGER.debug("Se obtuvo la siguiente observacion al obtner el menu", e);
+            return 500;
+        }
+    }
+    
+    /**
+     * Método encargado de enviar un mensaje al menú lateral mediante
+     * una llamada a una función javascript
+     * 
+     * @param mensaje : Mensaje a enviar
+     *
+     * @author José Antonio López Torres
+     * @since 09/02/2017
+     */
+    public static void enviaMensajeMenuLateral(String mensaje) {
+        try {
+            RequestContext.getCurrentInstance().execute(
+                    "enviaMensajeMenu(\"" + mensaje + "\")");
+        } catch (Exception e) {
+            LOGGER.error("Error al contactar al menú lateral ", e);
+        }
+    }
+}

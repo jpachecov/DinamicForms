@@ -1,0 +1,336 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	template="/templates/template.xhtml">
+	<ui:define name="CONTENT">
+		<!-- LAS ETIQUETAS SE ENCUENTRAN EN MODULOSRESOURCES.PROPERTIES -->
+		<!-- BLOCKUI-->
+		<pe:blockUI id="progress" target="formObservadores"
+			content="blockUIContent" widgetVar="progress" />
+		<!-- BLOCKUICONTENT -->
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText
+				value="#{messageSource['mensaje_generales_procesando']}"
+				style="white-space: nowrap;" />
+		</h:panelGrid>
+		<h:form styleClass="container-fluid" id="mensajes">
+			<!-- MENSAJES -->
+			<p:messages for="mensajesError" autoUpdate="false" closable="true" />
+			<p:messages for="mensajesAdvertencia" autoUpdate="true"
+				closable="true" />
+			<p:growl for="mensajesInfo" sticky="false" />
+		</h:form>
+		<h:form styleClass="container-fluid" id="busqueda">
+			<div class="ui-g">
+				<div class="card ui-g-12 ui-md-12">
+					<!-- seccion de Datos de el/la Observador/Observadora Electoral -->
+					<ui:include src="../componentes/datosObservadorModificar.xhtml" />
+				</div>
+			</div>
+		</h:form>
+		<h:form id="formObservadores" styleClass="container-fluid" enctype="multipart/form-data">
+			<p:panel id="panelDatosObservador" styleClass="ui-g" style="border-color: white;">
+				<p:outputPanel rendered="#{mbObservadores.pintaDatosObservador}"
+					styleClass="ui-g-10 ui-md-10 ui-sm-12">
+					<!-- TITULO -->
+					<div class="ui-g-12 ui-md-12">
+						<h1 class="label-data">#{messageSource['etiqueta_solicitudes_titulo_solicitudes']}</h1>
+					</div>
+					<!-- DATOS OBSERVADOR(A) -->
+					<div class="ui-g-12 ui-md-12">
+						<h3 class="label-data">#{messageSource['etiqueta_solicitudes_titulo']}</h3>
+						<!-- CLAVE DE ELECTOR-->
+						<div class="ui-g-6 ui-md-6 ui-sm-12">
+							<h4>#{messageSource['etiqueta_clave_elector']}</h4>
+							<p:outputLabel id="claveElector"
+								value="#{mbObservadores.observadorConsulta.claveElector}" />
+						</div>
+						<!-- SEXO -->
+						<div class="ui-g-3 ui-md-3 ui-sm-12">
+							<h4>#{messageSource['etiqueta_sexo']}</h4>
+							<p:outputLabel
+								value="#{mbObservadores.observadorConsulta.etiquetaSexo}" />
+						</div>
+						<p:outputPanel  rendered="#{mbObservadores.habilitaRatifica}"  styleClass="ui-g-4 ui-md-4 ui-sm-12">
+						<!-- etiqueta_ratifica -->
+						<div  class="ui-g-3 ui-md-3 ui-sm-12">
+							<h4>#{messageSource['etiqueta_ratifica']}</h4>
+							<p:outputLabel
+								value="#{mbObservadores.observadorConsulta.etiquetaRatifica}" />
+						</div>
+						</p:outputPanel>
+					</div>
+					<div class="ui-g-12 ui-md-12">
+						<!-- Nombre Completo  -->
+						<div class="ui-g-10 ui-md-10">
+							<h4>#{messageSource['etiqueta_nombre_completo']}</h4>
+							<p:outputLabel id="aPaterno"
+								value="#{mbObservadores.observadorConsulta.apellidoPaterno} 
+								 #{mbObservadores.observadorConsulta.apellidoMaterno} 
+								  #{mbObservadores.observadorConsulta.nombre}" />
+						</div>
+					</div>
+					<div class="ui-g-12 ui-md-12">
+						<!-- FECHA DE NACIMIENTO -->
+						<div class="ui-g-6 ui-md-6">
+							<h4>#{messageSource['etiqueta_fecha_nacimiento']}</h4>
+							<p:outputLabel id="fechaN"
+								value="#{mbObservadores.observadorConsulta.fechaNacimiento}" />
+						</div>
+						<!-- EDAD -->
+						<div class="ui-g-3 ui-md-3">
+							<h4>#{messageSource['etiqueta_edad']}</h4>
+							<p:outputLabel id="edad"
+								value="#{mbObservadores.observadorConsulta.edad}" />
+						</div>
+					</div>
+					<div class="ui-g-12 ui-md-12">
+						<!-- NIVEL DE ESTUDIOS -->
+						<div class="ui-g-4 ui-md-4">
+							<h4>#{messageSource['etiqueta_nivel_estudio']}</h4>
+							<p:outputLabel id="nivelEst" />
+							#{mbObservadores.observadorConsulta.etiquetaEscolaridad}
+						</div>
+					</div>
+					<!-- DOMICILIO -->
+					<div class="ui-g-12 ui-md-12">
+						<h2>#{messageSource['etiqueta_solicitudes_titulo_domicilio']}</h2>
+						<div class="ui-g-12 ui-md-12">
+							<!-- CALLE -->
+							<div class="ui-g-6 ui-md-6">
+								<h4>#{messageSource['etiqueta_calle']}</h4>
+								<p:outputLabel id="calle"
+									value="#{mbObservadores.observadorConsulta.calle}" />
+							</div>
+							<!-- NUMERO EXT -->
+							<div class="ui-g-3 ui-md-3">
+								<h4>Número exterior:</h4>
+								<p:outputLabel id="numExt"
+									value="#{mbObservadores.observadorConsulta.numeroExterior != null ? mbObservadores.observadorConsulta.numeroExterior : 'S/N'}" />
+							</div>
+							<!-- NUMERO INT -->
+							<div class="ui-g-3 ui-md-3">
+								<h4>Número interior:</h4>
+								<p:outputLabel id="numInt"
+									value="#{mbObservadores.observadorConsulta.numeroInterior != null ? mbObservadores.observadorConsulta.numeroInterior : 'S/N'}" />
+							</div>
+						</div>
+						<div class="ui-g-12 ui-md-12">
+							<!-- COLONIA -->
+							<div class="ui-g-6 ui-md-6">
+								<h4>#{messageSource['etiqueta_colonia_localidad']}</h4>
+								<p:outputLabel id="colonia"
+									value="#{mbObservadores.observadorConsulta.colonia}" />
+							</div>
+							<!-- CODIGO POSTAL -->
+							<div class="ui-g-4 ui-md-4">
+								<h4>#{messageSource['etiqueta_cp']}</h4>
+								<p:outputLabel id="codigoPostal"
+									value="#{mbObservadores.observadorConsulta.codigoPostal}" />
+							</div>
+						</div>
+						<div class="ui-g-12 ui-md-12">
+							<!-- ENTIDAD FEDERATIVA -->
+							<div class="ui-g-6 ui-md-6">
+								<h4>#{messageSource['etiqueta_entidad']}</h4>
+								<p:outputLabel id="entidad"
+									value="#{mbObservadores.observadorConsulta.etiquetaEstado}" />
+							</div>
+							<!-- DELEGACION O MUNICIPIO -->
+							<div class="ui-g-6 ui-md-6">
+								<h4>#{messageSource['etiqueta_delegacion']}</h4>
+								<p:outputLabel id="delegacion"
+									value="#{mbObservadores.observadorConsulta.etiquetaDistrito}" />
+							</div>
+						</div>
+						<div class="ui-g-12 ui-md-12">
+							<h2>#{messageSource['etiqueta_telefono_LADA']}</h2>
+							<h4>#{messageSource['etiqueta_domicilio_oficina']}</h4>
+							<!-- TELEFONO CON EXTENSION -->
+							 	<div class="ui-g-6 ui-md-6">
+									<p:outputLabel value="LADA:   &nbsp;  &nbsp;   Teléfono:   &nbsp; &nbsp; &nbsp;  Extensión: " /> <br />
+									<p:outputLabel id="lada"
+										value="#{mbObservadores.observadorConsulta.ladaTel}   &nbsp; &nbsp; - &nbsp; &nbsp; 
+										 #{mbObservadores.observadorConsulta.telefono}       &nbsp;  -
+										 #{mbObservadores.observadorConsulta.extension} " />																	 
+								</div>							
+								<div class="ui-g-6 ui-md-6">
+									<p:outputLabel value="LADA:  &nbsp;  &nbsp;  #{messageSource['etiqueta_celular']}" /> <br />
+									<p:outputLabel id="ladaC"
+										value="#{mbObservadores.observadorConsulta.ladaCel}
+										&nbsp; &nbsp; - &nbsp; &nbsp;
+										 #{mbObservadores.observadorConsulta.telefonoCelular}" /> 
+								</div>
+							 
+						</div>
+						<!-- CORREO ELECTRÓNICO -->
+						<div class="ui-g-6 ui-md-6">
+							<h4>#{messageSource['etiqueta_mail']}</h4>
+							<p:outputLabel id="correo"
+								value="#{mbObservadores.observadorConsulta.correoElectronico}" />
+						</div>
+					</div>
+					<!-- INFO SOLICITUD -->
+					<div class="ui-g-12 ui-md-12">
+						<h2>#{messageSource['etiqueta_solicitudes_titulo_info']}</h2>
+						<!-- REGISTRO DE SOLICITUD -->
+						<div class="ui-g-12 ui-md-12 ui-sm-12">
+							<h4>#{messageSource['etiqueta_origen']}</h4>
+							<p:outputLabel id="origenSolicitud"
+								value="#{mbObservadores.observadorConsulta.etiquetaRecibidoPor}" />
+						</div>
+						<!-- REGISTRO DE SOLICITUD -->
+						<div class="ui-g-12 ui-md-12 ui-sm-12">
+							<h4>#{messageSource['etiqueta_agrupacion_individual']}</h4>
+							<p:outputLabel id="agrupacion"
+								value="#{mbObservadores.observadorConsulta.etiquetaAgrupacion}" />
+							<br />
+							<p:outputLabel id="agrupacionNombre"
+								value="#{mbObservadores.observadorConsulta.etiquetaAgrupacionNombre  }" />
+						</div>
+						<div class="ui-g-12 ui-md-12 ui-sm-12">
+							<div class="ui-g-4 ui-md-4">
+								<h4>#{messageSource['etiqueta_seccion']}</h4>
+								<p:outputLabel id="seccion"
+									value="#{mbObservadores.observadorConsulta.seccion}" />
+							</div>
+							<div class="ui-g-4 ui-md-4">
+								<h4>#{messageSource['etiqueta_folio']}</h4>
+								<p:outputLabel id="folio"
+									value="#{mbObservadores.observadorConsulta.folio}" />
+							</div>
+						</div>
+						<!-- FECHA SOLICITUD -->
+						<div class="ui-g-12 ui-md-12 ui-sm-12">
+							<h4>#{messageSource['etiqueta_fecha_solicitud']}</h4>
+							<p:outputLabel id="fechaSol"
+								value="#{mbObservadores.observadorConsulta.etiquetaFechaSolicitudes}" />
+						</div>
+						<!-- IMAGEN -->
+						<div class="ui-g-12 ui-md-12">
+							<div class="ui-g-8 ui-md-8">
+							</div>
+							<div class="ui-g-4 ui-md-4">
+								<c:choose>
+									<c:when test="#{mbObservadores.observadorConsulta.rutaFoto ne null}">
+										<div class="ui-g-12 ui-md-12">
+									<div class="center-block" >
+										<p:graphicImage
+											value="/image//observadoresINE/fotos/#{mbObservadores.observadorConsulta.rutaFoto}"
+											title="#{mbObservadores.observadorConsulta.nombre}"
+												height="150" width="150"  style="display: block; float: none; margin: 0 auto;" >
+										</p:graphicImage>
+										</div>		 
+									</div>	
+									</c:when>
+									<c:otherwise>
+										<div class="ui-g-12 ui-md-12">
+									<div class="center-block" >
+										<p:graphicImage 
+											value="/image//#{mbObservadores.rutaFotoDefault}"
+											title="Imagen"
+											height="150" width="150"  style="display: block; float: none; margin: 0 auto;" >
+										</p:graphicImage>
+									</div>	
+										<p:spacer height="55" />
+									</div>	
+									</c:otherwise>
+								</c:choose>
+							</div>
+						</div>
+					</div>
+					<!-- ESTATUS -->
+					<div class="ui-g-12 ui-md-12">
+						<h2>#{messageSource['etiqueta_solicitudes_titulo_estatus']}</h2>
+					</div>
+					<div class="ui-g-12 ui-md-12">
+						<h4>#{messageSource['etiqueta_evaluacion']}</h4>
+						<p:outputLabel id="evaluacion"
+							value="#{mbObservadores.observadorConsulta.etiquetaEvaluacion}" />
+					</div>
+			<!-- Esconder -->
+				<p:outputPanel rendered="#{mbObservadores.regla1}"  styleClass="ui-g-9 ui-md-9 ui-sm-12">
+					<div class="ui-g-12 ui-md-12">
+						<h4>#{messageSource['etiqueta_fecha_hora_curso']}</h4>
+						<p:outputLabel id="curso"
+							value="#{mbObservadores.observadorConsulta.etiquetaCurso}" />
+					</div>
+				</p:outputPanel>
+				<p:outputPanel rendered="#{mbObservadores.regla2}"  styleClass="ui-g-9 ui-md-9 ui-sm-12">
+					<div class="ui-g-12 ui-md-12">
+						<h4>#{messageSource['etiqueta_resultado_solicitud']}</h4>
+						<p:outputLabel id="resultadoSoli"
+							value="#{mbObservadores.observadorConsulta.etiquetaResultadoSolicitud}" />
+					</div>
+				</p:outputPanel>
+				<p:outputPanel rendered="#{mbObservadores.regla3}"  styleClass="ui-g-9 ui-md-9 ui-sm-12">
+					<div class="ui-g-12 ui-md-12">
+						<h4>#{messageSource['etiqueta_fecha_sesion']}</h4>
+						<p:outputLabel id="fechaSesion"
+							value="#{mbObservadores.observadorConsulta.etiquetaFechaSesion}" />
+					</div>
+				</p:outputPanel>
+			<!-- Esconder -->
+					<!-- BOTONES  -->
+					<div class="ui-g ui-g-12 ui-md-12">
+						<div class="center-block">
+						<sec:authorize
+							ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+							ROLE_OBSERVADORES.ADMIN.CAPTURA.OC, ROLE_OBSERVADORES.CAPTURA.JL,  ROLE_OBSERVADORES.CAPTURA.JD ">
+							<!-- BOTONES -->
+							<p:commandButton id="eliminar"
+								value="#{messageSource['etiqueta_boton_eliminar']}"
+								update="mensajes formObservadores" style="margin-bottom:10px;"
+								action="eliminar"
+								onstart="PF('progress').block"
+								onsuccess="PF('progress').unblock()" process="@this">
+								<p:confirm
+									header="#{messageSource['etiqueta_generica.confirmar']}"
+									message="#{messageSource['etiqueta_generica.confirmacion.eliminar']}"
+									icon="ui-icon-alert" />
+							</p:commandButton>
+							
+							<p:confirmDialog global="true" showEffect="fade"
+								hideEffect="fade" width="450">
+								<p:commandButton value="Sí" type="button"
+									styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+								<p:commandButton value="No" type="button"
+									styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+							</p:confirmDialog>
+							</sec:authorize>
+							<p:commandButton id="cancelar"
+								value="#{messageSource['etiqueta_boton_cancelar']}"
+								style="margin-bottom:10px;" styleClass="secondary"
+								update="formObservadores" action="cancelar"
+								onstart="PF('progress').block()"
+								onsuccess="PF('progress').unblock()" disabled="#{false}"
+								process="@this" />
+						</div>
+					</div>
+				</p:outputPanel>
+			</p:panel>
+		</h:form>
+		<script>
+			// Reprogramamos la accion de F5 para que recargue la tabla 
+			$(document).ready(function() {
+				// Cuando se presiona el boton
+				$('body').keydown(function(event) {
+					if (event.which == 116) {
+						event.preventDefault();
+						$('#formObservadores\\:cancelar').click();
+					}
+				});
+			});
+		</script>
+	</ui:define>
+</ui:composition>

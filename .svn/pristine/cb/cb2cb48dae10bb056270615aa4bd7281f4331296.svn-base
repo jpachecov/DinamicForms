@@ -1,0 +1,42 @@
+/**
+ * @(#)BSDReporteControlObsImp.java 16/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.bsd.impl;
+
+import java.util.List;
+import mx.ine.observadoresINE.as.ASReportesInterface;
+import mx.ine.observadoresINE.bsd.BSDReporteControlObsInterface;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import mx.org.ine.servicios.exception.ApplicationException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+/**
+ *
+ * @author Helaine Flores Cervantes
+ * @since 16/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Component("bsdReporteControlObs")
+@Scope("prototype")
+public class BSDReporteControlObsImp implements BSDReporteControlObsInterface {
+
+    @Autowired
+    @Qualifier("asReportes")
+    private ASReportesInterface asReportes;
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object[]> obtenerDatosReporte(FormRepControlObs form) throws ApplicationException {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    
+}

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:p="http://primefaces.org/ui">
+
+<ui:composition>
+
+	<!-- INICIO DEL HEADER -->
+	<c:if test="#{SPRING_SECURITY_CONTEXT != null}">
+		<div class="barraTop topbar clearfix" id="myTopnav">
+			<div class="topbar-left">
+				<ul class="topbar-items fadeInDown animated">
+				<li><h1 class="h1-title-system"><h:outputLink value="${request.contextPath}/app/home"> Sistemas de Observadoras/es Electorales</h:outputLink></h1></li>
+					<li class="id-system"><h:outputLink styleClass="link-id"
+							rendered="#{SPRING_SECURITY_CONTEXT != null and
+                                     requestScope['javax.servlet.error.status_code'] != 403}"
+							value="${request.contextPath}/app/home">
+							<!--  <p:graphicImage  library="img" name="soeov.png"  />-->
+							<p:graphicImage  value="/resources/imgObs/ID_Observadores-04.png"  />
+						</h:outputLink ></li>
+				</ul>
+			</div>
+			<div class="topbar-right">
+				<ul class="topbar-items fadeInDown animated">
+					<li><a class="cerrar-sesion"
+						href="${request.contextPath}/j_spring_security_logout"> <h:outputText
+								value="Cerrar sesi&oacute;n"
+								rendered="#{SPRING_SECURITY_CONTEXT!=null}">
+							</h:outputText> <i class="fa fa-times-circle fa-1x" aria-hidden="true"> </i>
+					</a></li>
+					<li class=""><a class="user" href="#"> <i
+							class="fa fa-user fa-1x" aria-hidden="true"></i> <h:outputText
+								value=" Hola: #{SPRING_SECURITY_CONTEXT.authentication.principal.username}"
+								rendered="#{SPRING_SECURITY_CONTEXT!=null}" styleClass="" />
+					</a></li>
+				</ul>
+			</div>
+		</div>
+
+	</c:if>
+	<!-- FIN DEL HEADER -->
+
+</ui:composition>
+
+</html>

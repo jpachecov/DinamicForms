@@ -1,0 +1,1250 @@
+/**
+ * @(#)MBAcreditacionGafete.java 09/09/2016
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.text.DateFormatSymbols;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import javax.faces.application.FacesMessage;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
+
+import mx.ine.observadoresINE.bsd.BSDAcreditacionGafeteInterface;
+import mx.ine.observadoresINE.dto.db.DTOAcreditacionGafetes;
+import mx.ine.observadoresINE.dto.db.DTOAcreditacionGafetesPK;
+import mx.ine.observadoresINE.dto.db.DTOCImagenes;
+import mx.ine.observadoresINE.dto.db.DTOCTextos;
+import mx.ine.observadoresINE.dto.form.FormAcreditacionGafete;
+import mx.ine.observadoresINE.helper.HLPAcreditacionGafete;
+import mx.ine.observadoresINE.helper.HLPAcreditacionesGafeteAutocomplete;
+import mx.ine.observadoresINE.helper.converter.CNVAutoCompletePorAgrupacion;
+import mx.ine.observadoresINE.helper.converter.CNVAutoCompletePorObservadores;
+import mx.ine.observadoresINE.helper.pdf.PDFAcreditacionesGafetes;
+import mx.ine.observadoresINE.util.ApplicationContextUtils;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.PdfWriter;
+
+
+/**
+ * <code>MBAcreditacionGafete.java</code> 
+ *
+ * @author Pablo Zuñiga Mata
+ * @version 0.0.1
+ * @since 09/09/2016
+ */
+public class MBAcreditacionGafete extends MBGeneric implements Serializable{
+	
+	/**
+	 * Elemento necesario para la serialización de los objetos generados de esta
+	 * clase.
+	 */
+	private static final long serialVersionUID = -4940125771509298765L;
+	
+	/** 
+	 * Objeto para el servicio de bitácora de mensajes de la aplicación. 
+	 */
+	private static final Log logger = LogFactory.getLog(MBAcreditacionGafete.class);
+	
+
+    /**
+     * Clase administrador
+     */
+    private MBAdministradorSistema mbAdmin;
+	
+	/**
+	 * Objeto que se utiliza en el autocomplete de búsqueda por nombre y/o apellidos
+	 * para que no marque error una vez cargado
+	 */
+	private CNVAutoCompletePorObservadores cnvObservadoresAutoComplete;
+	
+	/**
+	 * Objeto que se utiliza en el autocomplete de búsqueda por agrupacion
+	 * para que no marque error una vez cargado
+	 */
+	private CNVAutoCompletePorAgrupacion cnvAgrupacionAutoComplete;
+	
+	/**
+	 * Objeto correspondiente a la información del autocomplete en la busqueda individual o agrupación
+	 */
+	private HLPAcreditacionesGafeteAutocomplete informacionAutocomplete;
+	
+	/**
+	 * Objeto correspondiente a la lista de la informacion de los observadores
+	 */
+	private List<HLPAcreditacionGafete> listInformacion;
+	
+	/**
+	 * Objeto correspondiente a la lista de la informacion de los observadores
+	 */
+	private List<HLPAcreditacionGafete> selectedList;
+	
+	/**
+	 * Objeto para almecenar los datos de cada objeto de la lista List<HLPAcreditacionGafete>
+	 */
+	private HLPAcreditacionGafete hlpAcreditacionGafete;	
+	
+	/**
+	 * fecha de expedición
+	 */
+	private Date fechaExpedicion;
+    
+	/**
+	 * fecha de inicio
+	 */
+	private Date fechaInicio; 
+    
+	/**
+	 * fecha fin
+	 */
+	private Date fechaFin;
+
+	/**
+	 * Entidad cargada en sesion para los filtros. 
+	 */
+	private String entidad;
+	
+	/**
+	 * Objeto correspondiente a la ruta de la imagen INE
+	 */
+	private String rutaImg;
+	
+	/**
+	 * Variable que sirve de ayuda para mostrar la previsualizacion de gafete
+	 */
+	private boolean muestraGafete;
+	
+	/**
+	 * Objeto correspondiete a la ruta de la imagen del observador
+	 */
+	private String fotoRutaCompleta;
+	
+	/**
+	 * Path donde se encuentra alojado el archivo imagen
+	 */
+	private String path;
+	
+	/**
+	 * Archivo de imagen guardado
+	 */
+	private File archivo;
+    
+	/**
+	 * Objeto para almecenar el filtro seleccionado
+	 */
+	private FormAcreditacionGafete dtoFiltro;
+    
+	/**
+	 * variable que permite saber si se visualizan las tablas de acreditaciones o gafetes
+	 */
+	private Boolean muestraAcreditacionGafete;
+    
+	/**
+	 * variable que indica si las acreditaciones o gafetes van sin firma
+	 */
+	private Boolean sinFirma;
+    
+	/**
+	 * variable que indica si las acreditaciones o gafetes van con firma
+	 */
+	private Boolean conFirma;
+    
+	/**
+	 * variable que indica si se puede mandar a exportar la acreditacion o gafete
+	 */
+	private Boolean exportar;
+	
+	/**
+	 * variable que indica la ruta de la imagen de la firma
+	 */
+	private String firmaRuta;
+	
+	/**
+	 * Objeto que llama los métodos declarados en la interfaz de BSD
+	 */	
+	@Autowired
+	@Qualifier("bsdAcreditacionGafeteImpl")
+	private transient BSDAcreditacionGafeteInterface bsdAcreditacionGafeteInterface;
+	
+	/*---------------Inician Sección de Métodos----------*/
+	
+	/**
+	 * Constructor
+	 */
+	public MBAcreditacionGafete(){
+        //Obtener administrador
+        mbAdmin = (MBAdministradorSistema) 
+                ApplicationContextUtils.getApplicationContext().
+                getBean(Constantes.MB_ADMIN);
+	}
+	
+	
+	/**
+	 * Método por el cual se inicializan los componentes necesarios para el modulo de
+	 * Acreditaciónes y Gafetes
+	 *  
+	 * @author Pablo Zuñiga Mata 
+	 * @since 09/09/2016
+	 */
+	public void inicio(){
+		this.informacionAutocomplete = new HLPAcreditacionesGafeteAutocomplete();
+		this.listInformacion = new ArrayList<HLPAcreditacionGafete>();
+		this.selectedList = new ArrayList<HLPAcreditacionGafete>();
+		this.cnvObservadoresAutoComplete = new CNVAutoCompletePorObservadores(new ArrayList<HLPAcreditacionesGafeteAutocomplete>());
+		this.cnvAgrupacionAutoComplete = new CNVAutoCompletePorAgrupacion(new ArrayList<HLPAcreditacionesGafeteAutocomplete>());
+        this.fechaExpedicion = new Date();
+        this.fechaInicio = new Date();
+        this.fechaFin = new Date(); 
+        this.dtoFiltro = new FormAcreditacionGafete();
+        this.hlpAcreditacionGafete = new HLPAcreditacionGafete();
+        limpiaCheckFirmas();//limpiamos los check que indican si los gafetes o acreditaciones van con o sin firma
+		this.rutaImg = Utilidades.mensajeProperties("constante_acreditacionGafete_rutaImagenReportesINE");
+		dtoFiltro.setIdProceso(mbAdmin.getDto().getIdProceso());
+		dtoFiltro.setIdDetalleProceso(mbAdmin.getDto().getIdDetalleProceso());
+		dtoFiltro.setIdEstado(mbAdmin.getDto().getUsuario().getIdEstadoSeleccionado());
+		dtoFiltro.setIdDistrito(mbAdmin.getDto().getUsuario().getIdDistritoSeleccionado());
+		obtenRutasFoto(dtoFiltro.getIdProceso(), dtoFiltro.getIdDetalleProceso());
+		if(this.rutaFoto != null && this.rutaFotoSuplente != null){
+			dtoFiltro.setRutaFoto(this.rutaFoto);
+			dtoFiltro.setRutaFotoSuplente(this.rutaFotoSuplente);
+		}
+		dtoFiltro.setPorFecha(false);
+		if(mbAdmin.getDto().getUsuario().getAmbitoDetalleProceso().getValor().toString() != null){
+			dtoFiltro.setAmbito(mbAdmin.getDto().getUsuario().getAmbitoDetalleProceso().getValor().toString());
+		}
+		obtenTextos();//obtenemos los textos que utilizaremos en los gafetes y acreditaciones
+		obtenRutasImagenes();//obtenemos las rutas que utilizaremos en los gafetes y acreditaciones para las imagenes
+	}
+
+	/**
+	 * Método que consulta la informacion de la acreditacion o el gafete despues de validar las fechas 
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 05/07/2017
+	 */
+	public void aceptar(){
+		limpiaCheckFirmas();
+		if(dtoFiltro.getPorFecha()){
+			if(fechaInicio.after(fechaFin)){
+				FacesContext.getCurrentInstance().addMessage(
+						"mensajesInfo", new FacesMessage(
+								FacesMessage.SEVERITY_ERROR,Utilidades.mensajeProperties("validacion_mensajes_generales_fechaFin_igual_fechaInicio"),
+								""
+						)
+				);
+			}else{
+				consultaAcreditacionGafete();
+			}
+		}else{
+			consultaAcreditacionGafete();
+		}
+	}
+	
+	/**
+	 * Método que consulta la informacion de la acreditacion o el gafete 
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 05/07/2017
+	 */
+	public void consultaAcreditacionGafete(){
+		this.muestraGafete = false;
+		Calendar calIni = null, calFin = null, calExpedicion = null;
+		calExpedicion = Calendar.getInstance();
+		calExpedicion.setTime(fechaExpedicion);
+		this.dtoFiltro.setFechaExpedicion(calExpedicion);
+		if(dtoFiltro.getPorFecha()){
+			calIni = Calendar.getInstance();
+			calIni.setTime(fechaInicio);
+			calFin = Calendar.getInstance();
+			calFin.setTime(fechaFin);
+			this.dtoFiltro.setInicioFecha(calIni);
+			this.dtoFiltro.setFinFecha(calFin);
+		}
+		if(informacionAutocomplete == null){
+			dtoFiltro.setIdBusqueda(null);
+		}else if( informacionAutocomplete.getIdObservador() != null){
+			dtoFiltro.setIdBusqueda(informacionAutocomplete.getIdObservador());
+		}else{
+			dtoFiltro.setIdBusqueda(informacionAutocomplete.getIdAgrupacion());
+		}
+		try{
+			String mensaje = bsdAcreditacionGafeteInterface.getConfirmaExisteVocal(dtoFiltro);
+			if(mensaje.equals("")){
+				List<HLPAcreditacionGafete> lista = new ArrayList<HLPAcreditacionGafete>();
+				lista = bsdAcreditacionGafeteInterface.getInfoAcreditacionGafete(dtoFiltro);
+				this.listInformacion = lista;
+				this.muestraAcreditacionGafete = true;
+			}else{
+				this.listInformacion =null;
+				this.muestraAcreditacionGafete = false;
+				FacesContext.getCurrentInstance().addMessage(
+						"mensajesInfo", new FacesMessage(
+								FacesMessage.SEVERITY_ERROR,mensaje,
+								""
+						)
+				);
+			}
+		}catch(Exception e){
+			logger.error("MBAcreditacionGafete.consultaAcreditacionGafete() "+e);
+		}
+	}
+	
+	/**
+	 * Método encargado de limpiar los campos secundarios
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 05/07/2017
+	 */
+	public void limpiaCamposSecundarios(){
+		this.informacionAutocomplete = new HLPAcreditacionesGafeteAutocomplete();
+		this.cnvObservadoresAutoComplete = new CNVAutoCompletePorObservadores(new ArrayList<HLPAcreditacionesGafeteAutocomplete>());
+		this.cnvAgrupacionAutoComplete = new CNVAutoCompletePorAgrupacion(new ArrayList<HLPAcreditacionesGafeteAutocomplete>());
+		limpiatablas();				
+	}
+	
+	/**
+	 * Método encargado de limpiar las tablas en el html
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 05/07/2017
+	 */
+	public void limpiatablas(){
+		this.muestraAcreditacionGafete = false;	
+		this.muestraGafete = false;
+	}
+	
+	/**
+	 * Limpia los campos de la fecha en caso de que estos hayan sido llenados y se elimine la opción de "por fecha"
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 21/09/2016
+	 */
+	public void limpiaFechasCheck(){
+		limpiatablas();
+		if(dtoFiltro.getPorFecha() == false){
+			dtoFiltro.setInicioFecha(null);
+			dtoFiltro.setFinFecha(null);
+		}
+	}
+	
+	/**
+	 * setea la variable que indica si la acreditacion o gafete se imprimira con firma
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 21/09/2016
+	 */
+	public void checkConFirma(String claveElectoral){
+		limpiaCheckFirmas();
+		int index = 0;
+		for(HLPAcreditacionGafete hlp : this.listInformacion){
+			if(claveElectoral.equalsIgnoreCase(hlp.getClaveelector())){
+				if(this.listInformacion.get(index).getConFirma()){
+					this.listInformacion.get(index).setSinFirma(false);
+				}
+			}
+			index++;
+		}
+	}
+	
+	/**
+	 * setea la variable que indica si la acreditacion o gafete se imprimira sin firma
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 21/09/2016
+	 */
+	public void checkSinFirma(String claveElectoral){
+		limpiaCheckFirmas();
+		int index = 0;
+		for(HLPAcreditacionGafete hlp : this.listInformacion){
+			if(claveElectoral.equalsIgnoreCase(hlp.getClaveelector())){
+				if(this.listInformacion.get(index).getSinFirma()){
+					this.listInformacion.get(index).setConFirma(false);
+				}
+			}
+			index++;
+		}
+	}
+	
+	/**
+	 * setea todas las variables que indican si la acreditacion o gafete se imprimira con firma
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 21/09/2016
+	 */
+	public void checkTodosConFirma(){
+		if(conFirma){
+			this.sinFirma = false;
+		}
+		for(int i = 0; i < this.listInformacion.size(); i++){
+			this.listInformacion.get(i).setConFirma(conFirma);
+			if(conFirma){
+				this.listInformacion.get(i).setSinFirma(false);
+			}
+		}
+	}
+	
+	/**
+	 * setea todas las variables que indican si la acreditacion o gafete se imprimira sin firma
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 21/09/2016
+	 */
+	public void checkTodosSinFirma(){
+		if(sinFirma){
+			this.conFirma = false;
+		}
+		for(int i = 0; i < this.listInformacion.size(); i++){
+			this.listInformacion.get(i).setSinFirma(sinFirma);
+			if(sinFirma){
+				this.listInformacion.get(i).setConFirma(false);
+			}
+		}
+	}
+	
+	/*---------------Termina Sección de Métodos----------*/
+
+
+	/**
+	 * Método que es usado por el autocomplete de nombre y/o apellidos
+	 * para la búsqueda de observadores
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 12/09/2016
+	 * @param cadena : cadena con la que se busca una clave
+	 * de elector que coincida
+	 * @return List<HLPAcreditacionesGafeteAutocomplete>: lista de observadores encontrados
+	 * @throws Exception
+	 */
+	public List<HLPAcreditacionesGafeteAutocomplete> getObservadoresByNombreApellidosLike( String cadena ) throws Exception{
+		
+		List<HLPAcreditacionesGafeteAutocomplete> observadoresEncontrados = 
+				bsdAcreditacionGafeteInterface.getObservadoresByNombreApellidosLike(
+						dtoFiltro.getIdProceso(), dtoFiltro.getIdDetalleProceso(), dtoFiltro.getIdEstado(),
+						dtoFiltro.getIdDistrito(), cadena);							
+		
+		cnvObservadoresAutoComplete = new CNVAutoCompletePorObservadores(observadoresEncontrados);
+		
+		return observadoresEncontrados;
+	}
+	
+	/**
+	 * Método que busca registros por medio de un autocomplete,
+	 * donde sea igual a su nombre y/o agrupación
+	 * 
+	 * @param cadena : valor ingresado del autocomplete
+	 * @return agrupacionesEncontradas : valor encontrado de la búsqueda
+	 * @throws Exception : excepción lanzanda en caso de error
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 12/09/2016
+	 */
+	public List<HLPAcreditacionesGafeteAutocomplete> getAgrupacionesByNombreSiglasLike (String cadena) throws Exception {  
+
+		List<HLPAcreditacionesGafeteAutocomplete> agrupacionesEncontradas = 
+				bsdAcreditacionGafeteInterface.getObservadoresByNombreAgrupacionLike(
+						dtoFiltro.getIdProceso(), dtoFiltro.getIdDetalleProceso(), dtoFiltro.getIdEstado(),
+						dtoFiltro.getIdDistrito(), cadena);
+		
+		cnvAgrupacionAutoComplete = new CNVAutoCompletePorAgrupacion(agrupacionesEncontradas);
+		
+		return agrupacionesEncontradas;	
+		
+	}
+	
+	/**
+	 * Método que carga la fotografía en caso de existirla tanto para la pantalla
+	 * de consulta como la de modiciación
+	 * 
+	 * @author Pablo Zuniga Mata
+	 * @since 21/09/2016
+	 */
+	public void cargaFoto(){
+		//Se obtiene la foto del observador(si la hay)
+		if( hlpAcreditacionGafete.getFoto() != null && !hlpAcreditacionGafete.getFoto().isEmpty() ){
+			fotoRutaCompleta = validaRutaFoto(hlpAcreditacionGafete.getFoto(),
+					mbAdmin.getDto().getUsuario().getUsuario());
+			cargaFirma();
+		}else{
+			fotoRutaCompleta = validaRutaFoto(hlpAcreditacionGafete.getClaveelector()+"."
+				+Utilidades.mensajeProperties("etiqueta_acreditacionGafete_imagenPng"),
+				mbAdmin.getDto().getUsuario().getUsuario());
+			cargaFirma();
+		}
+		//cargaFirma();
+		this.muestraGafete = true;
+		//cargaFirma();
+	}
+	
+	private void cargaFirma() {
+		if (hlpAcreditacionGafete.getConFirma()) {
+			if (hlpAcreditacionGafete.getIdJustificacion() != null
+					&& hlpAcreditacionGafete.getIdJustificacion() == 1
+					&& hlpAcreditacionGafete.getDistrito() != 0) {
+				this.firmaRuta = obtenRutaFirma(
+						hlpAcreditacionGafete.getFotoVocalPresidenteD());
+				
+			} else if (hlpAcreditacionGafete.getIdJustificacion() != null
+					&& hlpAcreditacionGafete.getIdJustificacion() == 2) {
+				this.firmaRuta = obtenRutaFirma(
+						hlpAcreditacionGafete.getFotoVocalPresidenteE());
+			}
+		}
+	}
+	
+	protected String obtenRutaFirma(String usuario){
+		String rutaFirma = "juntas/firmaDigitalizada";
+		String ruta =rutaGluster+File.separator+rutaFirma+File.separator+usuario;
+		File foto = new File(ruta);
+		if (foto.exists()) {
+			ruta = "/image//"+rutaFirma+File.separator+usuario;
+		}else {
+			ruta = "/image//"+rutaFotoSuplente;			
+		}
+		return ruta;
+    }
+	
+	/**
+	 * Método encargado de regresar el <code>PDF</code> del reporte que se haya seleccionado a través de los filtros
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 23/09/2016
+	 */
+	public void generaPdf() {
+		cambiaLeyendaParrafoCuatro();		
+		if(verificaCheckDeFirmas()){
+			String nombreArchivo="gafetesAcreditaciones";
+			FacesContext fc = FacesContext.getCurrentInstance();
+			ExternalContext ec = fc.getExternalContext();
+			ec.responseReset();
+			Document document = new Document(PageSize.LETTER,10, 10, 20, 20);
+			ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+			try{
+				PdfWriter writer = PdfWriter.getInstance(document, buffer);
+				writer.setBoxSize("art", new Rectangle(42, 42, 804, 84));
+				PDFAcreditacionesGafetes pdf = new PDFAcreditacionesGafetes(listInformacion, dtoFiltro, obtenCabeceraDistrital(), rutaGluster);
+				writer.setPageEvent(pdf);
+				document.open();
+				document.close();
+			}catch(DocumentException e){
+				logger.error("Error al cargar PDF de Acreditacion(es) y/o Gafete(e)",e);
+			}
+			ec.setResponseContentType("text/pdf");
+			ec.setResponseContentLength(buffer.size());
+			ec.setResponseHeader("Content-Disposition", ("attachment;filename=\"" + nombreArchivo + ".pdf\""));
+			try{
+				OutputStream os = ec.getResponseOutputStream();
+				os.write(buffer.toByteArray());
+				fc.responseComplete();
+			}catch(IOException ioe){
+				logger.error("Error al exportar PDF de Acreditacion(es) y/o Gafete(e)",ioe);
+			}finally{
+				File tmpDeFile = new File(nombreArchivo);
+				if(tmpDeFile.delete()){
+					logger.info("Archivo Temporal Eliminado...");
+				}
+			}
+			
+			for(HLPAcreditacionGafete hlp : listInformacion){
+				if(hlp.getSinFirma() || hlp.getConFirma()){
+					DTOAcreditacionGafetesPK pk = new DTOAcreditacionGafetesPK();
+			    	DTOAcreditacionGafetes acreditacioGafete = new DTOAcreditacionGafetes();
+			        pk.setIdProcesoElectoral(dtoFiltro.getIdProceso().shortValue());
+			        pk.setIdDetalleProceso(dtoFiltro.getIdDetalleProceso().shortValue());
+			        pk.setIdObservador(hlp.getIdOservador().shortValue());
+			        acreditacioGafete.setdTOAcreditacionGafetesPK(pk);
+			        acreditacioGafete.setIdEstado(dtoFiltro.getIdEstado().shortValue());
+			        acreditacioGafete.setIdDistrito(dtoFiltro.getIdDistrito().shortValue()); 
+			        if(dtoFiltro.getAcreditacionGafete() == 1){
+			        	acreditacioGafete.setGeneracion("A");
+			        }else{
+			        	acreditacioGafete.setGeneracion("G");
+			        }
+			        acreditacioGafete.setClaveElector(hlp.getClaveelector());
+			        acreditacioGafete.setFechaExpedicion(dtoFiltro.getFechaExpedicion().getTime());
+			        guardaGeneracion(acreditacioGafete);
+				}
+			}
+			
+		}else{
+			FacesContext.getCurrentInstance().addMessage(
+					"mensajesInfo", new FacesMessage(
+							FacesMessage.SEVERITY_ERROR,"En algún registro tienes que seleccionar si quieres que vaya con o sin firma.",
+							""
+					)
+			);
+		}
+	}
+	
+	private void cambiaLeyendaParrafoCuatro() {
+		DateFormatSymbols symbols = new DateFormatSymbols(
+				new Locale("es", "MX"));
+		SimpleDateFormat diaFormatter = new SimpleDateFormat("dd", symbols);
+		SimpleDateFormat mesFormatter = new SimpleDateFormat("MMMM", symbols);
+		SimpleDateFormat anioFormatter = new SimpleDateFormat("yyyy", symbols);
+
+		String dias = diaFormatter.format(getFechaExpedicion());
+		String mes = mesFormatter.format(getFechaExpedicion());
+		String anio = anioFormatter.format(getFechaExpedicion());
+
+		StringBuilder fechaExp = new StringBuilder();
+		fechaExp.append("A los ").append(dias).append(" días del mes de ")
+				.append(mes).append(" de ").append(anio);
+
+		for (DTOCTextos texto : dtoFiltro.getListaTextos()) {
+			if (texto.getDTOCTextosPK().getIdParrafo() == 4
+					&& texto.getDTOCTextosPK().getIdTexto() == 1) {
+				texto.setDescripcion(fechaExp.toString());
+			}
+		}
+	}
+
+	private String obtenCabeceraDistrital(){
+		String cabecera = "";
+		if(dtoFiltro.getIdDistrito() != null && dtoFiltro.getIdDistrito() > 0){
+			cabecera = mbAdmin.getDto().getUsuario().getDistritoSeleccionado().getNombreDistrito();
+		}
+		return cabecera;
+	}
+	
+	/**
+	 * Método encargado para guardar los datos en la tabla de ACREDITACION_GAFETES
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @param infoAcreditacionGafete
+	 * @since 09/08/2017
+	 */
+	public void guardaGeneracion(DTOAcreditacionGafetes infoAcreditacionGafete){
+  	  try{
+  		  bsdAcreditacionGafeteInterface.guarda(infoAcreditacionGafete);
+  	  }catch(Exception e){
+  		  logger.error("Error al guardar la información de las acreditaciones y/o gafetes generados.",e);
+  	  }
+    }
+	
+	/**
+	 * Método encargado de verificar que por lo menos un registro de la tabla de acreditacione so gafetes 
+	 * tenga seleccionado un check con firma o sin firma
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 23/09/2016
+	 */
+	private Boolean verificaCheckDeFirmas(){
+		this.exportar = false;
+		for(HLPAcreditacionGafete hlp : this.listInformacion){
+			if(hlp.getSinFirma()){
+				this.exportar = true;
+				break;
+			}
+			if(hlp.getConFirma()){
+				this.exportar = true;
+				break;
+			}
+		}
+		return exportar;
+	}
+	
+	public void obtenTextos(){
+		try{
+			List<DTOCTextos> textos = new ArrayList<DTOCTextos>();			
+			textos = bsdGeneric.obtenTextos(dtoFiltro.getIdProceso(), dtoFiltro.getIdDetalleProceso(),
+					null,null);
+			if(textos != null && textos.size() == 0 && dtoFiltro.getIdDetalleProceso() != 0){
+				textos = bsdGeneric.obtenTextos(dtoFiltro.getIdProceso(), 0,
+						null, null);
+			}
+			dtoFiltro.setListaTextos(textos);
+			// en la tabla C_TEXTOS el id_parrafo con valor 6 equivale a la fecha de vigencia
+			for(DTOCTextos texto: dtoFiltro.getListaTextos()){
+				if(texto.getDTOCTextosPK().getIdParrafo() == 0 && texto.getDTOCTextosPK().getIdTexto() == 0){
+					   dtoFiltro.setRutaFirma(texto.getDescripcion());
+				}else if(texto.getDTOCTextosPK().getIdParrafo() == 6 && texto.getDTOCTextosPK().getIdTexto() == 1){
+					   dtoFiltro.setFechaVigencia(texto.getDescripcion());
+				}else if(texto.getDTOCTextosPK().getIdParrafo() == 7 && texto.getDTOCTextosPK().getIdTexto() == 1
+						&& dtoFiltro.getAmbito() != null && dtoFiltro.getAmbito().equalsIgnoreCase("L")){
+					   dtoFiltro.setNombreProceso(texto.getDescripcion());
+				}else if(texto.getDTOCTextosPK().getIdParrafo() == 7 && texto.getDTOCTextosPK().getIdTexto() == 2
+						&& dtoFiltro.getAmbito() != null && dtoFiltro.getAmbito().equalsIgnoreCase("F")){
+					   dtoFiltro.setNombreProceso(texto.getDescripcion());
+				}else if(texto.getDTOCTextosPK().getIdParrafo() == 7 && texto.getDTOCTextosPK().getIdTexto() == 3
+						&& dtoFiltro.getAmbito() != null && dtoFiltro.getAmbito().equalsIgnoreCase("C")){
+					   dtoFiltro.setNombreProceso(texto.getDescripcion());
+				}
+		   }
+		}catch(Exception e){
+			logger.error("MBAcreditacionGafete.obtenTextos() "+e);
+		}
+	}
+	
+	/**
+	 * Método para obtener las rutas de las imagenes que necesita el modulo
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 07/08/2017
+	 */
+	public void obtenRutasImagenes(){
+		try{
+			List<DTOCImagenes> rutas = new ArrayList<DTOCImagenes>();			
+			rutas = bsdGeneric.obtenRutasIMG(dtoFiltro.getIdProceso(), dtoFiltro.getIdDetalleProceso(),	null);
+			if(rutas != null && rutas.size() == 0 && dtoFiltro.getIdDetalleProceso() != 0){
+				rutas = bsdGeneric.obtenRutasIMG(dtoFiltro.getIdProceso(), 0, null);
+			}
+			dtoFiltro.setListaRutasIMG(rutas);
+		}catch(Exception e){
+			logger.error("MBAcreditacionGafete.obtenRutasImagenes() "+e);
+		}
+	}
+	
+	public void limpiaCheckFirmas(){
+		this.sinFirma = false;
+		this.conFirma = false;
+	}
+	
+	public void ocultaAcreditacionGafete(){
+		this.muestraAcreditacionGafete = false;
+	}
+
+	/*---------------Inician Sección de Setters   y getters----------*/
+	
+	/**
+	 * Método que obtiene el valor del atributo informacionAutocomplete
+	 * 
+	 * @return informacionAutocomplete: valor del atributo informacionAutocomplete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  12/09/2016
+	 */
+	public HLPAcreditacionesGafeteAutocomplete getInformacionAutocomplete() {
+		return informacionAutocomplete;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo informacionAutocomplete
+	 * 
+	 * @param informacionAutocomplete: valor del atributo informacionAutocomplete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  12/09/2016
+	 */
+	public void setInformacionAutocomplete(
+			HLPAcreditacionesGafeteAutocomplete informacionAutocomplete) {
+		this.informacionAutocomplete = informacionAutocomplete;
+	}
+
+	/**
+	 * Método que obtiene el valor del atributo cnvObservadoresAutoComplete
+	 * 
+	 * @return cnvObservadoresAutoComplete: valor del atributo cnvObservadoresAutoComplete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  30/09/2016
+	 */
+	public CNVAutoCompletePorObservadores getCnvObservadoresAutoComplete() {
+		return cnvObservadoresAutoComplete;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo cnvObservadoresAutoComplete
+	 * 
+	 * @param cnvObservadoresAutoComplete: valor del atributo cnvObservadoresAutoComplete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  30/09/2016
+	 */
+	public void setCnvObservadoresAutoComplete(
+			CNVAutoCompletePorObservadores cnvObservadoresAutoComplete) {
+		this.cnvObservadoresAutoComplete = cnvObservadoresAutoComplete;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo cnvAgrupacionAutoComplete
+	 * 
+	 * @return cnvAgrupacionAutoComplete: valor del atributo cnvAgrupacionAutoComplete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  30/09/2016
+	 */
+	public CNVAutoCompletePorAgrupacion getCnvAgrupacionAutoComplete() {
+		return cnvAgrupacionAutoComplete;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo cnvAgrupacionAutoComplete
+	 * 
+	 * @param cnvAgrupacionAutoComplete: valor del atributo cnvAgrupacionAutoComplete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  30/09/2016
+	 */
+	public void setCnvAgrupacionAutoComplete(
+			CNVAutoCompletePorAgrupacion cnvAgrupacionAutoComplete) {
+		this.cnvAgrupacionAutoComplete = cnvAgrupacionAutoComplete;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo fechaExpedicion
+	 * 
+	 * @return fechaExpedicion: valor del atributo fechaExpedicion
+	 * @author Pablo Zuñiga Mata.
+	 * @since  19/09/2016
+	 */
+	public Date getFechaExpedicion() {
+		return fechaExpedicion;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo fechaExpedicion
+	 * 
+	 * @param fechaExpedicion: valor del atributo fechaExpedicion
+	 * @author Pablo Zuñiga Mata.
+	 * @since  19/09/2016
+	 */
+	public void setFechaExpedicion(Date fechaExpedicion) {
+		this.fechaExpedicion = fechaExpedicion;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo dtoFiltro
+	 * 
+	 * @return dtoFiltro: valor del atributo dtoFiltro
+	 * @author Pablo Zuñiga Mata.
+	 * @since  20/09/2016
+	 */
+	public FormAcreditacionGafete getDtoFiltro() {
+		return dtoFiltro;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo dtoFiltro
+	 * 
+	 * @param dtoFiltro: valor del atributo dtoFiltro
+	 * @author Pablo Zuñiga Mata.
+	 * @since  20/09/2016
+	 */
+	public void setDtoFiltro(FormAcreditacionGafete dtoFiltro) {
+		this.dtoFiltro = dtoFiltro;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo listInformacion
+	 * 
+	 * @return listInformacion: valor del atributo listInformacion
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public List<HLPAcreditacionGafete> getListInformacion() {
+		return listInformacion;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo listInformacion
+	 * 
+	 * @param listInformacion: valor del atributo listInformacion
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public void setListInformacion(List<HLPAcreditacionGafete> listInformacion) {
+		this.listInformacion = listInformacion;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo muestraAcreditacionGafete
+	 * 
+	 * @return muestraAcreditacionGafete: valor del atributo muestraAcreditacionGafete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public Boolean getMuestraAcreditacionGafete() {
+		return muestraAcreditacionGafete;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo muestraAcreditacionGafete
+	 * 
+	 * @param muestraAcreditacionGafete: valor del atributo muestraAcreditacionGafete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public void setMuestraAcreditacionGafete(Boolean muestraAcreditacionGafete) {
+		this.muestraAcreditacionGafete = muestraAcreditacionGafete;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo hlpAcreditacionGafete
+	 * 
+	 * @return hlpAcreditacionGafete: valor del atributo hlpAcreditacionGafete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public HLPAcreditacionGafete getHlpAcreditacionGafete() {
+		return hlpAcreditacionGafete;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo hlpAcreditacionGafete
+	 * 
+	 * @param hlpAcreditacionGafete: valor del atributo hlpAcreditacionGafete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public void setHlpAcreditacionGafete(HLPAcreditacionGafete hlpAcreditacionGafete) {
+		this.hlpAcreditacionGafete = hlpAcreditacionGafete;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo fechaInicio
+	 * 
+	 * @return fechaInicio: valor del atributo fechaInicio
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public Date getFechaInicio() {
+		return fechaInicio;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo fechaInicio
+	 * 
+	 * @param fechaInicio: valor del atributo fechaInicio
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public void setFechaInicio(Date fechaInicio) {
+		this.fechaInicio = fechaInicio;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo fechaFin
+	 * 
+	 * @return fechaFin: valor del atributo fechaFin
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public Date getFechaFin() {
+		return fechaFin;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo fechaFin
+	 * 
+	 * @param fechaFin: valor del atributo fechaFin
+	 * @author Pablo Zuñiga Mata.
+	 * @since  21/09/2016
+	 */
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo path
+	 * 
+	 * @return path: valor del atributo path
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public String getPath() {
+		return path;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo path
+	 * 
+	 * @param path: valor del atributo path
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo archivo
+	 * 
+	 * @return archivo: valor del atributo archivo
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public File getArchivo() {
+		return archivo;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo archivo
+	 * 
+	 * @param archivo: valor del atributo archivo
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public void setArchivo(File archivo) {
+		this.archivo = archivo;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo fotoRutaCompleta
+	 * 
+	 * @return fotoRutaCompleta: valor del atributo fotoRutaCompleta
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public String getFotoRutaCompleta() {
+		return fotoRutaCompleta;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo fotoRutaCompleta
+	 * 
+	 * @param fotoRutaCompleta: valor del atributo fotoRutaCompleta
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public void setFotoRutaCompleta(String fotoRutaCompleta) {
+		this.fotoRutaCompleta = fotoRutaCompleta;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo muestraGafete
+	 * 
+	 * @return muestraGafete: valor del atributo muestraGafete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public boolean isMuestraGafete() {
+		return muestraGafete;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo muestraGafete
+	 * 
+	 * @param muestraGafete: valor del atributo muestraGafete
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public void setMuestraGafete(boolean muestraGafete) {
+		this.muestraGafete = muestraGafete;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo rutaImg
+	 * 
+	 * @return rutaImg: valor del atributo rutaImg
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public String getRutaImg() {
+		return rutaImg;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo rutaImg
+	 * 
+	 * @param rutaImg: valor del atributo rutaImg
+	 * @author Pablo Zuñiga Mata.
+	 * @since  22/09/2016
+	 */
+	public void setRutaImg(String rutaImg) {
+		this.rutaImg = rutaImg;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo entidad
+	 * 
+	 * @return entidad: valor del atributo entidad
+	 * @author Pablo Zuñiga Mata.
+	 * @since  30/09/2016
+	 */
+	public String getEntidad() {
+		return entidad;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo entidad
+	 * 
+	 * @param entidad: valor del atributo entidad
+	 * @author Pablo Zuñiga Mata.
+	 * @since  30/09/2016
+	 */
+	public void setEntidad(String entidad) {
+		this.entidad = entidad;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo mbAdmin
+	 *
+	 * @return Date : valor que tiene el atributo mbAdmin
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 27/06/2017
+	 */
+	public MBAdministradorSistema getMbAdmin() {
+		return mbAdmin;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo mbAdmin
+	 *
+	 * @param fechaAprobacionCasillaJunta : valor que ingresa a el atributo mbAdmin
+	 *
+	 * @author Pablo Zuñiga Mata
+	 * @since 27/06/2017
+	 */
+	public void setMbAdmin(MBAdministradorSistema mbAdmin) {
+		this.mbAdmin = mbAdmin;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo sinFirma
+	 * 
+	 * @return sinFirma: valor del atributo sinFirma
+	 * @author Pablo Zuñiga Mata.
+	 * @since  10/07/2017
+	 */
+	public Boolean getSinFirma() {
+		return sinFirma;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo sinFirma
+	 * 
+	 * @param sinFirma: valor del atributo sinFirma
+	 * @author Pablo Zuñiga Mata.
+	 * @since  10/07/2017
+	 */
+	public void setSinFirma(Boolean sinFirma) {
+		this.sinFirma = sinFirma;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo conFirma
+	 * 
+	 * @return conFirma: valor del atributo conFirma
+	 * @author Pablo Zuñiga Mata.
+	 * @since  10/07/2017
+	 */
+	public Boolean getConFirma() {
+		return conFirma;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo conFirma
+	 * 
+	 * @param conFirma: valor del atributo conFirma
+	 * @author Pablo Zuñiga Mata.
+	 * @since  10/07/2017
+	 */
+	public void setConFirma(Boolean conFirma) {
+		this.conFirma = conFirma;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo selectedList
+	 * 
+	 * @return selectedList: valor del atributo selectedList
+	 * @author Pablo Zuñiga Mata.
+	 * @since  11/07/2017
+	 */
+	public List<HLPAcreditacionGafete> getSelectedList() {
+		return selectedList;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo selectedList
+	 * 
+	 * @param selectedList: valor del atributo selectedList
+	 * @author Pablo Zuñiga Mata.
+	 * @since  11/07/2017
+	 */
+	public void setSelectedList(List<HLPAcreditacionGafete> selectedList) {
+		this.selectedList = selectedList;
+	}
+
+
+	/**
+	 * Método que obtiene el valor del atributo exportar
+	 * 
+	 * @return exportar: valor del atributo exportar
+	 * @author Pablo Zuñiga Mata.
+	 * @since  14/07/2017
+	 */
+	public Boolean getExportar() {
+		return exportar;
+	}
+
+
+	/**
+	 * Método que ingresa el valor del atributo exportar
+	 * 
+	 * @param exportar: valor del atributo exportar
+	 * @author Pablo Zuñiga Mata.
+	 * @since  14/07/2017
+	 */
+	public void setExportar(Boolean exportar) {
+		this.exportar = exportar;
+	}
+
+
+	public String getFirmaRuta() {
+		return firmaRuta;
+	}
+
+
+	public void setFirmaRuta(String firmaRuta) {
+		this.firmaRuta = firmaRuta;
+	}
+	
+	/*---------------Termina Sección de Setters   y getters----------*/
+	
+}

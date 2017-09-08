@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:c ="http://java.sun.com/jsp/jstl/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h ="http://java.sun.com/jsf/html"
+				xmlns:f ="http://java.sun.com/jsf/core"
+				xmlns:p ="http://primefaces.org/ui"
+				xmlns:pe="http://primefaces.org/ui/extensions"
+				xmlns:sec="http://www.springframework.org/security/tags"
+				template="/templates/template.xhtml">
+
+
+	<ui:define name="CONTENT">
+		<!-- LAS ETIQUETAS SE ENCUENTRAN EN MODULOSRESOURCES.PROPERTIES -->
+		<!-- BLOCKUI-->
+		<pe:blockUI id="progress" target="formAcreditacionGafete" content="blockUIContent"
+			widgetVar="progress" />
+		<!-- BLOCKUICONTENT -->
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText value="#{messageSource['mensaje_generales_procesando']}"
+				style="white-space: nowrap;" />
+		</h:panelGrid>
+		<h:form id="formAcreditacionGafete" styleClass="container-fluid">
+			<!-- MENSAJES -->
+			<p:messages for="mensajesError" autoUpdate="true" closable="true" />
+			<p:messages for="mensajesAdvertencia" autoUpdate="true" closable="true"/>
+			<p:growl for="mensajesInfo" sticky="false"/>
+		            	<div class="card">
+				           <!--  <div class="ui-g"> -->
+				                <h2>#{messageSource['etiqueta_acreditacionGafete_observadorElectoral']}</h2>
+				            <!-- </div> -->
+				            <div class="ui-g">
+									#{messageSource['etiqueta_acreditacionGafete_seleccionaOpcion']}
+							</div>
+							<!-- radio de los otorgantes (INE, Agrupación) y campo del autocomplete -->
+				            <div class="ui-g">
+				                <div class="ui-g-4">
+				                	<p:outputLabel for="tipoBusqueda" value="#{messageSource['etiqueta_acreditacionGafete_acreditacionGafete']}"/>
+									<p:selectOneRadio id="tipoBusqueda"
+										value="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda}" required="true"
+										requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+										<f:selectItem
+											itemLabel="#{messageSource['etiqueta_acreditacionGafete_individual']}  &nbsp;"
+											itemValue="1" />
+										<f:selectItem
+											itemLabel="#{messageSource['etiqueta_acreditacionGafete_agrupacion']}  &nbsp;"
+											itemValue="2" />
+		
+										<p:ajax listener="#{mbAcreditacionGafete.limpiaCamposSecundarios}"
+											immediate="true" event="change"
+											update="aceptar tipoBusqueda formAcreditacionGafete radio @form" />
+									</p:selectOneRadio>
+									<p:message id="radio" for="tipoBusqueda" display="text" />
+				                </div>
+				                <div class="ui-g-4">
+				                <p:outputPanel id="panelAutoBusquedaObservador"	rendered="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '1'}">
+				                	<!-- <c:if test="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '1'}"> -->
+					                	<p:outputLabel for="autoBusquedaObservador" value="#{messageSource['etiqueta_acreditacionGafete_nombreObservador']}"
+					                			rendered="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '1'}"/>
+										<p:autoComplete id="autoBusquedaObservador"
+														value="#{mbAcreditacionGafete.informacionAutocomplete}"
+														rendered="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '1'}"
+														onkeypress="if (window.event.which == 13 || window.event.which == 37) {return false;}"
+														scrollHeight="200" scrollwidth="200" size="45"
+														minQueryLength="2" maxResults="10" maxlength="350"
+														completeMethod="#{mbAcreditacionGafete.getObservadoresByNombreApellidosLike}"
+														forceSelection="true" var="observador"
+														itemLabel="#{observador.nombreObservador}"
+														itemValue="#{observador}" dropdown="true"
+														converter="#{mbAcreditacionGafete.cnvObservadoresAutoComplete}">
+											<p:ajax process="@this" event="itemSelect"
+													update="@form" />
+										</p:autoComplete>
+									</p:outputPanel>
+				                	<p:outputPanel id="panelAutoBusquedaAgrupacion"	rendered="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '2'}">
+										<p:outputLabel for="autoBusquedaAgrupacion" value="#{messageSource['etiqueta_acreditacionGafete_nombreAgrupacion']}"
+												rendered="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '2'}"/>
+										<p:autoComplete id="autoBusquedaAgrupacion"
+														value="#{mbAcreditacionGafete.informacionAutocomplete}"
+														rendered="#{mbAcreditacionGafete.dtoFiltro.tipoBusqueda eq '2'}"
+														onkeypress="if (window.event.which == 13 || window.event.which == 37) {return false;}"
+														scrollHeight="200" scrollwidth="200" size="45"
+														minQueryLength="2" maxResults="10" maxlength="350"
+														completeMethod="#{mbAcreditacionGafete.getAgrupacionesByNombreSiglasLike}"
+														forceSelection="true" var="agrupacion"
+														itemLabel="#{agrupacion.nombreAgrupacion}"
+														itemValue="#{agrupacion}"
+														converter="#{mbAcreditacionGafete.cnvAgrupacionAutoComplete}">
+											<p:ajax process="@this" event="itemSelect"
+													update="@form" />
+										</p:autoComplete>
+									</p:outputPanel>
+									<!-- </c:if> -->
+								</div>
+				            </div>
+				            <!-- radio para generar "Acreditación(es)" o "Gafete(s)" y campo Calendar para la fecha de expedición --> 
+				            <div class="ui-g">
+				            	<div class="ui-g-4">
+				            		<p:outputLabel for="acreditacionGafete" value="#{messageSource['etiqueta_acreditacionGafete_generar']}"/>
+				            		<p:selectOneRadio id="acreditacionGafete"
+										value="#{mbAcreditacionGafete.dtoFiltro.acreditacionGafete}" required="true"
+										requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+										<f:selectItem
+											itemLabel="#{messageSource['etiqueta_acreditacionGafete_acreditacion']}  &nbsp;"
+											itemValue="1" />
+										<f:selectItem
+											itemLabel="#{messageSource['etiqueta_acreditacionGafete_gafetes']}  &nbsp;"
+											itemValue="2" />
+		
+										<p:ajax update="radioAG @form" listener="#{mbAcreditacionGafete.limpiatablas}"/>
+									</p:selectOneRadio>
+									<p:message id="radioAG" for="acreditacionGafete" display="text" />
+					            </div>
+				            	<div class="ui-g-4">
+				            		<p:outputLabel for="buttonF" value="#{messageSource['etiqueta_acreditacionGafete_fechaExtraccion']}"/>
+				            		<p:calendar id="buttonF" 
+					            	 showbuttonpanel="false" 
+					            	 navigator="true" 
+					            	 yearRange="-2:+4" 	
+					               	 value="#{mbAcreditacionGafete.fechaExpedicion}"  
+					            	 mask="99/99/9999" 
+					            	 pattern="dd/MM/yyyy"  
+							    	 placeholder="dd/mm/aaaa"
+					            	 locale="es" 
+					            	 required="true"
+					            	 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" 
+					            	 convertDateTime="dd/MM/yyyy" 
+									 converterMessage="#{messageSource['etiqueta_acreditacionGafete_formatoNoValido']}">
+									 	<p:ajax process="@this" update="msjFechaE" />
+									 	<p:ajax process="@this" update="@form formAcreditacionGafete:panelTablaResultado" event="dateSelect"									 	
+									 	listener="#{mbAcreditacionGafete.ocultaAcreditacionGafete}"/>
+									 </p:calendar>
+									 <p:message id="msjFechaE" for="buttonF" display="text" />
+				                </div>
+				            </div>
+				            <!-- Checkbox para seleccionar por rango de fechas -->
+				            <div class="ui-g">
+								<div class="ui-g-12">
+									<p:selectBooleanCheckbox id="checkPorFechas" 
+												value="#{mbAcreditacionGafete.dtoFiltro.porFecha}" >
+										<p:ajax listener="#{mbAcreditacionGafete.limpiaFechasCheck}"
+												process="@this" update="@form" />
+									</p:selectBooleanCheckbox>
+									<h:outputText value=" #{messageSource['etiqueta_acreditacionGafete_porFecha']}"/>
+								</div>
+							</div>
+							<!-- campos calendar de "Fecha de inicio" y "Fecha de termino" -->
+							<div class="ui-g">
+								<div class="ui-g-4">
+									<p:outputLabel for="fechaInicio" value="#{messageSource['etiqueta_generales_fecha_inicio']}"
+										rendered="#{mbAcreditacionGafete.dtoFiltro.porFecha}" />
+				            		<p:calendar id="fechaInicio" 
+					            	 showbuttonpanel="false" 
+					            	 rendered="#{mbAcreditacionGafete.dtoFiltro.porFecha}"
+					            	 navigator="true" 
+					            	 yearRange="-2:+4" 
+					               	 value="#{mbAcreditacionGafete.fechaInicio}" 
+					            	 mask="99/99/9999" 
+					            	 pattern="dd/MM/yyyy"  
+							    	 placeholder="dd/mm/aaaa"
+					            	 locale="es" 
+					            	 required="true"
+					            	 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"   
+					            	 convertDateTime="dd/MM/yyyy" 
+									 converterMessage="#{messageSource['etiqueta_acreditacionGafete_formatoNoValido']}" >
+									 <p:ajax  event="change" process="@this" update="fechaFin msjFechaIni" />
+									 <p:ajax  event="dateSelect" process="@this" update="fechaFin msjFechaIni" />
+									 </p:calendar>
+									 <p:message id="msjFechaIni" for="fechaInicio" display="text" />
+				                </div>
+				                <div class="ui-g-4">
+				                	<p:outputLabel for="fechaFin" value="#{messageSource['etiqueta_generales_fecha_fin']}"
+										rendered="#{mbAcreditacionGafete.dtoFiltro.porFecha}" />
+				            		<p:calendar id="fechaFin" 
+					            	 showbuttonpanel="false" 
+					            	 rendered="#{mbAcreditacionGafete.dtoFiltro.porFecha}"
+					            	 navigator="true" 
+					            	 yearRange="-2:+4" 
+					               	 value="#{mbAcreditacionGafete.fechaFin}" 
+					            	 mask="99/99/9999" 
+					            	 pattern="dd/MM/yyyy"  
+							    	 placeholder="dd/mm/aaaa"
+					            	 locale="es"
+					            	 required="true" 
+					            	 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" 
+					            	 mindate="#{mbAcreditacionGafete.fechaInicio}"  
+					            	 convertDateTime="dd/MM/yyyy" 
+									 converterMessage="#{messageSource['etiqueta_acreditacionGafete_formatoNoValido']}">
+									 <p:ajax  event="change" process="@this" update="fechaInicio msjFechaFin" />
+									 <p:ajax  event="dateSelect" process="@this" update="fechaInicio msjFechaFin" />
+									 </p:calendar>
+									 <p:message id="msjFechaFin" for="fechaFin" display="text" />
+				                </div>
+				            </div>				
+				    	</div>
+				    	<!-- boton para ejecutar la funcion de la consulta -->
+				    	<div class="ui-g">
+		    				<div class="center-block">
+								<p:commandButton id="aceptar" value="Aceptar" styleClass="btn btn-default"
+												 process="@form" update="@form"
+												 action="#{mbAcreditacionGafete.aceptar}"
+												 onstart="PF('bloquearContenido').block()"
+												 oncomplete="PF('bloquearContenido').unblock()" />
+			
+							</div>
+				    	</div>
+			<!-- tablas -->
+			<p:outputPanel id="panelTablaResultado"
+				rendered="#{mbAcreditacionGafete.muestraAcreditacionGafete}">
+				<section>
+					<div class="container-fluid">
+		        		<div class="card">
+		        			<!-- tabla con resultado de Acreditaciones o gafetes -->
+				    		<div class="ui-g">
+								<div class="ui-g-12">
+									<c:if test="#{mbAcreditacionGafete.dtoFiltro.getAcreditacionGafete() eq 1}">
+										<ui:include src="/WEB-INF/flows/modulos/AcreGafetes/consultar/resultadoAcreditaciones.xhtml" />
+									</c:if>
+					
+									<c:if test="#{mbAcreditacionGafete.dtoFiltro.getAcreditacionGafete() eq 2}">
+										<ui:include src="/WEB-INF/flows/modulos/AcreGafetes/consultar/resultadoGafetes.xhtml" />
+									</c:if>
+								</div>
+							</div>
+							<br/>
+							<!-- boton de exportar -->
+							<div class="ui-g">
+								<div class="center-block">
+									<p:commandButton id="exportar" update="@form"
+										rendered="#{mbAcreditacionGafete.listInformacion.size() > 0}"
+										action="#{mbAcreditacionGafete.generaPdf()}"
+										process="@form" value="Exportar"
+										ajax="false">
+									</p:commandButton>
+								</div>
+							 </div>
+							 <!-- gafete -->
+		        			<div class="ui-g">
+								<div class="ui-g-12" align="center">
+									<c:if test="#{mbAcreditacionGafete.muestraGafete}">
+										<ui:include src="/WEB-INF/flows/modulos/AcreGafetes/consultar/gafete.xhtml" />
+									</c:if>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+			</p:outputPanel>
+			<!-- fin de contenido-->
+		</h:form>
+	</ui:define>
+</ui:composition>
+

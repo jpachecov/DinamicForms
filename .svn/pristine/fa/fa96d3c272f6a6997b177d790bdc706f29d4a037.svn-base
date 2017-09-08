@@ -1,0 +1,238 @@
+/**
+ * @(#)MBReportes.java 4/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import mx.ine.observadoresINE.helper.HLPReporteAgrupaciones;
+import mx.ine.observadoresINE.helper.HLPReporteControlObs;
+import mx.org.ine.servicios.exception.ApplicationException;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.primefaces.model.DefaultStreamedContent;
+
+/**
+ * Clase para la implementacion de reportes para el sistema SIJEINE
+ *
+ * @author Carlos Augusto Escalona Navarro
+ * @since 07/02/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class MBReportes extends MBReportesMenu implements Serializable {
+
+    /**
+     * Elemento para la serialización de los objetos generados de esta clase.
+     */
+    private static final long serialVersionUID = 4268708914680479343L;
+    /**
+     * Objeto para la bitácora de mensajes de la aplicación
+     */
+    private static final Log LOGGER = LogFactory.getLog(MBReportes.class);
+    /**
+     * Número de reporte
+     */
+    private Integer numeroReporte;
+    private Boolean muestraTabla;
+    private String nombreReporte;
+    
+    /**
+     * Método de incio
+     */
+    @Override
+    public void init() {
+        muestraTabla = false;
+        super.init();
+    }
+    
+    public void cargaFiltrosAgrupaciones(){
+    	this.lstFiltrosAgrupaciones = new HashMap<String, String>();    	
+    	this.lstFiltrosAgrupaciones.put("Agrupaciones", "1");
+    	this.lstFiltrosAgrupaciones.put("Agrupaciones registradas en el presente Proceso Electoral", "2");    	
+    }
+
+    /**
+     * Método para generar los reportes
+     * @throws Exception 
+     */
+    public void consultaReporte() throws Exception {    	
+    	Integer idEstado = obtenUsuario().getIdEstadoSeleccionado();
+    	Integer idDistrito = obtenUsuario().getIdDistritoSeleccionado();
+    	
+    	//Se inicializa el encabezado
+        super.inicializaParametrosEncabezado();
+        
+        if (idEstado == null || idEstado.equals(0)) {
+            this.dtoFiltros.setNivelOficinas(1); //OC
+            dtoParametros.setAnchoEntidad(2);
+            dtoParametros.setAnchoFechaHora(2);
+        } else if (!idEstado.equals(0) && idDistrito.equals(0)) {
+//        	this.dtoParametros.setDescEntidad(obtenUsuario().getNombreEstado());
+            this.dtoFiltros.setNivelOficinas(2); //JL
+            dtoParametros.setAnchoEntidad(2);
+            dtoParametros.setAnchoFechaHora(2);
+        } else if (!idEstado.equals(0) && !idDistrito.equals(0)) {
+//        	this.dtoParametros.setDescDistrito(obtenUsuario().getNombreDistrito());
+            this.dtoFiltros.setNivelOficinas(3); //JD
+            this.dtoFiltros.setIdDistritoSeleccionado(idDistrito);
+            dtoParametros.setAnchoEntidad(1);            
+            dtoParametros.setAnchoDistrito(2);
+            dtoParametros.setAnchoFechaHora(1);
+        }
+        
+
+        switch (numeroReporte) {
+            //Reportes de Control de Observadoras/es
+            case 1:
+                HLPReporteControlObs hlpControlObs;
+                hlpControlObs = null;// new HLPReporteControlObs(this.dtoFiltros);
+                dtoParametros.setColumnas(hlpControlObs.getColumnas());
+                dtoParametros.setEncabezado(hlpControlObs.getListaEncabezados());
+                dtoParametros.setListaDatos(null);
+                nombreReporte = "ReporteControlObs";
+                break;
+            //Reporte Agrupaciones
+            case 7: 
+            	HLPReporteAgrupaciones hlpAgrupaciones;
+            	hlpAgrupaciones = new HLPReporteAgrupaciones(bsdAgrupaciones, this.dtoFiltros);
+            	dtoParametros.setColumnas(hlpAgrupaciones.getColumnas());
+            	dtoParametros.setEncabezado(hlpAgrupaciones.getListaEncabezados());
+            	dtoParametros.setListaDatos(hlpAgrupaciones.getListaDatos());
+            	dtoParametros.setTituloReporte(hlpAgrupaciones.getTituloReporte());            	
+        }
+        muestraTabla= true;
+    }
+    
+     public void postProcessXLS(Object document) {
+         dtoParametros.setRutaImgEstado("");
+        dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+    }
+
+    @Override
+    public void cargaDistritos() {
+        super.cargaDistritos();
+        
+    }
+    /**
+     * Método que permite descargar las tablas a un archivo plano
+     * @param numeroTabla
+     * @return 
+     */
+    public DefaultStreamedContent obtenerTabla(int numeroTabla) {
+        LOGGER.info("Número de Tabla " + numeroTabla);
+        DefaultStreamedContent archivo = null;
+        List<String> registros = null;
+        StringBuilder encabezado;
+        String nombreArchivo = null;
+
+        encabezado = new StringBuilder();
+        switch (numeroTabla) {
+
+            case 1: //Tabla Agrupaciones
+                encabezado.append("NOMBRE_AGRUPACION|ABREVIATURA|NOMBRE_PRESIDENTE|DOMICILIO|TELEFONO_01|TELEFONO_02\r\n");
+                nombreArchivo = "Agrupaciones.txt";
+                break;
+            case 2: //Tabla Accion de Promoción
+                encabezado.append("NOMBRE_ESTADO|CABECERA_DISTRITAL|NOMBRE|FECHA_ACCION|ACCION\r\n");
+                nombreArchivo = "AccionesPromoción.txt";
+                break;
+            case 3: //Cursos de capacitación
+                encabezado.append("NOMBRE_ESTADO|CABECERA_DISTRITAL|ORIGEN_CURSO|NOMBRE_RESPONSABLE|")
+                        .append("CARGO|FECHA|HORA_INICIO|HORA_FIN|DOMICILIO|NOMBRE_AGRUPACION|MISMO_DOMICILIO|OBSERVACIONES\r\n");
+                nombreArchivo = "CursosCapacitación.txt";
+                break;
+            case 4: //Observadoras y Observadores
+                encabezado.append("NOMBRE_ESTADO|CABECERA_DISTRITAL|NOMBRE|FECHA_ACCION|ACCION\r\n")
+                        .append("TELEFONO|TELEFONO_CELULAR|CORREO_ELECTRONICO|FECHA_NACIMIENTO|EDAD|GENERO|")
+                        .append("FECHA_SESION|ACREDITACION_CURSO|JUSTIFICACION|SECCION|FOLIO|DOMICILIO|ESCOLARIDAD|")
+                        .append("CURSO|FECHA_ENTREGA_GAFETE\r\n");
+                nombreArchivo = "Observadores.txt";
+                break;
+            default:
+                break;
+        }
+        //Se obtienen los registros de la tabla 
+        try {
+            registros = bsdReportes.obtenerTabla(numeroTabla);
+        } catch (ApplicationException e) {
+            LOGGER.error("[Error] MBReportes.obtenerTabla()", e);
+        }
+
+        try {
+            archivo = crearArchivoTXT(encabezado.toString(), registros, nombreArchivo);
+        } catch (IOException ex) {
+            LOGGER.error("[Error] MBReportes.obtenerTabla()", ex);
+        }
+
+        return archivo;
+    }
+
+    /**
+     * Método que crea un archivo .txt a partir de los parámetros dados
+     *
+     * @param encabezado. Encabezado del archivo
+     * @param registros
+     * @param nombreArchivo. Nombre del archivo
+     * @return
+     * @throws IOException
+     */
+    public DefaultStreamedContent crearArchivoTXT(String encabezado, List<String> registros, String nombreArchivo) throws IOException {
+
+        StringBuilder contenidoArchivo = new StringBuilder();
+        File archivoTmp;
+        FileWriter archivo;
+        BufferedWriter buffer;
+        //Encabezado del archivo
+        contenidoArchivo.append(encabezado);
+        //Renglones del archivo
+        for (String renglon : registros) {
+            contenidoArchivo.append(renglon).append("\r\n");
+        }
+
+        archivoTmp = new File(".txt");
+        archivo = new FileWriter(archivoTmp);
+        buffer = new BufferedWriter(archivo);
+        buffer.write(contenidoArchivo.toString());
+        buffer.close();
+
+        return new DefaultStreamedContent(new FileInputStream(archivoTmp), "Content-Type: text/plain", nombreArchivo);
+
+    }
+
+    //***************************** GETTERS AND SETTERS *******************/
+    public Integer getNumeroReporte() {
+        return numeroReporte;
+    }
+
+    public void setNumeroReporte(Integer numeroReporte) {
+        this.numeroReporte = numeroReporte;
+    }
+
+    public Boolean getMuestraTabla() {
+        return muestraTabla;
+    }
+
+    public void setMuestraTabla(Boolean muestraTabla) {
+		this.muestraTabla = muestraTabla;
+	}
+
+    public String getNombreReporte() {
+        return nombreReporte;
+    }
+
+    public void setNombreReporte(String nombreReporte) {
+        this.nombreReporte = nombreReporte;
+    }
+    
+}

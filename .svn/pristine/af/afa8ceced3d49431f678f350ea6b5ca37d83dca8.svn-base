@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:pe="http://primefaces.org/ui/extensions"
+    xmlns:sf="http://www.springframework.org/tags/faces"
+    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+    
+    <div class="card">
+	    <div id="resultadosCursos" class="ui-g">
+	    	<div class="ui-g-12">
+	    		<p:dataTable id="tablaResultados" var="curso" 
+	    					 value="#{mbCursos.resultadosBusqueda}"
+	    					 rows="10" paginator="true"
+							 emptyMessage="#{messageSource['etiqueta_cursos_no_hay_datos']}"
+							 currentPageReportTemplate="{currentPage} de {totalPages}">
+	    			<p:column headerText="Fecha del curso">
+						<h:outputText value="#{curso.fecha}">
+							<f:convertDateTime locale="es" pattern="dd 'de' MMMM 'de' yyyy"/> 
+						</h:outputText>
+					</p:column>
+					<p:column headerText="Horario">
+						<h:outputText value="#{curso.horaInicio}">
+							 <f:convertDateTime pattern="HH:mm"/>
+						</h:outputText>
+						<h:outputText value=" - " />
+						<h:outputText value="#{curso.horaFin}" >
+							<f:convertDateTime pattern="HH:mm"/>
+						</h:outputText>
+						<h:outputText value="hrs" />
+					</p:column>
+					<p:column headerText="Impartido en">
+						<h:outputText rendered="#{curso.mismoDomicilio eq 'S'}" value="Domicilio #{curso.mismoDomicilio.description}"/>
+						<h:outputText rendered="#{curso.mismoDomicilio eq 'N'}" value="#{curso.mismoDomicilio.description}"/>
+					</p:column>
+					<p:column rendered="#{mbCursos.accion eq 'CO'}" width="5%" style="text-align: center">
+						<p:commandButton id="verCurso" icon="ui-icon-search"
+										 onclick="PF('progressMenu').block()"
+										 actionListener="#{mbCursos.muestraDetalleCurso(curso)}"
+										 onsuccess="PF('progressMenu').unblock()"
+										 oncomplete="PF('detallesCurso').show()"
+										 update="forma:detallesCursosModal forma:popUpCursoEncontrado">
+						</p:commandButton>
+					</p:column>
+					<sec:authorize
+							ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,ROLE_OBSERVADORES.ADMIN.CAPTURA.OC, ROLE_OBSERVADORES.CAPTURA.JL, ROLE_OBSERVADORES.CAPTURA.JD">
+					<p:column rendered="#{mbCursos.accion eq 'M'}" width="5%" style="text-align: center">
+						<p:commandButton id="modificaCurso" icon="ui-icon-pencil"
+										 onclick="PF('progressMenu').block()"
+										 actionListener="#{mbCursos.modificaCurso(curso)}"
+										 onsuccess="PF('progressMenu').unblock()"
+										 update="forma:panelBuscaModifica forma:panelDatosModifica">
+						</p:commandButton>
+					</p:column>
+					</sec:authorize>
+					<sec:authorize
+							ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,ROLE_OBSERVADORES.ADMIN.CAPTURA.OC, ROLE_OBSERVADORES.CAPTURA.JL, ROLE_OBSERVADORES.CAPTURA.JD">
+					<p:column rendered="#{mbCursos.accion eq 'M'}" width="5%" style="text-align: center">
+						<p:commandButton id="eliminaCurso" icon="ui-icon-delete"
+										 onclick="PF('progressMenu').block()"
+										 action="#{mbCursos.eliminaCurso(curso)}"
+										 onsuccess="PF('progressMenu').unblock()"
+										 update="forma:mensajesGlobal">
+										 <p:confirm header="Importante"
+													message="¿Estás seguro de eliminar el curso?"
+													icon="ui-icon-alert" />
+						</p:commandButton>
+						<p:confirmDialog global="true" showEffect="fade"
+							hideEffect="fade" closable="false">
+							<p:commandButton value="Sí" type="button"
+								styleClass="ui-confirmdialog-yes" icon="ui-icon-check" />
+							<p:commandButton value="No" type="button"
+								styleClass="ui-confirmdialog-no" icon="ui-icon-close" />
+						</p:confirmDialog>
+					</p:column>
+					</sec:authorize>
+	    		</p:dataTable>
+	    	</div>
+	    </div>
+    </div>
+    
+</ui:composition>

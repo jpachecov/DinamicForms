@@ -1,0 +1,204 @@
+ /**
+ * @(#)ASCursosImpl.java 29/06/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.as.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import mx.ine.observadoresINE.as.ASCursosInterface;
+import mx.ine.observadoresINE.bo.impl.BOCursos;
+import mx.ine.observadoresINE.dao.DAOCursosInterface;
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.db.DTOObservadores;
+import mx.ine.observadoresINE.dto.form.FormCursos;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+ /**
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 29/06/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Service("asCursos")
+@Scope("prototype")
+public class ASCursosImpl implements ASCursosInterface {
+	
+	@Autowired
+	@Qualifier("daoCursos")
+	DAOCursosInterface daoCursos;
+	
+	@Autowired
+	@Qualifier("boCursos")
+	private transient BOCursos boCursos;
+	
+	/**
+     * Elemento para generar log
+     */
+    private static final Log LOGGER = LogFactory.getLog(ASCursosImpl.class);
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = false, rollbackFor={Exception.class})
+	public void guardarOActualizar(DTOCursos dto) throws Exception {
+		if(dto.getIdEstadoDomicilio().equals(0)){
+			dto.setIdEstadoDomicilio(null);
+		}
+		if(dto.getIdMunicipioDomicilio().equals(0)){
+			dto.setIdMunicipioDomicilio(null);
+		}
+		daoCursos.guardarOActualizar(dto);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = false, rollbackFor={Exception.class})
+	public void eliminaCurso(DTOCursos dto) throws Exception {
+		daoCursos.eliminaCurso(dto);
+		
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public List<DTOCursos> obtenCursos(Integer idProceso, Integer idDetalleProceso) throws Exception {
+		return daoCursos.obtenCursos(idProceso, idDetalleProceso);
+		
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public List<DTOCCargoResponsable> obtenCargos(Integer idProceso, Integer idDetalle) throws Exception {
+		List<DTOCCargoResponsable> listaCargos = null;
+		listaCargos = daoCursos.obtenCargos(idProceso, idDetalle);
+	
+		return listaCargos;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public List<String> getAgrupacionesByNombre(String cadena,Integer idProceso, Integer idDetalle)
+			throws Exception {
+		List<DTOAgrupaciones> agrupacionesEncontradas = new ArrayList<DTOAgrupaciones>();
+		List<String> agrupacionesDevueltas = new ArrayList<String>();
+		agrupacionesEncontradas = daoCursos.getAgrupacionesByNombre(cadena, idProceso, idDetalle);
+		for(DTOAgrupaciones agrupacion : agrupacionesEncontradas){
+			if(agrupacion.getNombreAgrupacion().toLowerCase().contains(cadena.toLowerCase())){
+				agrupacionesDevueltas.add(agrupacion.getNombreAgrupacion());
+			}
+		}
+		return agrupacionesDevueltas;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public boolean esNombreValido(DTOCursos dto) throws Exception {
+		return boCursos.esNombreValido(dto);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public boolean sonApellidosInvalidos(DTOCursos dto)
+			throws Exception {
+		return boCursos.sonApellidosInvalidos(dto);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public List<DTOCursos> buscaPorFecha(FormCursos formCursos, Integer nivelOficinas)
+			throws Exception {
+		return daoCursos.buscaPorFecha(formCursos, nivelOficinas);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public List<DTOCursos> buscaImparte(FormCursos formCursos, Integer nivelOficinas) throws Exception {
+		return daoCursos.buscaImparte(formCursos, nivelOficinas);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public boolean obtenDomicilioDeLaJunta(DTOCursos dto) {
+		boolean respuesta = false;
+		try{
+			DTOCursos temporal = daoCursos.obtenDomicilioDeLaJunta(dto.getIdEstado(), dto.getIdDistrito());
+			//DTOCursos temporal = daoCursos.obtenDomicilioDeLaJunta(9, 15);
+			if(temporal != null){
+				dto.setCalle(temporal.getCalle());
+				dto.setIdEstadoDomicilio(temporal.getIdEstadoDomicilio());
+				dto.setIdMunicipioDomicilio(temporal.getIdMunicipioDomicilio());
+				dto.setNumeroExterior(temporal.getNumeroExterior());
+				dto.setNumeroInterior(temporal.getNumeroInterior());
+				dto.setColonia(temporal.getColonia());
+				dto.setCodigoPostal(temporal.getCodigoPostal());
+				respuesta = true;
+			}else{
+				dto.setCalle(null);
+				dto.setIdEstadoDomicilio(null);
+				dto.setIdMunicipioDomicilio(null);
+				dto.setNumeroExterior(null);
+				dto.setNumeroInterior(null);
+				dto.setColonia(null);
+				dto.setCodigoPostal(null);
+			}
+		}
+		catch(Exception e){
+			LOGGER.error("Ocurrió un error en el método obtenDomicilioDeLaJunta(DTOCursos dto):", e);
+		}
+		return respuesta;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	@Transactional(readOnly = true, rollbackFor={Exception.class})
+	public boolean verificaObservador(DTOCursos dto) throws Exception {
+		boolean respuesta = false;
+		List<DTOObservadores> observadores = new ArrayList<DTOObservadores>();
+		Integer idCurso = dto.getPk().getIdCurso();
+		observadores = daoCursos.verificaObservador(idCurso);
+		if(observadores.isEmpty() || observadores == null){
+			respuesta = true;
+		}
+		return respuesta;
+	}
+}

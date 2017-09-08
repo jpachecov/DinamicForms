@@ -1,0 +1,134 @@
+package mx.ine.observadoresINE.as;
+
+import java.util.List;
+
+import mx.ine.observadoresINE.dto.db.DTOCAcciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridades;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacion;
+import mx.ine.observadoresINE.dto.db.DTOCJustificaciones;
+
+/**
+ * <code>ASConfiguracionCatalogosInterface.java</code>Descripcion de la clase
+ *
+ * @author Gerardo López
+ * @version 1.0
+ * @since 27/06/2017
+ */
+public interface ASConfiguracionCatalogosInterface {
+
+	// ************* GUARDA Y/O ACTUALIZA CATALOGOS *********************
+
+	/**
+	 * Guarda y/o actualiza catálogo de acciones
+	 */
+	public void guardaActualizaCAcciones(DTOCAcciones acciones)
+			throws Exception;
+
+	/**
+	 * Guarda y/o actualiza catálogo de cargo responsable
+	 */
+	public void guardaActualizaCCargoResponsable(
+			DTOCCargoResponsable cargoResponsable) throws Exception;
+
+	/**
+	 * Guarda y/o actualiza catálogo de escolaridades
+	 */
+	public void guardaActualizaCEscolaridades(DTOCEscolaridades escolaridades)
+			throws Exception;
+
+	/**
+	 * Guarda y/o actualiza catálogo de justificaciones
+	 */
+	public void guardaActualizaCJustificaciones(
+			DTOCJustificaciones justificaciones) throws Exception;
+
+	/**
+	 * Guarda y/o actualiza catálogo de evaluaciones
+	 */
+	public void guardaActualizaCEvaluaciones(DTOCEvaluacion evaluaciones)
+			throws Exception;
+
+	// ************************** ELIMINA CATALOGOS ****************************
+
+	/**
+	 * Elimina un catálogo de acciones
+	 */
+	public void eliminaCAcciones(List<DTOCAcciones> acciones);
+
+	/**
+	 * Elimina un catálogo de cargo responsable
+	 */
+	public void eliminaCCargoResponsable(
+			List<DTOCCargoResponsable> cargoResponsable);
+
+	/**
+	 * Elimina un catálogo de escolaridades
+	 */
+	public void eliminaCEscolaridades(List<DTOCEscolaridades> escolaridades);
+
+	/**
+	 * Elimina un catálogo de justificaciones
+	 */
+	public void eliminaCJustificaciones(
+			List<DTOCJustificaciones> justificaciones);
+
+	/**
+	 * Elimina un catálogo de evaluaciones
+	 */
+	public void eliminaCEvaluaciones(List<DTOCEvaluacion> evaluaciones);
+
+	// ************************** OBTENER CATALOGOS ****************************
+
+	/**
+	 * Obtiene catálogo de acciones
+	 */
+	public List<DTOCAcciones> getCAcciones(Integer idProceso, Integer idDetalle)
+			throws Exception;
+
+	/**
+	 * Obtiene catálogo de cargo responsable
+	 */
+	public List<DTOCCargoResponsable> getCCargoResponsable(Integer idProceso,
+			Integer idDetalle) throws Exception;
+
+	/**
+	 * Obtiene catálogo de escolaridades
+	 */
+	public List<DTOCEscolaridades> getCEscolaridades(Integer idProceso,
+			Integer idDetalle) throws Exception;
+
+	/**
+	 * Obtiene catálogo de justificaciones
+	 */
+	public List<DTOCJustificaciones> getCJustificaciones(Integer idProceso,
+			Integer idDetalle) throws Exception;
+
+	/**
+	 * Obtiene catálogo de evaluaciones
+	 */
+	public List<DTOCEvaluacion> getCEvaluaciones(Integer idProceso,
+			Integer idDetalle) throws Exception;
+
+	// ******************* Encontrar registros en los demás módulos ***********
+
+	/**
+	 * Módulo de promociones, utiliza catálogo de C_ACCIONES
+	 */
+	public boolean promocionesXCAcciones(Integer idProceso, Integer idDetalle)
+			throws Exception;
+
+	/**
+	 * Módulo de cursos, utiliza catálogo de C_CARGO_RESONSABLE
+	 */
+	public boolean cursosXCCargoResponsable(Integer idProceso, Integer idDetalle)
+			throws Exception;
+
+	/**
+	 * Módulo de solicitudes, utiliza catálogos de C_ESCOLARIDADES,
+	 * C_JUSTIFICACIONES y C_EVALUACIONES
+	 */
+	public boolean observadoresXCEscolarXCJustificaXCEvaluaciones(
+			Integer idProceso, Integer idDetalle) throws Exception;
+
+}

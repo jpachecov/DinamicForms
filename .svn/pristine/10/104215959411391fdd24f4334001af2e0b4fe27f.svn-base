@@ -1,0 +1,1 @@
+<META HTTP-EQUIV="refresh" CONTENT="1;URL=https://localhost:8443/inicioUnico/app/recepcion">

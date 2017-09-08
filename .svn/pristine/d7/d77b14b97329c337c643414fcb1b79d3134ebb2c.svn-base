@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:c ="http://java.sun.com/jsp/jstl/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h ="http://java.sun.com/jsf/html"
+				xmlns:f ="http://java.sun.com/jsf/core"
+				xmlns:p ="http://primefaces.org/ui"
+				xmlns:pe="http://primefaces.org/ui/extensions"
+				xmlns:sec="http://www.springframework.org/security/tags"
+				template="/templates/template.xhtml"> 
+    
+	<ui:define name="CONTENT">
+	
+		<h:form id="formHome">
+		
+<!-- ################################################## SCRIPTS ########################################################### -->		
+			<script>
+				function extLegend() {
+				    this.cfg.legend= {
+				        show: true,
+				        location: 'ne',
+				        placement: 'outsideGrid'
+				    };
+				}
+			</script>
+		
+<!-- ############################################## MENSAJES GLOBAlES ###################################################### -->	
+
+<!-- #################################################### MIGAJA  ########################################################## -->		
+
+<!-- ################################################ TITULO MODULO  ####################################################### -->
+	
+<!-- ################################################ REQUERIDOS ############################################################ -->	
+
+<!-- ############################################ MENSAJES PARTICULARES #################################################### -->
+
+<!-- ################################################### FILTRO  ########################################################### -->
+		
+<!-- ############################################### DATOS DEL HOME ######################################################## -->		
+	
+		    <div class="container">
+				<div class="card">
+					<div class="ui-g ui-fluid">
+						<div class="ui-g-8 ui-g-nopad">
+							<div class="ui-g-12">
+								<h3>#{messageSource['etiqueta_sistema_area_responsable']}</h3>
+								<h4 class="text-highlight">#{messageSource['etiqueta_sistema_area']}</h4>
+								<h4>#{messageSource['etiqueta_sistema_objetivo']}</h4>
+							</div>
+						</div>
+						<div class="ui-g-4 home-menu">
+							<h3>#{messageSource['etiqueta_sistema_sistemas_relacionados']}</h3>
+							<ul>
+								<a href="#">#{messageSource['etiqueta_sistema_sistema_a']}</a><br/>
+								<a href="#">#{messageSource['etiqueta_sistema_sistema_b']}</a><br/>								
+							</ul>
+							<h3>#{messageSource['etiqueta_sistema_ayuda']}</h3>
+							<ul>
+								<a href="#">#{messageSource['etiqueta_sistema_guia']}</a><br/>
+							</ul>
+							<div class="horizontal-line"></div>
+						</div>
+					</div>
+				</div>
+		    </div>
+		</h:form>
+	</ui:define>
+</ui:composition>

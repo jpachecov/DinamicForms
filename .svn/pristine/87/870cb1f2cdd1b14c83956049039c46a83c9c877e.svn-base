@@ -1,0 +1,122 @@
+ /**
+ * @(#)ASCursosInterface.java 29/06/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.as;
+
+import java.util.List;
+
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.form.FormCursos;
+
+ /**
+ * Interfaz que sirve de comunicación entre el BSDCursos y el DAOCursos
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 29/06/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public interface ASCursosInterface {
+	
+	/**
+	 * Método encargado de guardar/actualizar un curso 
+	 * 
+	 * @param dto
+	 * @throws Exception
+	 */
+	public void guardarOActualizar(DTOCursos dto) throws Exception;
+	
+	/**
+	 * Método encargado de eliminar un curso
+	 * 
+	 * @param dto
+	 * @throws Exception
+	 */
+	public void eliminaCurso(DTOCursos dto) throws Exception;
+	
+	/**
+	 * Método que verifica si ya existe un observador asignado a un curso
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @param dto
+	 * @return
+	 * @throws Exception
+	 * @since 26/07/2017
+	 */
+	public boolean verificaObservador(DTOCursos dto) throws Exception;
+	
+	/**
+	 * Método encargado de obtener los cursos
+	 * 
+	 * @throws Exception
+	 */
+	public List<DTOCursos> obtenCursos(Integer idProceso, Integer idDetalleProceso) throws Exception;
+	
+	/**
+	 * Método que regresa los cargos del catálogo de cargos
+	 * 
+	 * @throws Exception
+	 */
+	public List<DTOCCargoResponsable> obtenCargos(Integer idProceso, Integer idDetalle) throws Exception;
+	
+	/**Método que regresa una lista con las agrupaciones encontradas
+	 * 
+	 * @trhows Exception
+	 */
+	public List<String> getAgrupacionesByNombre(String cadena, Integer idProceso, Integer idDetalle) throws Exception;
+	
+	/**
+	 * Método que valida si el nombre es válido
+	 * 
+	 * 
+	 * @return boolean
+	 * @trhows Exception
+	 */
+	public boolean esNombreValido(DTOCursos formCursos) throws Exception;
+	
+	/**
+	 * Método que valida que al menos sea un apellido
+	 * 
+	 * 
+	 * @return boolean
+	 * @trhows Exception
+	 */
+	public boolean sonApellidosInvalidos(DTOCursos formCursos) throws Exception;
+	
+	/**
+	 * Método que busca los cursos por fecha e impartición
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @param formCursos
+	 * @return cursos encontrados
+	 * @throws Exception
+	 * @since 07/07/2017
+	 */
+	public List<DTOCursos> buscaPorFecha(FormCursos formCursos, Integer nivelOficinas) throws Exception;
+	
+	/**
+	 * Método que busca los cursos por impartición
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @param formCursos
+	 * @return cursos encontrados
+	 * @throws Exception
+	 * @since 07/07/2017
+	 */
+	public List<DTOCursos> buscaImparte(FormCursos formCursos, Integer nivelOficinas) throws Exception;
+
+	 /**
+	 * Método que obtiene el domicilio de la junta
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @param dto
+	 * @return
+	 * @since 24/07/2017
+	 */
+	public boolean obtenDomicilioDeLaJunta(DTOCursos dto);
+}

@@ -1,0 +1,110 @@
+/**
+ * @(#)DAOReportesInterface.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+
+package mx.ine.observadoresINE.dao;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOList;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import mx.ine.observadoresINE.helper.HLPReporteDetalleObservadores;
+
+/**
+ * <code>DAOReportesInterface.java</code> 
+ * 
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public interface DAOReportesInterface {
+    /**
+     * Método encargado de obtener los valores de una tabla de la BD
+     * @param numeroTabla
+     * @return registros de la tabla
+     * 
+     * @author Helaine Flores Cervantes
+     * @since 05/07/2017
+     */
+	public List<String> obtenerTabla(int numeroTabla);
+    /**
+     * Método ecargado de obtener los datos del reporte "Control de Observadores"
+     * @param form
+     * @return reporte
+     * @author Helaine Flores Cervantes
+     * @since 16/08/2017
+     */
+	public List<Object[]> consultarReporteControlObs(FormRepControlObs form);
+    
+    /**
+	 * Método que consulta datos de agrupaciones para generar reporte.
+	 * @param idFiltroAgrupacion 
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	public List<Object[]> consultaDatosReporteAgrupaciones(Integer idFiltroAgrupacion) throws Exception;
+	
+	/**
+	 * Método que genera el reporte de detalle de observadores registrados
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @return Helper con el reporte
+	 * @throws Exception
+	 * @since 17/08/2017
+	 */
+	public HLPReporteDetalleObservadores generaReporteDetalleObs(LinkedHashMap<String, Integer> filtros) throws Exception;
+    
+	/**
+	 * Método que consulta los datos del reporte de
+	 * ACCIONES DE PROMOCION
+	 * @return
+	 * @throws Exception
+	 * @author jpachecov
+	 */
+	public List<Object[]> consultaDatosReporteAcciones(String query) throws Exception;
+	
+	/**
+	 * Método que consulta los datos del reporte de
+	 * Cursos
+	 * @return 
+	 * @author Carlos Augusto Escalona Navarro
+	 */
+	public DTOReportesParametros obtenReporteCursos(DTOFiltroReporteAcciones query);
+        /**
+         * Método que obtiene el identificador y abreviatura de los estados del geográfico
+         * 
+         * @author Helaine Flores C.
+         * @since 22/08/2017
+         * @return 
+         */
+	public  List<DTOList> obtenerAbreviaturaEstados();
+        /**
+         * Método que obtiene el reporte Control Observadores con encabezados dinámicos
+         * 
+         * @author Helaine Flores C.
+         * @since 22/08/2017
+         * @param form
+         * @return 
+         */
+	public  List<Object[]> consultarReporteControlObsDinamico(FormRepControlObs form);
+	public	List<DTOCursos> obtenListaCursos(DTOFiltroReporteAcciones filtros);
+        /**
+         * Método que onsulta el catálogo C_Justificaciones y obtiene los aprobados
+         * 
+         * @author Helaine Flores C.
+         * @param form
+         * @since 24/08/2017
+         * @return 
+         */
+        List<DTOList> obtenerJustificacionesAprobadas(FormRepControlObs form);
+        
+}

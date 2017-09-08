@@ -1,0 +1,144 @@
+/**
+ * @(#)ASReportesImp.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.as.impl;
+
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import mx.ine.common.helper.HLPAdministracionInterface;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleDistritoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleEstadoProcesoWS;
+import mx.ine.common.ws.api.exception.ClienteWebServiceException;
+import mx.ine.observadoresINE.as.ASReportesInterface;
+import mx.ine.observadoresINE.bo.impl.BOReporteAcciones;
+import mx.ine.observadoresINE.dao.DAOReportesInterface;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOFiltrosReporte;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import mx.ine.observadoresINE.helper.HLPReporteDetalleObservadores;
+import mx.ine.observadoresINE.util.Utilidades;
+import mx.org.ine.servicios.exception.ApplicationException;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+/**
+ * <code>ASReportesImp.java</code>
+ *
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Service("asReportes")
+@Scope("prototype")
+@Transactional(readOnly = true)
+public class ASReportesImp implements ASReportesInterface {
+
+	@Autowired
+	private HLPAdministracionInterface helper;
+
+	@Autowired
+	@Qualifier("boReporteAcciones")
+	private transient BOReporteAcciones boReporteAcciones;
+
+	@Autowired
+	@Qualifier("daoReportes")
+	private DAOReportesInterface daoReportes;
+
+	/**
+	 * Elemento para general Log
+	 */
+	private static final Log LOGGER = LogFactory.getLog(ASReportesImp.class);
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<DTODetalleEstadoProcesoWS> obtenEstadosPorProcesoDetalle(Integer idSistema, Integer idProceso,
+			Integer idDetalle) throws ClienteWebServiceException {
+		return helper.obtenerEstadosDestalle(idSistema, idProceso, idDetalle);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<DTODetalleDistritoProcesoWS> getDistritos(DTOFiltrosReporte dtoFiltros)
+			throws ClienteWebServiceException {
+		List<DTODetalleDistritoProcesoWS> resultado;
+		// solo si el usuario es OC no se manda el detalle
+		if (dtoFiltros.getUsuario().getVersion()
+				.equalsIgnoreCase(Utilidades.mensajeProperties("constante_version_rol_oc"))) {
+			resultado = helper.obtenerDistritosDetalle(dtoFiltros.getUsuario().getIdSistema(),
+					dtoFiltros.getUsuario().getIdProcesoElectoral(), null, (int) dtoFiltros.getIdEstadoSeleccionado());
+		} else {
+			resultado = helper.obtenerDistritosDetalle(dtoFiltros.getUsuario().getIdSistema(),
+					dtoFiltros.getUsuario().getIdProcesoElectoral(), dtoFiltros.getUsuario().getIdDetalleProceso(),
+					(int) dtoFiltros.getIdEstadoSeleccionado());
+		}
+		return resultado;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<String> obtenerTabla(int numeroTabla) throws ApplicationException {
+		List<String> tabla = null;
+		try {
+			tabla = daoReportes.obtenerTabla(numeroTabla);
+		} catch (Exception e) {
+			LOGGER.error("[Error]: ASReportesImp.obtenerTabla()- ", e);
+			throw new ApplicationException("Error", 1);
+		}
+		return tabla;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public List<Object[]> consultarReporteControlObs(FormRepControlObs form) throws ApplicationException {
+		List<Object[]> reporte = null;
+		try {
+			reporte = daoReportes.consultarReporteControlObs(form);
+		} catch (Exception e) {
+			LOGGER.error("[Error]: ASReportesImp.consultarReporteControlObs()- ", e);
+			throw new ApplicationException("Error", 1);
+		}
+		return reporte;
+	}
+
+	@Override
+	public List<Object[]> consultaDatosReporteAgrupaciones(Integer idFiltroAgrupacion) throws Exception {
+		return daoReportes.consultaDatosReporteAgrupaciones(idFiltroAgrupacion);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public HLPReporteDetalleObservadores generaReporteDetalleObs(LinkedHashMap<String, Integer> filtros) throws Exception {
+		return daoReportes.generaReporteDetalleObs(filtros);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DTOReportesParametros consultaDatosReporteAcciones(DTOFiltroReporteAcciones datos) throws Exception {
+		String query = boReporteAcciones.getQuery(datos);
+		return boReporteAcciones.createTableParameters(datos, daoReportes.consultaDatosReporteAcciones(query));
+	}
+}

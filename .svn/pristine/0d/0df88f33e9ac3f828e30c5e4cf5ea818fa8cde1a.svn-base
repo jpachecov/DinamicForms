@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:pe="http://primefaces.org/ui/extensions">
+	<div class="ui-g">
+
+		<p:outputPanel styleClass="ui-g-12 ui-md-12 ui-sm-12">
+			<div class="ui-g-12 ui-md-12 ui-sm-12">
+				<h:panelGrid columns="1" style="margin-bottom:10px" cellpadding="1"
+					styleClass="ui-g-12 ui-md-12 ui-sm-12">
+					<p:outputLabel for="tipoR"
+						value="Seleccione la información deseada para generar el reporte:" />
+					<p:selectOneRadio id="tipoR"  layout="grid"  columns="1"
+                                    value="#{mbReporte.filtroReportes.tipoReporte}" required="true"   
+						requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+						<f:selectItem itemLabel="Listado de cursos" itemValue="C" />
+						 
+						<f:selectItem itemLabel="Listado de Integrantes del curso"
+							itemValue="L" />
+						<p:ajax process="@this"
+							update="filtroReporte filtroReporteEspecifico  msgTipoR @form"
+							listener="#{mbReporte.test()}" />
+					</p:selectOneRadio>
+					<p:message id="msgTipoR" for="tipoR" />
+				</h:panelGrid>
+			</div>
+		</p:outputPanel>
+		<!-- Inicia el primer panel  -->
+		<p:panel styleClass="ui-g-12 ui-md-12 ui-sm-12" id="filtroReporte">
+			<p:outputPanel styleClass="ui-g-12 ui-md-12 ui-sm-12"
+				rendered="#{mbReporte.habilitaFiltroCursos}">
+				<div class="ui-g-6 ui-md-6 ui-sm-12">
+					<h:panelGrid columns="1" style="margin-bottom:10px" cellpadding="1" styleClass="ui-g-12 ui-md-12 ui-sm-12">
+					
+					
+					 
+					<p:outputLabel for="listaCursos" value="Filtros de información:" />
+						<p:selectOneMenu id="listaCursos"  
+							value="#{mbReporte.filtroReportes.campoOrdenamiento}"
+							requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+							required="true">
+							<f:selectItem itemLabel="Seleccione Orden" itemValue="#{null}"
+								itemDisabled="true" noSelectionOption="true" />
+							<f:selectItem itemLabel="Por fecha del curso" itemValue="0" />
+							<f:selectItem itemLabel="Impartido por" itemValue="1" />
+							<p:ajax event="change"  update="mensajeLista"/>
+							<p:ajax event="change" onstart="PF('progress').block()"
+								onsuccess="PF('progress').unblock()" />
+						</p:selectOneMenu>
+							<p:messages id="mensajeLista" for="listaCursos" />
+					 
+						<p:selectOneRadio id="ordenamiento" required="true"  layout="grid"  columns="1"
+							value="#{mbReporte.filtroReportes.tipoOrdenamiento}"
+							requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+							<f:selectItem itemLabel="Ascendente" itemValue="1" />
+							<f:selectItem itemLabel="Descendente" itemValue="2" />
+							<p:ajax process="@this" update="msgOrdenamiento @form" />
+						</p:selectOneRadio>
+						<p:message id="msgOrdenamiento" for="ordenamiento" />
+					</h:panelGrid>
+				</div>
+			</p:outputPanel>
+
+			<p:outputPanel styleClass="ui-g-12 ui-md-12 ui-sm-12"
+				rendered="#{mbReporte.habilitaFiltroCursos1}">
+				<div class="ui-g-12 ui-md-12 ui-sm-12">
+					<h:panelGrid columns="1" style="margin-bottom:10px" cellpadding="1"
+						styleClass="ui-g-12 ui-md-12 ui-sm-12">
+						<p:outputLabel for="tipoF" value="Filtros de información:" />
+						<p:selectOneRadio id="tipoF" required="true"  layout="grid"  columns="1"
+							value="#{mbReporte.filtroReportes.tipoFiltroEspecifico}"
+							requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+							<f:selectItem itemLabel="Todos los cursos" itemValue="L" />
+							<f:selectItem itemLabel="Por Curso" itemValue="C" />
+							<p:ajax process="@this"
+								update="filtroReporteEspecifico  msgTipoF @form"
+								listener="#{mbReporte.test()}" />
+						</p:selectOneRadio>
+						<p:message id="msgTipoF" for="tipoF" />
+					</h:panelGrid>
+				</div>
+			</p:outputPanel>
+		</p:panel>
+		<!-- Termina el primer panel  -->
+
+		<p:panel styleClass="ui-g-12 ui-md-12 ui-sm-12"
+			id="filtroReporteEspecifico">
+
+			<p:outputPanel styleClass="ui-g-12 ui-md-12 ui-sm-12"
+				rendered="#{mbReporte.habilitaListadoCursos}">
+				<div class="ui-g-12 ui-md-12 ui-sm-12">
+					<p:selectManyCheckbox id="segundoNivelCheck1"  layout="grid"  columns="1" 
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+						required="true" value="#{mbReporte.filtroReportes.selectTipoCurso}">
+						<f:selectItem itemLabel="Agrupacion" itemValue="1" />
+						<f:selectItem itemLabel="Individual" itemValue="3" />
+						<p:ajax process="@this" update="@form  mensajeTipoAgrupacion" />
+					</p:selectManyCheckbox>
+					<p:messages id="mensajeTipoAgrupacion" for="segundoNivelCheck1"  />
+				</div>
+			</p:outputPanel>
+
+
+			<p:outputPanel styleClass="ui-g-12 ui-md-12 ui-sm-12"
+				rendered="#{mbReporte.habilitaListadoIntegrantes}">
+				<div class="ui-g-12 ui-md-12 ui-sm-12">
+					<p:selectManyCheckbox id="segundoNivelCheck2"  layout="grid"  columns="1"
+						value="#{mbReporte.filtroReportes.selectTipoCurso}">
+						<f:selectItem itemLabel="Agrupacion" itemValue="1" />
+						<f:selectItem itemLabel="Individual" itemValue="3" />
+						<p:ajax event="change" process="@this" update="@form "
+							listener="#{mbReporte.obtenCurso()}" />
+					</p:selectManyCheckbox>
+				</div>
+				<div class="ui-g-4 ui-md-4 ui-sm-12">
+					<p:selectOneMenu id="listaCursosFiltros"
+						value="#{mbReporte.filtroReportes.idCursoSeleccionado}"
+						requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+						required="true">
+						<f:selectItem itemLabel="Seleccione..." itemValue="#{null}" itemDisabled="true" noSelectionOption="true" />
+						<f:selectItems value="#{mbReporte.listaCursosMostrar}" var="curso" itemLabel="#{curso.etiqueta}" 
+					itemValue="#{curso.getPk().idCurso}" />
+						<p:ajax event="change" update="mensajeIDCurso" />
+						<p:ajax event="change" onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" />
+					</p:selectOneMenu>
+					<p:messages id="mensajeIDCurso" for="listaCursosFiltros"  />
+				</div>
+			</p:outputPanel>
+
+		</p:panel>
+
+	</div>
+
+</ui:composition>

@@ -1,0 +1,84 @@
+/**
+ * @(#)DAOReportesImp.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dao.impl;
+
+import java.util.List;
+import mx.ine.observadoresINE.dao.DAOReportesInterface;
+import mx.ine.observadoresINE.dto.db.DTOReportesBitacora;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import org.hibernate.SQLQuery;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+/**
+ * <code>DAOReportesImp.java</code>
+ *
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Repository("daoReportes")
+@Scope("prototype")
+public class DAOReportesImp extends DAOGeneric<DTOReportesBitacora, Long> implements DAOReportesInterface {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<String> obtenerTabla(int numeroTabla) {
+
+        String nombreQuery;
+        switch (numeroTabla) {
+            case 1: //Tabla Agrupaciones
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaAgrupaciones");
+                break;
+            case 2: //Tabla Accion de Promoción
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaAccionesPromocion");
+                break;
+            case 3: //Cursos de capacitación
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaCursos");
+                break;
+            case 4: //Observadoras y Observadores
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaObservadores");
+                break;
+            default:
+                nombreQuery = null;
+                break;
+        }
+
+        SQLQuery query = getSession().createSQLQuery(nombreQuery);
+        List<String> tabla = (List<String>) query.list();
+        return tabla;
+
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object[]> consultarReporteControlObs(FormRepControlObs form) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> consultaDatosReporteAgrupaciones(
+			Integer idFiltroAgrupacion) throws Exception {
+		String sql = this.getContainer().getQuery("query_reporte_agrupaciones");
+		List<Object[]> resultado = null;
+		// Consulta las agrupaciones del periodo de Sep/17 - Jun/18
+		if (idFiltroAgrupacion.equals(2)) {
+			sql += " WHERE A.FECHA_HORA BETWEEN '17/09/17' AND '18/06/18'";
+		}
+
+		SQLQuery query = getSession().createSQLQuery(sql);
+		resultado = (List<Object[]>) query.list();
+		return resultado;
+	}
+
+
+
+}

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets">
+
+<ui:composition>
+
+	<!--   INICIO FOOTER   -->
+	
+	<footer class="footer" id="footer">
+
+	<div class="container-fluid">
+		<div class="ui-g ui-g-nopad" style="margin: 0 !important;">
+			<div class="ui-g-12 ui-g-nopad">
+				<p class="left">
+					<h:graphicImage name="logoPieLogin.png" library="img" height="25px" />
+					<a href="http://cau.ife.org.mx/" target="_blank">CAU</a>&nbsp;|&nbsp;
+					<a
+						href="https://intranet.ife.org.mx/unicom/DiS/SSW/sistemas/AvisoProteccionDatos.html"
+						target="_blank">Protección de datos</a>
+						<font color="#212121">199 28/08/2017</font>
+						<br/>
+					
+
+				</p>
+
+				<p class="right">Compatibilidad óptima con Google Chrome &nbsp;|&nbsp; © Derechos reservados Instituto Nacional Electoral</p>
+			</div>
+		</div>
+	</div>
+	</footer>
+	<!--   FIN FOOTER   -->
+</ui:composition>
+</html>

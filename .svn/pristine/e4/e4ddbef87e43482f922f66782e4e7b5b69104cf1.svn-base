@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+	<div class="ui-g">
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g ui-g-12 ui-md-12">
+				<div class="ui-g-12 ui-md-12 ui-sm-12">
+					<p:outputLabel for="radioBusquedaNC" style="font-weight: bold;"
+						value="#{messageSource['etiqueta_titulo_busqueda_nce']}" />
+					<p:selectOneRadio layout="responsive" columns="2"
+						id="radioBusquedaNC" value="#{mbObservadores.valorBusqueda}"
+						required="true"
+						requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+						<f:selectItem
+							itemLabel="#{messageSource['mensaje_busqueda_nombre']}"
+							itemValue="0" />
+						<f:selectItem
+							itemLabel="#{messageSource['mensaje_busqueda_claveEl']}"
+							itemValue="1" />
+						<p:ajax event="change" update="panelBusquedaNombre  panelBusquedaClave formObservadores"
+							listener="#{mbObservadores.pintaCampoBusqueda()}" />
+					</p:selectOneRadio>
+					<p:message for="radioBusquedaNC" display="text"
+						id="msgradioBusquedaNC" />
+				</div>
+			</div>
+
+			<p:panel id="panelBusquedaNombre"
+				styleClass="ui-g-12 ui-md-12 ui-sm-12" style="border-color: white;">
+				<p:outputPanel rendered="#{mbObservadores.habilitaComboNombre}"
+					styleClass="ui-g-10 ui-md-10 ui-sm-12">
+					<div class="md-inputfield ui-g-12 ui-md-12 ui-sm-12">
+						<p:autoComplete id="comboBusqueda" dropdown="true"
+							value="#{mbObservadores.idObservador}"
+							completeMethod="#{mbObservadores.filtraObservadoresNombres}"
+							var="observador" itemLabel="#{observador.nombre} #{observador.apellidoPaterno} #{observador.apellidoMaterno}"
+							itemValue="#{observador.getDTOObservadoresPK().idObservador}"
+							style="width:100%" scrollHeight="250"
+							placeholder="Ingrese un nombre y/o al menos uno de los apellidos."
+							onkeypress="if (event.keyCode == 13) { return false; }"
+							forceSelection="true">
+							<p:ajax event="itemSelect"
+								listener="#{mbObservadores.muestraObservadoresNombres()}"
+								update="formObservadores" />
+						</p:autoComplete>
+					</div>
+				</p:outputPanel>
+			</p:panel>
+
+			<p:panel id="panelBusquedaClave"
+				styleClass="ui-g-12 ui-md-12 ui-sm-12" style="border-color: white;">
+				<p:outputPanel
+					rendered="#{mbObservadores.habilitaComboClaveElector}"
+					styleClass="ui-g-10 ui-md-10 ui-sm-12">
+					<div class="md-inputfield ui-g-12 ui-md-12 ui-sm-12">
+						<p:autoComplete id="comboBusquedaClave" dropdown="true"
+							value="#{mbObservadores.idObservador}"
+							completeMethod="#{mbObservadores.filtraObservadoresClaves}"
+							var="observador" itemLabel="#{observador.claveElector}"
+							itemValue="#{observador.getDTOObservadoresPK().idObservador}"
+							style="width:100%" scrollHeight="250"
+							onkeypress="if (event.keyCode == 13) { return false; }"
+							placeholder="Ingrese la clave de elector a buscar."
+							forceSelection="true">
+							<p:ajax event="itemSelect"
+								listener="#{mbObservadores.muestraObservadoresNombres()}"
+								update="formObservadores" />
+						</p:autoComplete>
+					</div>
+				</p:outputPanel>
+			</p:panel>
+		</div>
+	</div>
+</ui:composition>

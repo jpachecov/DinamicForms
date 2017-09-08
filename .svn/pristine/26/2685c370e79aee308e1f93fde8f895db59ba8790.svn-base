@@ -1,0 +1,346 @@
+package mx.ine.observadoresINE.as.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import mx.ine.common.enums.EnumAmbitoSistema;
+import mx.ine.observadoresINE.as.ASObservadoresInterface;
+import mx.ine.observadoresINE.dao.DAOAgrupacionesInterface;
+import mx.ine.observadoresINE.dao.DAOObservadoresInterface;
+import mx.ine.observadoresINE.dao.DAOServiciosGeneralesInterface;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridades;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacion;
+import mx.ine.observadoresINE.dto.db.DTOCJustificaciones;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.db.DTOObservadores;
+import mx.ine.observadoresINE.dto.db.DTOObservadoresPK;
+import mx.ine.observadoresINE.dto.db.DTOReglasEvalucaion;
+import mx.org.ine.servicios.dto.db.DTOEstado;
+import mx.org.ine.servicios.dto.db.DTOMunicipio;
+
+@Service("asObservadores")
+@Scope("prototype")
+@Transactional(readOnly = true)
+public class ASObservadoresImpl implements ASObservadoresInterface {
+
+	@Autowired
+	@Qualifier("daoObservadores")
+	private transient DAOObservadoresInterface daoObservadores;
+
+	@Autowired
+	@Qualifier("daoServiciosGenerales")
+	private transient DAOServiciosGeneralesInterface daoServiciosGenerales;
+
+	@Autowired
+	@Qualifier("daoAgrupaciones")
+	private transient DAOAgrupacionesInterface daoAgrupaciones;
+
+	
+
+	private static final Log LOGGER = LogFactory.getLog(ASObservadoresImpl.class);
+
+	@Override
+	public DTOObservadores consultaObservador(DTOObservadoresPK identificador) throws Exception {
+		DTOObservadores obsTmp = daoObservadores.consultaObservador(identificador);
+		this.generaEtiquetas(obsTmp);
+		return obsTmp;
+	}
+
+	private void generaEtiquetas(DTOObservadores obsTmp) {
+		try {
+
+			List<DTOEstado> listaEdos = daoServiciosGenerales.obtenEstados();
+			for (DTOEstado dtoEstado : listaEdos) {
+				if (dtoEstado.getIdEstado().equals(new Integer(obsTmp.getIdEstadoDomicilio()))) {
+					obsTmp.setEtiquetaEstado(dtoEstado.getNombreEstado());
+					 
+					break;
+				} else {
+					continue;
+				}
+			}
+			LOGGER.info("Saliendo del ciclo de estados");
+			List<DTOMunicipio> listaMuni = daoServiciosGenerales
+					.obtenMunicipios(obsTmp.getIdEstadoDomicilio().intValue(), EnumAmbitoSistema.F);
+			for (DTOMunicipio dtoMunicipio : listaMuni) {
+				if (dtoMunicipio.getIdMunicipio().equals(new Integer(obsTmp.getIdMunicipio()))) {
+					obsTmp.setEtiquetaDistrito(dtoMunicipio.getNombreMunicipio());
+					 
+					break;
+				} else {
+					continue;
+				}
+			}
+			LOGGER.info("Saliendo del ciclo de municipios Distritos");
+
+			if (obsTmp.getIdAgupacion() != null) {
+
+				List<DTOAgrupaciones> listaAgrupacion = daoAgrupaciones.obtenAgrupaciones(
+						new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
+						new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()));
+				for (DTOAgrupaciones dtoAgrupaciones : listaAgrupacion) {
+					 
+					if (dtoAgrupaciones.getPk().getIdAgrupacion().equals(new Integer(obsTmp.getIdAgupacion()))) {
+						obsTmp.setEtiquetaAgrupacion(" Agrupación ");
+						obsTmp.setEtiquetaAgrupacionNombre(dtoAgrupaciones.getNombreAgrupacion());
+						LOGGER.info("Encontre a la agrupacion");
+						break;
+					} else {
+						continue;
+					}
+				}
+			} else {
+				obsTmp.setEtiquetaAgrupacion(" Individual ");
+				obsTmp.setEtiquetaAgrupacionNombre(" ");
+			}
+			LOGGER.info("Saliendo del ciclo de agrupaciones");
+
+			 
+			
+			if (obsTmp.getOrigenSolicitud().equals(new Short("0"))) {
+				obsTmp.setEtiquetaRecibidoPor("INE");
+			} else{
+				
+				obsTmp.setEtiquetaRecibidoPor("OPLE");
+			}
+			LOGGER.info("Saliendo del setEtiquetaRecibidoPor" + obsTmp.getEtiquetaRecibidoPor()  + "  ,  "+obsTmp.getOrigenSolicitud() );
+
+			List<DTOCEscolaridades> listaEscolaridad = daoObservadores.obtenEscolaridad(
+					obsTmp.getDTOObservadoresPK().getIdProcesoElectoral(),
+					obsTmp.getDTOObservadoresPK().getIdDetalleProceso());
+			for (DTOCEscolaridades dtoE : listaEscolaridad) {
+				if (dtoE.getDTOCEscolaridadesPK().getIdEscolaridad().equals(new Integer(obsTmp.getIdEscolaridad()))) {
+					obsTmp.setEtiquetaEscolaridad(dtoE.getDescripcion());
+					LOGGER.info("Encontre la escolaridad");
+					break;
+				} else {
+					continue;
+				}
+			}
+
+			LOGGER.info("Saliendo del ciclo de Escolaridades");
+
+			List<DTOCEvaluacion> listaEvaluaciones = daoObservadores.obtenListaEvaluaciones(
+					obsTmp.getDTOObservadoresPK().getIdProcesoElectoral(),
+					obsTmp.getDTOObservadoresPK().getIdDetalleProceso());
+			for (DTOCEvaluacion dtoE : listaEvaluaciones) {
+				if (dtoE.getDTOCEvaluacionPK().getIdEvaluacion().equals(new Integer(obsTmp.getIdEvaluacion()))) {
+					obsTmp.setEtiquetaEvaluacion(dtoE.getDescripcion());
+					LOGGER.info("Encontre la evaluacion");
+					List<DTOReglasEvalucaion> listaReglas = daoObservadores.obtenReglasE(obsTmp);
+					for (DTOReglasEvalucaion dtoReglasEvalucaion : listaReglas) {
+						if(dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(1) || 
+								dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(2) ){
+							
+							if (obsTmp.getIdCurso() != null) {
+								List<DTOCursos> listaCurso = daoObservadores.obtenCursos(
+										new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
+										new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()),  dtoReglasEvalucaion.getOrigenCurso() != null ? 
+												dtoReglasEvalucaion.getOrigenCurso() : 0	, 
+										obsTmp.getIdEstado().intValue(), obsTmp.getIdDistrito().intValue()); 
+								for (DTOCursos dtoCurso : listaCurso) {
+									if (dtoCurso.getPk().getIdCurso().equals(obsTmp.getIdCurso())) {
+										obsTmp.setEtiquetaCurso(dtoCurso.getEtiqueta());  
+										break;
+									} else {
+										continue;
+									}
+								}
+							}
+							LOGGER.info("Saliendo del ciclo de cursos");
+						}
+					}
+					break;
+				} else {
+					continue;
+				}
+			}
+
+			LOGGER.info("Saliendo del ciclo de listaEvaluaciones");
+			
+			if(obsTmp.getIdJustificacion() != null){
+			List<DTOCJustificaciones> listaJustificacion = daoObservadores.obtenerJustificacion(
+					obsTmp.getDTOObservadoresPK().getIdProcesoElectoral(),
+					obsTmp.getDTOObservadoresPK().getIdDetalleProceso());
+			for (DTOCJustificaciones dtoJ : listaJustificacion) {
+				if (dtoJ.getDTOCJustificacionesPK().getIdJustificacion().equals(new Integer(obsTmp.getIdJustificacion()))) {
+					obsTmp.setEtiquetaResultadoSolicitud(dtoJ.getDescripcion());
+					LOGGER.info("Encontre la Justificacion");
+					break;
+				} else {
+					continue;
+				}
+			}
+			}
+			LOGGER.info("Saliendo del ciclo de listaEvaluaciones");
+	
+			
+			
+
+			
+
+			
+			
+			
+
+			if (obsTmp.getSexo().equals('M')) {
+				obsTmp.setEtiquetaSexo("Mujer");
+			} else {
+				obsTmp.setEtiquetaSexo("Hombre");
+			}
+
+			LOGGER.info("Saliendo del setEtiquetaSexo");
+
+		} catch (Exception e) {
+			LOGGER.error("Ups se genero un error en ::", e);
+		}
+
+		LOGGER.info("etiqueta sexo");
+		
+		if (obsTmp.getRatifica() != null ){
+			if(obsTmp.getRatifica().equals('S')){
+				obsTmp.setEtiquetaRatifica("Si");
+			}else{
+				obsTmp.setEtiquetaRatifica("No");
+			}
+		}else{
+			obsTmp.setEtiquetaRatifica("");
+		}
+
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void guarda(DTOObservadores observador) throws Exception {
+		daoObservadores.guarda(observador);
+
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void modifica(DTOObservadores observador) throws Exception {
+		daoObservadores.modifica(observador);
+
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void elimina(DTOObservadores observador) throws Exception {
+		daoObservadores.elimina(observador);
+
+	}
+
+	@Override
+	public List<DTOCEscolaridades> obtenEscolaridad(DTOUsuarioLogin user) {
+		return daoObservadores.obtenEscolaridad(user);
+	}
+
+	@Override
+	public List<DTOEstado> obtenEdos(DTOUsuarioLogin user) {
+		try {
+			return daoServiciosGenerales.obtenEstados();
+
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenEdos ::", e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<DTOMunicipio> obtenMunicipios(DTOObservadores observador) {
+		try {
+			return daoServiciosGenerales.obtenMunicipios(observador.getIdEstadoDomicilio().intValue(),
+					EnumAmbitoSistema.F);
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en obtenMunicipios ::", e);
+			return null;
+		}
+	}
+
+	@Override
+	public List<DTOAgrupaciones> obtenListaAgrupaciones(DTOUsuarioLogin observador) {
+		try {
+			return daoAgrupaciones.obtenAgrupaciones(observador.getIdProcesoElectoral(),
+					observador.getIdDetalleProceso());
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en  obtenListaAgrupaciones ::", e);
+			return new ArrayList<DTOAgrupaciones>();
+		}
+	}
+
+	@Override
+	public List<DTOCEvaluacion> obtenListaEvaluaciones(DTOUsuarioLogin user) {
+		return daoObservadores.obtenListaEvaluaciones(user);
+	}
+
+	@Override
+	public List<DTOCursos> obtenListaCursos(DTOUsuarioLogin user, DTOReglasEvalucaion evaluacion) {
+		try {
+			Integer origen = evaluacion.getOrigenCurso() != null ? evaluacion.getOrigenCurso() : 0 ;
+			LOGGER.info("El origen del curso  es :: " + origen);
+			Integer edo = user.getIdEstado() > 0 ? user.getIdEstado() : user.getIdEstadoSeleccionado();
+			Integer dtt = user.getIdDistrito() > 0 ? user.getIdDistrito()  : user.getIdDistritoSeleccionado();
+			return daoObservadores.obtenCursos(user.getIdProcesoElectoral(), user.getIdDetalleProceso(), origen, edo, dtt );
+																			
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en  obtenListaCursos ::", e);
+			return new ArrayList<DTOCursos>();
+		}
+	}
+
+	@Override
+	public List<DTOCJustificaciones> obtenerJustificacion(DTOUsuarioLogin user) {
+		return daoObservadores.obtenerJustificacion(user);
+	}
+
+	@Override
+	public List<DTOReglasEvalucaion> obtenReglasE(DTOObservadores obs) {
+		return daoObservadores.obtenReglasE(obs);
+	}
+
+	@Override
+	public Boolean habilitaRatifica(DTOUsuarioLogin user) {
+		return daoObservadores.habilitaRatifica(user);
+	}
+
+	@Override
+	public Short generaEdad(String fechaCadena) {
+		return daoObservadores.generaEdad(fechaCadena);
+	}
+
+	@Override
+	public List<DTOObservadores> obtenerObservadores(DTOUsuarioLogin user) {
+		return daoObservadores.obtenerObservadores(user);
+	}
+
+	@Override
+	public boolean claveElectorExiste(DTOUsuarioLogin user, String claveCompleta) {
+		return daoObservadores.claveElectorExiste(user , claveCompleta);
+	}
+
+	@Override
+	public List<DTOCJustificaciones> obtenJustificacionNA(DTOUsuarioLogin usuario) {
+		return daoObservadores.obtenJustificacionNA(usuario);
+	}
+
+	@Override
+	public Integer obtenIdObservador() {
+		return daoObservadores.obtenIdObservador();
+	}
+
+	@Override
+	public String obtenRutaFotoDefault(DTOUsuarioLogin user) {
+		return daoObservadores.obtenRutaFotoDefault(user);
+	}
+
+}

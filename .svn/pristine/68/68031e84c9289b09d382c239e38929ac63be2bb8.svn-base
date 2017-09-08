@@ -1,0 +1,415 @@
+/**
+ * @(#)MBReportesMenu.java 10/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.faces.context.FacesContext;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleDistritoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleEstadoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleProcesoWS;
+import mx.ine.observadoresINE.bsd.BSDAgrupacionesInterface;
+import mx.ine.observadoresINE.bsd.BSDReportesInterface;
+import mx.ine.observadoresINE.dto.DTODetalleEstadoProceso;
+import mx.ine.observadoresINE.dto.DTOFiltrosReporte;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+import mx.ine.observadoresINE.helper.HLPPDFExporter;
+import mx.ine.observadoresINE.util.ApplicationContextUtils;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.primefaces.component.datatable.DataTable;
+import org.primefaces.component.export.Exporter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+/**
+ * Clase para el manejo del menu de los reportes en el sistema de SIJEINE
+ *
+ * @author Carlos Augusto Escalona Navarro
+ * @since 16/03/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class MBReportesMenu extends MBGeneric implements Serializable {
+
+    private static final Log LOGGER = LogFactory.getLog(MBReportesMenu.class);
+
+    private static final long serialVersionUID = -3133864829547474819L;
+
+    @Autowired
+    @Qualifier("bsdReportes")
+    protected transient BSDReportesInterface bsdReportes;
+    
+    /**
+     * Data table ligada a la tabla de reporte
+     */
+    private transient DataTable dataTable;
+    
+    /**
+     * Parámetros para manipular excel y pdf
+     */
+    private Map<String, Serializable> parametros;
+    
+    /**
+	 * Objeto BSD para los servicios exclusivos del módulo
+	 */
+	@Autowired
+	@Qualifier("bsdAgrupaciones")
+	protected transient BSDAgrupacionesInterface bsdAgrupaciones;
+    
+    protected List<DTODetalleEstadoProceso> entidadesFederativas;
+    protected List<DTODetalleEstadoProcesoWS> entidadesFederativasWS;
+    protected List<DTODetalleDistritoProcesoWS> distritos;
+    protected List<Integer> procesos;
+    protected DTOFiltrosReporte dtoFiltros;
+    protected DTOReportesParametros dtoParametros;
+    protected String nombreReporte;
+    private static Locale MEX = new Locale("es", "MX");
+
+    //Filtros agrupaciones
+    protected Map<String, String> lstFiltrosAgrupaciones;
+    protected Integer idFiltroAgrupaciones;
+
+	/**
+     * Metodo para inicializar los valores de los combos del menu de reportes
+     * segun el nivel del rol de usuario logeado
+     *
+     */
+    protected void init() {
+        MBAdministradorSistema mbAdmin = (MBAdministradorSistema) ApplicationContextUtils.getApplicationContext().getBean(Constantes.MB_ADMIN);
+        this.dtoFiltros = new DTOFiltrosReporte();
+        this.dtoFiltros.setUsuario(mbAdmin.obtenUsuario());
+        if (dtoFiltros.getUsuario().getVersion().equalsIgnoreCase(Utilidades.mensajeProperties("constante_version_rol_oc"))) {
+            obtenProceso();
+            validaProceso(null);
+        } else {
+            validaProceso(dtoFiltros.getUsuario().getIdDetalleProceso());
+        }
+//        dtoFiltros.setRolUsuario(regresaRol());
+        this.habilitaCombos();
+    }
+    
+    public void inicializaReporteAgrupaciones() {
+		parametros = new LinkedHashMap<>();
+		obtenVersion();
+		parametros.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 4);
+		parametros.put(Constantes.PARAMETRO_STRING_TITULO,
+				Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones"));		
+	}
+
+    protected void validaProceso(Integer idDetalle) {
+        try {
+            if (procesos != null && idDetalle == null) {
+                for (Integer proceso : procesos) {
+                	entidadesFederativasWS = this.dtoFiltros.getUsuario().getListaEstados();
+//                    entidadesFederativasWS = bsdReportes.obtenEstadosPorProcesoDetalle(dtoFiltros.getUsuario().getIdSistema(), proceso, idDetalle);
+                    if (entidadesFederativasWS != null) {
+                        llenaComboEstados(proceso, entidadesFederativasWS);
+                    }
+                }
+            } else {
+//                entidadesFederativasWS = bsdReportes.obtenEstadosPorProcesoDetalle(dtoFiltros.getUsuario().getIdSistema(), dtoFiltros.getUsuario().getIdProcesoElectoral(), idDetalle);
+//                llenaComboEstados(dtoFiltros.getUsuario().getIdProcesoElectoral(), entidadesFederativasWS);
+            }
+        } finally{}
+        /*catch (ClienteWebServiceException e) {
+            LOGGER.error("Ups! se genero un error en :", e);
+        }*/
+
+    }
+
+    protected void llenaComboEstados(Integer proceso, List<DTODetalleEstadoProcesoWS> listaEstados) {
+        entidadesFederativas = new ArrayList<>();
+        for (DTODetalleEstadoProcesoWS dto : listaEstados) {
+            DTODetalleEstadoProceso entidad = new DTODetalleEstadoProceso();
+            entidad.setIdProceso(proceso);
+            entidad.setIdEstado(dto.getIdEstado());
+            entidad.setNombreEstado(dto.getNombreEstado());
+            this.entidadesFederativas.add(entidad);
+        }
+    }
+
+    private void buscaEstadoProceso() {
+        for (DTODetalleEstadoProceso estado : entidadesFederativas) {
+            if (estado.getIdEstado().intValue() == dtoFiltros.getIdEstadoSeleccionado()) {
+                dtoFiltros.getUsuario().setIdProcesoElectoral(estado.getIdProceso());
+                break;
+            }
+        }
+    }
+
+    protected void obtenProceso() {
+        String idProcesos = "";
+        if (dtoFiltros.getUsuario().getListaDetalles() != null) {
+            procesos = new ArrayList<>();
+            Integer proceso = 0;
+            for (DTODetalleProcesoWS detalle : dtoFiltros.getUsuario().getListaDetalles()) {
+                if (detalle.getIdProcesoElectoral() != proceso) {
+                    if (idProcesos != null && idProcesos != "") {
+                        idProcesos += ", ";
+                    }
+                    idProcesos += detalle.getIdProcesoElectoral();
+                    procesos.add(detalle.getIdProcesoElectoral());
+                }
+                proceso = detalle.getIdProcesoElectoral();
+            }
+            if (idProcesos != null && idProcesos != "") {
+                dtoFiltros.setProcesos(idProcesos);
+            }
+        }
+    }
+
+    protected String regresaRol() {
+        String rolUsuario = dtoFiltros.getUsuario().getRolUsuario();
+        DTODetalleEstadoProceso tmp = new DTODetalleEstadoProceso();
+        if (rolUsuario.matches(".*OC.*")) {
+            tmp.setIdEstado(0);
+            tmp.setNombreEstado("OFICINAS CENTRALES");
+            this.entidadesFederativas.add(0, tmp);
+            return "OC";
+        } else if (rolUsuario.matches(".*JL.*")) {
+            return "JL";
+        } else if (rolUsuario.matches(".*JD.*")) {
+            return "JD";
+        }
+        return "Sin permisos validos";
+    }
+
+    protected void habilitaCombos() {
+        Integer estado;
+        //Inicializa  combos para OC
+        if (dtoFiltros.getUsuario().getVersion().equals(Utilidades.mensajeProperties("constante_version_rol_oc"))) {
+            estado = this.dtoFiltros.getIdEstadoSeleccionado() != null ? this.dtoFiltros.getIdEstadoSeleccionado() : this.dtoFiltros.getIdEstado();
+            this.dtoFiltros.setIdEstadoSeleccionado(estado != null ? estado : 0);
+            cargaDistritos();
+        } else if (dtoFiltros.getRolUsuario().equals(Utilidades.mensajeProperties("constante_version_rol_jl"))) {
+            //Inicializa  combos para JL
+            estado = null;
+            if (this.entidadesFederativas.size() == 1) {
+                estado = this.entidadesFederativas.get(0).getIdEstado();
+                this.dtoFiltros.setIdEstadoSeleccionado(estado);
+                cargaDistritos();
+            }
+        } else if (dtoFiltros.getUsuario().getVersion().equals(Utilidades.mensajeProperties("constante_version_rol_jd"))) {
+            //Inicializa combos para JL 
+            estado = null;
+            Integer distrito = this.dtoFiltros.getUsuario().getIdDistrito();
+            if (this.entidadesFederativas.size() == 1) {
+                estado = this.entidadesFederativas.get(0).getIdEstado();
+                this.dtoFiltros.setIdEstadoSeleccionado(estado);
+                this.dtoFiltros.setIdDistritoSeleccionado(distrito);
+                cargaDistritos();
+
+            }
+        }
+    }
+
+    /**
+     * Metodo invocado desde la vista cada vez que seleccionan un estado y que
+     * devuelve una lista con los distritos correspondientes a ese estado.
+     */
+    protected void cargaDistritos() {
+        try {
+
+            if (dtoFiltros.getUsuario().getIdProcesoElectoral() == null || dtoFiltros.getUsuario().getIdProcesoElectoral() == 0) {
+                buscaEstadoProceso();
+            }
+            if (this.dtoFiltros.getUsuario().getIdEstadoSeleccionado() != null && this.dtoFiltros.getUsuario().getIdEstadoSeleccionado() > 0) {
+                buscaEstadoProceso();
+//                this.setDistritos(bsdReportes.getDistritos(dtoFiltros));
+                this.setDistritos(this.dtoFiltros.getUsuario().getListaDistritos());
+                if (this.dtoFiltros.getUsuario().getVersion().equals("OC")) {
+                    DTODetalleDistritoProcesoWS tmp = new DTODetalleDistritoProcesoWS();
+                    if (this.dtoFiltros.getUsuario().getIdEstadoSeleccionado() != null) {
+                        tmp.setIdDistrito(0);
+                        tmp.setNombreDistrito("JUNTA LOCAL");
+                        this.distritos.add(0, tmp);
+                        this.dtoFiltros.setIdDistritoSeleccionado(0);
+                    } else {
+                        tmp.setIdDistrito(0);
+                        tmp.setNombreDistrito("seleccione");
+                        this.distritos.add(0, tmp);
+                        this.dtoFiltros.setIdDistritoSeleccionado(null);
+                    }
+                } else if (this.dtoFiltros.getRolUsuario().equals("JL")) {
+                    DTODetalleDistritoProcesoWS tmp = new DTODetalleDistritoProcesoWS();
+                    tmp.setIdDistrito(0);
+                    tmp.setNombreDistrito("JUNTA LOCAL");
+                    this.distritos.add(0, tmp);
+                    this.dtoFiltros.setIdDistritoSeleccionado(0);
+                }
+            } else {
+                this.distritos = new ArrayList<>();
+                DTODetalleDistritoProcesoWS tmp = new DTODetalleDistritoProcesoWS();
+                tmp.setIdDistrito(0);
+                tmp.setNombreDistrito("seleccione");
+                this.distritos.add(tmp);
+            }
+        } catch (Exception e) {
+            LOGGER.error("[ERROR] MBReportesMenu.cargaDistritos()-----> ", e);
+        }
+
+    }
+
+    public void inicializaParametrosEncabezado() {
+        dtoParametros = new DTOReportesParametros();
+        Date fecha = new Date();
+        SimpleDateFormat formateador = new SimpleDateFormat("dd/MMMM/yyyy HH:mm", MEX);
+        Integer idEstado = this.dtoFiltros.getUsuario().getIdEstadoSeleccionado();
+        Integer idDistrito = this.dtoFiltros.getUsuario().getIdDistritoSeleccionado();
+        if (idEstado != null && idEstado > 0) {
+            localizaEstado(idEstado);
+        } else {
+            dtoParametros.setDescEntidad("OFICINAS CENTRALES");
+        }
+        if (idDistrito != null && idDistrito > 0) {
+            dtoParametros.setIdDistrito(dtoFiltros.getIdDistritoSeleccionado());            
+            localizaDistrito(idDistrito);
+        }
+        dtoParametros.setFechaHora(formateador.format(fecha));
+    }
+
+    /**
+     * Método encargado de localizar el estado seleccionado de una lista
+     * @param idEstado 
+     */
+    private void localizaEstado(Integer idEstado) {
+        for (DTODetalleEstadoProceso estado : entidadesFederativas) {
+            if (estado.getIdEstado().equals(idEstado)) {
+                dtoParametros.setDescEntidad(estado.getNombreEstado());
+                break;
+            }
+        }
+    }
+
+    /**
+     * Método encargado de localizar el distrito seleccionado de una lista
+     * @param idDistrito 
+     */
+    private void localizaDistrito(Integer idDistrito) {
+        for (DTODetalleDistritoProcesoWS distrito : distritos) {
+            if (distrito.getIdDistrito().equals(idDistrito)) {
+                dtoParametros.setDescDistrito(distrito.getNombreDistrito());
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Método encargado de exportar la tabla a formato PDF
+     *
+     */
+    public void exportPDF() throws IOException {
+        FacesContext context = FacesContext.getCurrentInstance();
+        Exporter exporter = new HLPPDFExporter(parametros);
+        exporter.export(context, dataTable, Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones"),
+                    false, false, "ISO-8859-1", null, null);
+        context.responseComplete();
+    }
+    
+    /**
+     * Método encargado de obtener la versión del sistema al entrar al reporte
+     * 
+     */
+    private void obtenVersion(){
+    	DTOUsuarioLogin usuario = this.dtoFiltros.getUsuario();
+        Integer idEstado = usuario.getIdEstadoSeleccionado() == null ? 0 : 
+        	usuario.getIdEstadoSeleccionado();
+        Integer idDistrito = usuario.getIdDistritoSeleccionado() == null ? 0 : 
+        	usuario.getIdDistritoSeleccionado();
+        //Version OC y JL
+        if(idEstado.intValue() >= 0 && idDistrito.intValue() == 0){
+        	parametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, 
+        			usuario.getEstadoSeleccionado());
+//            dto.setVersion(Constantes.OC);
+        }
+        /*else if(idEstado.intValue() > 0 && idDistrito.intValue() == 0){
+//            dto.setVersion(Constantes.JL);
+            parametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, 
+            		usuario.getEstadoSeleccionado());
+        }*/
+        //Version JD
+        else if(idEstado.intValue() > 0 & idDistrito.intValue() > 0){
+//        	dto.setVersion(Constantes.JD);
+            parametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, 
+            		usuario.getEstadoSeleccionado());
+            parametros.put(Constantes.PARAMETRO_OBJECT_DISTRITO, 
+            		usuario.getDistritoSeleccionado());
+        }
+    }
+
+    /*****************************GETTERS AND SETTERS**************************************/
+
+    public List<DTODetalleEstadoProceso> getEntidadesFederativas() {
+        return entidadesFederativas;
+    }
+
+    public void setEntidadesFederativas(List<DTODetalleEstadoProceso> entidadesFederativas) {
+        this.entidadesFederativas = entidadesFederativas;
+    }
+
+    public DTOFiltrosReporte getDtoFiltros() {
+        return dtoFiltros;
+    }
+
+    public void setDtoFiltros(DTOFiltrosReporte dtoFiltros) {
+        this.dtoFiltros = dtoFiltros;
+    }
+
+    public List<DTODetalleDistritoProcesoWS> getDistritos() {
+        return distritos;
+    }
+
+    public void setDistritos(List<DTODetalleDistritoProcesoWS> distritos) {
+        this.distritos = distritos;
+    }
+
+    public DTOReportesParametros getDtoParametros() {
+        return dtoParametros;
+    }
+
+    public void setDtoParametros(DTOReportesParametros dtoParametros) {
+        this.dtoParametros = dtoParametros;
+    }
+    
+    public Map<String, String> getLstFiltrosAgrupaciones() {
+		return lstFiltrosAgrupaciones;
+	}
+
+	public void setLstFiltrosAgrupaciones(
+			Map<String, String> lstFiltrosAgrupaciones) {
+		this.lstFiltrosAgrupaciones = lstFiltrosAgrupaciones;
+	}
+
+	public Integer getIdFiltroAgrupaciones() {
+		return idFiltroAgrupaciones;
+	}
+
+	public void setIdFiltroAgrupaciones(Integer idFiltroAgrupaciones) {
+		this.idFiltroAgrupaciones = idFiltroAgrupaciones;
+	}
+
+	public DataTable getDataTable() {
+		return dataTable;
+	}
+
+	public void setDataTable(DataTable dataTable) {
+		this.dataTable = dataTable;
+	}
+
+}

@@ -1,0 +1,297 @@
+package mx.ine.observadoresINE.bo.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.enterprise.context.SessionScoped;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import mx.ine.common.fechas.impl.ValidacionFechas;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.helper.HLPReportesEncabezado;
+import mx.ine.observadoresINE.util.Utilidades;
+import mx.org.ine.servicios.query.QRYContainerInterface;
+
+/**
+ * Bussines Object para el reporte ACCIONES DE PROMOCION
+ * 
+ * @author jpachecov
+ *
+ */
+@Component("boReporteAcciones")
+@Scope("prototype")
+public class BOReporteAcciones {
+	/**
+	 * Log
+	 */
+	private static final Log log = LogFactory.getLog(BOReporteAcciones.class);
+
+	private final String base_query_name = "query_reporte_acciones_promocion";
+
+	/**
+	 * Contenedor de queries.
+	 */
+	@Autowired
+	@Qualifier("qryContainer")
+	@SessionScoped
+	private QRYContainerInterface qryContainer;
+
+	/**
+	 * Método que devuelve el query construido dependiendo de los parámetros o
+	 * filtros dados.
+	 * 
+	 * @param datos
+	 * @return
+	 */
+	public String getQuery(DTOFiltroReporteAcciones datos) throws Exception {
+		String query = "";
+
+		switch (datos.getNivel()) {
+		case "OC":
+			if (datos.getTipoReporte().equals("L")) {
+
+				query = qryContainer.getQuery(base_query_name + "_OC");
+				query = asignaParametros(datos, query);
+			} else {
+				query = qryContainer.getQuery(base_query_name + "_OC_C");
+				query = asignaParametros(datos, query);
+			}
+			break;
+
+		case "JL":
+			if (datos.getTipoReporte().equals("L")) {
+				query = qryContainer.getQuery(base_query_name + "_JL");
+				query = asignaParametros(datos, query);
+				break;
+			}
+			query = qryContainer.getQuery(base_query_name + "_JL_C");
+			query = asignaParametros(datos, query);
+			break;
+		case "JD":
+			// No hay concentrado
+			// Solo listado
+			query = qryContainer.getQuery(base_query_name + "_JD");
+			query = asignaParametros(datos, query);
+			break;
+		default:
+			throw new Exception("El nivel del reporte no esta bien definido.");
+		}
+		return query;
+	}
+
+	/**
+	 * Devuelve un objeto del tipo DTOREportesParametros que servirá para
+	 * visualizar la tabla.
+	 * 
+	 * @param data.
+	 *            La lista de registros del reporte.
+	 * @return
+	 */
+	public DTOReportesParametros createTableParameters(DTOFiltroReporteAcciones datos, List<Object[]> data) {
+		DTOReportesParametros dto = new DTOReportesParametros();
+		dto.setListaDatos(data);
+
+		switch (datos.getNivel()) {
+		case "OC":
+			dto.setTituloReporte(Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion"));
+			dto.setEncabezado(obtenListaEncabezado(datos, dto));
+			if (datos.getTipoReporte().equals("L")) {
+				dto.setColumnas(5);
+			} else {
+				dto.setColumnas(2);
+			}
+			break;
+		case "JL":
+			dto.setTituloReporte(Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion"));
+			dto.setEncabezado(obtenListaEncabezado(datos, dto));
+			if (datos.getTipoReporte().equals("L")) {
+				dto.setColumnas(4);
+			} else {
+				dto.setColumnas(2);
+			}
+			break;
+		case "JD":
+			dto.setTituloReporte(Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion"));
+			dto.setColumnas(3);
+			dto.setEncabezado(obtenListaEncabezado(datos, dto));
+			break;
+		}
+
+		return dto;
+	}
+
+	/**
+	 * Obtiene el encabezado del reporte
+	 * 
+	 * @param datos
+	 * @param dto
+	 * @return
+	 */
+	public List<HLPReportesEncabezado> obtenListaEncabezado(DTOFiltroReporteAcciones datos, DTOReportesParametros dto) {
+		List<HLPReportesEncabezado> lista = new ArrayList<HLPReportesEncabezado>();
+
+		switch (datos.getNivel()) {
+		case "OC":
+
+			if (datos.getTipoReporte().equals("L")) {
+				// Primer encabezado
+				HLPReportesEncabezado hlpEncabezadoo = new HLPReportesEncabezado();
+				// hlpEncabezado.ingresarEncabezado(0, 2, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_listados"),
+				// 1);
+				// hlpEncabezado.ingresarEncabezado(1, 1, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_total")
+				// + dto.getListaDatos().size(), 1);
+				// lista.add(hlpEncabezado);
+
+				// Segundo encabezado
+				hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Estado", 1);
+				hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Distrito", 1);
+				hlpEncabezadoo.ingresarEncabezado(2, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_fecha"), 1);
+				hlpEncabezadoo.ingresarEncabezado(3, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_nom_accion"), 1);
+				hlpEncabezadoo.ingresarEncabezado(4, 6, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_descripcion"), 1);
+				lista.add(hlpEncabezadoo);
+
+			} else {
+				// Primer encabezado
+				HLPReportesEncabezado hlpEncabezadoo = new HLPReportesEncabezado();
+				// hlpEncabezado.ingresarEncabezado(0, 2, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_listados"),
+				// 1);
+				// hlpEncabezado.ingresarEncabezado(1, 1, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_total")
+				// + dto.getListaDatos().size(), 1);
+				// lista.add(hlpEncabezado);
+
+				// Segundo encabezado
+				hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Estado", 1);
+				hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Número de Acciones desarrolladas", 1);
+				lista.add(hlpEncabezadoo);
+
+			}
+
+			break;
+		case "JL":
+
+			if (datos.getTipoReporte().equals("L")) {
+				// Primer encabezado
+				HLPReportesEncabezado hlpEncabezadoo = new HLPReportesEncabezado();
+				// hlpEncabezado.ingresarEncabezado(0, 2, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_listados"),
+				// 1);
+				// hlpEncabezado.ingresarEncabezado(1, 1, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_total")
+				// + dto.getListaDatos().size(), 1);
+				// lista.add(hlpEncabezado);
+
+				// Segundo encabezado
+				hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Distrito", 1);
+				hlpEncabezadoo.ingresarEncabezado(1, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_fecha"), 1);
+				hlpEncabezadoo.ingresarEncabezado(2, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_nom_accion"), 1);
+				hlpEncabezadoo.ingresarEncabezado(3, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_descripcion"), 1);
+				lista.add(hlpEncabezadoo);
+
+			} else {
+				// Primer encabezado
+				HLPReportesEncabezado hlpEncabezadoo = new HLPReportesEncabezado();
+				// hlpEncabezado.ingresarEncabezado(0, 2, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_listados"),
+				// 1);
+				// hlpEncabezado.ingresarEncabezado(1, 1, 1,
+				// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_total")
+				// + dto.getListaDatos().size(), 1);
+				// lista.add(hlpEncabezado);
+
+				// Segundo encabezado
+				hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Junta", 1);
+				hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Número de acciones desarrolladas", 1);
+				lista.add(hlpEncabezadoo);
+
+			}
+
+			break;
+		case "JD":
+			// Primer encabezado
+			HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+			// hlpEncabezado.ingresarEncabezado(0, 2, 1,
+			// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_listados"),
+			// 1);
+			// hlpEncabezado.ingresarEncabezado(1, 1, 1,
+			// Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones_total")
+			// + dto.getListaDatos().size(), 1);
+			// lista.add(hlpEncabezado);
+
+			// Segundo encabezado
+			hlpEncabezado = new HLPReportesEncabezado();
+			hlpEncabezado.ingresarEncabezado(0, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_fecha"), 1);
+			hlpEncabezado.ingresarEncabezado(1, 1, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_nom_accion"), 1);
+			hlpEncabezado.ingresarEncabezado(2, 6, 1, Utilidades.mensajeProperties("etiqueta_reportes_acciones_descripcion"), 1);
+			lista.add(hlpEncabezado);
+			break;
+		}
+
+		return lista;
+	}
+
+	/**
+	 * Asigna los parámetros necesarios al query según el nivel y tipo de
+	 * reporte.
+	 * 
+	 * @param datos
+	 * @param query
+	 * @return
+	 */
+	private String asignaParametros(DTOFiltroReporteAcciones datos, String query) {
+		String q = query;
+		String where_fecha = "";
+		String fecha_ini = "";
+		String fecha_fin = "";
+		if (datos.getTipoReporte().equals("L")) {
+			if(datos.getFechaIni() != null && !datos.getFechaIni().equals("")){
+				fecha_ini = ValidacionFechas.dateToString("dd/MM/yyyy", datos.getFechaIni());
+				where_fecha += "AC.FECHA_ACCION  >= '" + fecha_ini + "' AND ";
+			}
+			if(datos.getFechaFin() != null && !datos.getFechaFin().equals("")){
+				fecha_fin = ValidacionFechas.dateToString("dd/MM/yyyy", datos.getFechaFin());
+				where_fecha += "AC.FECHA_ACCION  <= '" + fecha_fin + "' AND ";
+			}
+		}
+		switch (datos.getNivel()) {
+		case "OC":
+
+			q = q.replace(":L_PROCESOS", "(" + datos.getUsuario().getIdProcesoElectoral() + ")");
+
+			if (datos.getTipoReporte().equals("L")) {
+				q = q.replace("<WHERE_FECHA>", where_fecha);
+			}
+			break;
+		case "JL":
+			q = q.replace(":PROCESO", datos.getUsuario().getIdProcesoElectoral() + "");
+			q = q.replace(":DETALLE", datos.getUsuario().getIdDetalleProceso() + "");
+			q = q.replace(":ESTADO", datos.getUsuario().getIdEstadoSeleccionado() + "");
+			if (datos.getTipoReporte().equals("L")) {
+				q = q.replace("<WHERE_FECHA>", where_fecha);
+				break;
+			}
+			break;
+		case "JD":
+
+			q = q.replace(":PROCESO", datos.getUsuario().getIdProcesoElectoral() + "");
+			q = q.replace(":DETALLE", datos.getUsuario().getIdDetalleProceso() + "");
+			q = q.replace(":ESTADO", datos.getUsuario().getIdEstadoSeleccionado() + "");
+			q = q.replace(":DISTRITO", datos.getUsuario().getIdDistritoSeleccionado() + "");
+			q = q.replace("<WHERE_FECHA>", where_fecha);
+			break;
+		}
+
+		return q;
+	}
+
+}

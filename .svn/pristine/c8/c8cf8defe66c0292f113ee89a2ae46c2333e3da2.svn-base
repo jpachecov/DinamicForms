@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.2">	
+	
+	<deployment>
+		
+		<dependencies>
+		   <module name="mx.ine.spring" slot="3.2.16" export="true" meta-inf="export" />
+		
+			<module name="mx.ine.servicios" slot="2.0" export="true" meta-inf="export"/>
+ 			
+ 			<module name="mx.ine.primefaces" slot="5.3" export="true" meta-inf="export"/> 			 			 			 			
+ 			
+ 			<module name="mx.ine.poi" slot="3.13"/> 
+ 			
+ 			<module name="mx.ine.simplecaptcha" slot="1.2.1"/>
+ 			
+ 			<module name="mx.ine.fileupload" slot="1.3.1" />
+ 			
+ 			<module name="mx.ine.tika" slot="1.8.10"/> 		
+ 			 
+	  		 <module name="mx.ine.recursosWeb" export="true" meta-inf="export"/>
+ 			<module name="mx.ine.serviceldap" export="true" meta-inf="export"/>		 
+ 			
+ 			<module name="mx.ine.jasperreports" slot="5.6.1" export="true" meta-inf="export"/> 			
+
+			<!--  <module name="org.picketlink"/>-->  
+			
+			<module name="mx.ine.spring-batch" slot="2.2.7" export="true" meta-inf="export" />
+			
+ 			<module name="org.apache.httpcomponents" meta-inf="export"/> 
+ 			<module name="mx.ine.historicos" slot="1.0" export="true" meta-inf="export"/>		
+ 			
+<!-- 		<module name="org.infinispan.commons" slot="jdg-6.6" services="export"/> -->
+		
+<!--        <module name="org.infinispan.client.hotrod" slot="jdg-6.6" services="export"/>
+   			 -->
+		</dependencies>
+	 
+	</deployment>	
+	
+</jboss-deployment-structure> 

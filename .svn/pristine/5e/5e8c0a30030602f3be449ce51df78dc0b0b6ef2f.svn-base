@@ -1,0 +1,223 @@
+ /**
+ * @(#)DAOCursosImpl.java 30/06/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dao.impl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import mx.ine.observadoresINE.as.impl.ASObservadoresImpl;
+import mx.ine.observadoresINE.dao.DAOCursosInterface;
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.db.DTOCursosPK;
+import mx.ine.observadoresINE.dto.db.DTOObservadores;
+import mx.ine.observadoresINE.dto.form.FormCursos;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.hibernate.Criteria;
+import org.hibernate.FetchMode;
+import org.hibernate.Query;
+import org.hibernate.criterion.MatchMode;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
+import org.hibernate.type.IntegerType;
+import org.hibernate.type.StringType;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+ /**
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 30/06/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Repository("daoCursos")
+@Scope("prototype")
+public class DAOCursosImpl extends DAOGeneric <DTOCursos, DTOCursosPK> implements DAOCursosInterface{
+	private static final Log LOGGER = LogFactory.getLog(DAOCursosImpl.class);
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void guardarOActualizar(DTOCursos dto) throws Exception {
+		guardarOactualizar(dto);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public void eliminaCurso(DTOCursos dto) throws Exception {
+		eliminar(dto);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DTOCursos> obtenCursos(Integer idProceso, Integer idDetalleProceso) throws Exception {
+		List<DTOCursos> cursos = new ArrayList<DTOCursos>();
+		Criteria criteria = getSession().createCriteria(DTOCursos.class, "cursos")
+							.add(Restrictions.eq("cursos.pk.idProcesoElectoral", idProceso))
+							.add(Restrictions.eq("cursos.pk.idDetalleProceso", idDetalleProceso));
+		cursos = (List<DTOCursos>) criteria.list();
+		
+		for (DTOCursos dtoCursos : cursos) {
+			LOGGER.info(dtoCursos.toString());
+		}
+		return cursos;		
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DTOCCargoResponsable> obtenCargos(Integer idProceso, Integer idDetalle) throws Exception {
+		List<DTOCCargoResponsable> cargos = new ArrayList<DTOCCargoResponsable>();
+		Criteria criteria = getSession().createCriteria(DTOCCargoResponsable.class)
+										.add(Restrictions.eq("id.idProcesoElectoral", idProceso))
+										.add(Restrictions.eq("id.idDetalleProceso", idDetalle))
+										.addOrder(Order.asc("id.idCargo"));
+		
+		cargos = (List<DTOCCargoResponsable>) criteria.list();
+
+		return cargos;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DTOAgrupaciones> getAgrupacionesByNombre(String cadena, Integer idProceso, Integer idDetalle)
+			throws Exception {
+		String cadenaABuscar = cadena + "%";
+		List<DTOAgrupaciones> agrupacionesEncontradas = new ArrayList<DTOAgrupaciones>();
+		Criteria criteria = getSession().createCriteria(DTOAgrupaciones.class)
+										.add(Restrictions.eq("pk.idProcesoElectoral", idProceso))
+										.add(Restrictions.eq("pk.idDetalleProceso", idDetalle))
+										.add(Restrictions.ilike("nombreAgrupacion", cadenaABuscar, MatchMode.ANYWHERE));
+		agrupacionesEncontradas = (List<DTOAgrupaciones>) criteria.list();
+		return agrupacionesEncontradas;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DTOCursos> buscaPorFecha(FormCursos formCursos)
+			throws Exception {
+		List<DTOCursos> cursosEncontrados = new ArrayList<DTOCursos>();
+
+		if(formCursos.getOrigenCurso() == 3){
+			Criteria criteria = getSession().createCriteria(DTOCursos.class, "cursos")
+                    .createAlias("cursos.agrupaciones", "agrupaciones")
+                    .createAlias("cursos.cargoResponsable", "cargos")
+                    .add(Restrictions.eq("cursos.pk.idProcesoElectoral", formCursos.getIdProceso()))
+                    .add(Restrictions.eq("cursos.pk.idDetalleProceso", formCursos.getIdDetalleProceso()))
+                    .add(Restrictions.eq("agrupaciones.pk.idProcesoElectoral", formCursos.getIdProceso()))
+                    .add(Restrictions.eq("agrupaciones.pk.idDetalleProceso", formCursos.getIdDetalleProceso()))
+                    .add(Restrictions.eq("agrupaciones.pk.idAgrupacion", formCursos.getIdAgrupacion()))
+                    .add(Restrictions.eq("cursos.origenCurso", formCursos.getOrigenCurso()))
+					.add(Restrictions.eq("cursos.fecha", formCursos.getFecha()))
+                    .setFetchMode("cargos", FetchMode.JOIN)
+                    .setFetchMode("agrupaciones", FetchMode.JOIN);
+			cursosEncontrados = (List<DTOCursos>) criteria.list();
+		}else{
+			Criteria criteria = getSession().createCriteria(DTOCursos.class, "cursos")
+					.createAlias("cursos.cargoResponsable", "cargos")
+					.add(Restrictions.eq("cursos.pk.idProcesoElectoral", formCursos.getIdProceso()))
+					.add(Restrictions.eq("cursos.pk.idDetalleProceso", formCursos.getIdDetalleProceso()))
+					.add(Restrictions.eq("cursos.origenCurso", formCursos.getOrigenCurso()))
+					.add(Restrictions.eq("cursos.fecha", formCursos.getFecha()))
+					.setFetchMode("cargos", FetchMode.JOIN);
+			cursosEncontrados = (List<DTOCursos>) criteria.list();
+		}
+		
+		
+		return cursosEncontrados;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DTOCursos> buscaImparte(FormCursos formCursos) throws Exception {
+		List<DTOCursos> cursosEncontrados = new ArrayList<DTOCursos>();
+		
+		if(formCursos.getOrigenCurso() == 3){
+			Criteria criteria = getSession().createCriteria(DTOCursos.class, "cursos")
+                    .createAlias("cursos.agrupaciones", "agrupaciones")
+                    .createAlias("cursos.cargoResponsable", "cargos")
+                    .add(Restrictions.eq("cursos.pk.idProcesoElectoral", formCursos.getIdProceso()))
+                    .add(Restrictions.eq("cursos.pk.idDetalleProceso", formCursos.getIdDetalleProceso()))
+                    .add(Restrictions.eq("agrupaciones.pk.idProcesoElectoral", formCursos.getIdProceso()))
+                    .add(Restrictions.eq("agrupaciones.pk.idDetalleProceso", formCursos.getIdDetalleProceso()))
+                    .add(Restrictions.eq("agrupaciones.pk.idAgrupacion", formCursos.getIdAgrupacion()))
+                    .add(Restrictions.eq("cursos.origenCurso", formCursos.getOrigenCurso()))
+                    .setFetchMode("cargos", FetchMode.JOIN)
+                    .setFetchMode("agrupaciones", FetchMode.JOIN);
+			cursosEncontrados = (List<DTOCursos>) criteria.list();
+		}else{
+			Criteria criteria = getSession().createCriteria(DTOCursos.class, "cursos")
+					.createAlias("cursos.cargoResponsable", "cargos")
+					.add(Restrictions.eq("cursos.pk.idProcesoElectoral", formCursos.getIdProceso()))
+					.add(Restrictions.eq("cursos.pk.idDetalleProceso", formCursos.getIdDetalleProceso()))
+					.add(Restrictions.eq("cursos.origenCurso", formCursos.getOrigenCurso()))
+					.setFetchMode("cargos", FetchMode.JOIN);
+			cursosEncontrados = (List<DTOCursos>) criteria.list();
+		}
+		
+		
+		return cursosEncontrados;
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@Override
+	public DTOCursos obtenDomicilioDeLaJunta(Integer idEstado, Integer idDistrito) throws Exception {
+		String sql = this.getContainer().getQuery("query_domicilio_de_la_junta");
+		Query query = getSession().createSQLQuery(sql)
+							 .addScalar( "calle", StringType.INSTANCE )
+				             .addScalar( "numeroExterior", StringType.INSTANCE )
+				             .addScalar( "numeroInterior", StringType.INSTANCE )
+				             .addScalar( "colonia", StringType.INSTANCE )
+				             .addScalar( "codigoPostal", StringType.INSTANCE )
+				             .addScalar( "idEstadoDomicilio", IntegerType.INSTANCE )
+				             .addScalar( "idMunicipioDomicilio", IntegerType.INSTANCE );
+			 
+		query.setInteger("idEstado", idEstado);
+		query.setInteger("idDistrito", idDistrito);
+		query.setResultTransformer(Transformers.aliasToBean(DTOCursos.class));
+		
+		return (DTOCursos) query.uniqueResult();
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<DTOObservadores> verificaObservador(Integer idCurso) throws Exception {
+		List<DTOObservadores> observadores = new ArrayList<DTOObservadores>();
+		Criteria criteria = getSession().createCriteria(DTOObservadores.class, "observador")
+							.createAlias("observador.dTOCursos", "cursos")
+							.add(Restrictions.eq("cursos.pk.idCurso", idCurso));
+		observadores = (List<DTOObservadores>) criteria.list();
+		return observadores;
+	}
+
+}

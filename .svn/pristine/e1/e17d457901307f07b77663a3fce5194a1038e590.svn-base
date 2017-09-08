@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:sf="http://www.springframework.org/tags/faces"
+                xmlns:sec="http://www.springframework.org/security/tags"
+                xmlns:pe="http://primefaces.org/ui/extensions">
+    <div class="ui-g">
+        <div class="divider"></div>
+        <h2>#{messageSource['etiqueta_reportes_seleccioneInformacion']}</h2>
+        <div class="ui-g-12 ui-md-12">
+            <p:selectOneRadio id="filtroAcreditacion"
+                              value ="#{mbReporte.dtoFiltros.filtroAcreditacion}"
+                              layout="responsive" 
+                              columns="1" 
+                              required="true"
+                              >
+                <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_solicitudesDeAcreditacion']}" itemValue="1"/>
+                <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_acreditacionesAprobadas']}" itemValue="2"/>
+                <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_acreditacionesNoAprobadas']}" itemValue="3"/>
+
+                <p:ajax event="change" process="@this" update="@form"/>
+            </p:selectOneRadio>
+
+        </div>
+
+        <!--Inicio:Filtros para solicitudes de acreditación-->
+        <!--Filtros para OC y JL-->
+        <p:outputPanel id="filtroOCJL"  rendered="#{mbReporte.dtoFiltros.filtroAcreditacion eq 1
+                                                    and ((mbReporte.dtoFiltros.getIdEstadoSeleccionado() != null and mbReporte.dtoFiltros.getIdEstadoSeleccionado() == 0)
+                                                    or (mbReporte.dtoFiltros.getIdEstadoSeleccionado() != null and mbReporte.dtoFiltros.getIdDistritoSeleccionado() == 0))}"  styleClass="ui-g-6">
+            <div class="divider"></div>
+            <h2>#{messageSource['etiqueta_reportes_filtrosInformacion']}</h2>
+            <div class="ui-g-12 ui-md-12">
+                <p:selectManyCheckbox id="filtroSolicitudesAcreditacion" value="#{mbReporte.dtoFiltros.filtroCheckBox}"  >
+                    <!--Sólo se debe mostrar para OC-->
+                    <c:if test="#{mbReporte.dtoFiltros.getIdEstadoSeleccionado() != null and mbReporte.dtoFiltros.getIdEstadoSeleccionado() eq 0}">
+                        <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_nacional']}" itemValue="1"/>
+                    </c:if> 
+                    <f:selectItem  itemLabel="#{messageSource['etiqueta_reportes_filtro_entidad']}" itemValue="2"/>
+                    <!--Sólo se debe mostrar para JL-->
+                    <c:if test="#{mbReporte.dtoFiltros.getIdEstadoSeleccionado() != null and mbReporte.dtoFiltros.getIdEstadoSeleccionado() != 0}">
+                        <f:selectItem  itemLabel="#{messageSource['etiqueta_reportes_filtro_distrito']}" itemValue="3"/>
+                    </c:if>
+                    <f:selectItem  itemLabel="#{messageSource['etiqueta_reportes_filtro_agrupacion']}" itemValue="4"/>
+                </p:selectManyCheckbox>
+            </div>
+        </p:outputPanel>
+        <!--Filtro para JD-->
+        <p:outputPanel id="filtroJD"  rendered="#{mbReporte.dtoFiltros.filtroAcreditacion eq 1 and (mbReporte.dtoFiltros.getIdDistritoSeleccionado() != null and mbReporte.dtoFiltros.getIdDistritoSeleccionado() != 0)}" styleClass="ui-g-6">
+            <div class="divider"></div>
+            <h2>#{messageSource['etiqueta_reportes_filtrosInformacion']}</h2>
+            <p:selectOneRadio id="filtroSolicitudesAcreditacionRadio"
+                              value ="#{mbReporte.dtoFiltros.filtroRadio}"
+                              layout="responsive" 
+                              columns="1" 
+                              required="true"
+                              >
+                <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_distrito']}" itemValue="1"/>
+                <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_agrupacion']}" itemValue="2"/>
+
+            </p:selectOneRadio>
+        </p:outputPanel>
+        <!--Fin:Filtros para solicitudes de acreditación-->
+
+        <!--Filtros para Acreditaciones Aprobadas-->
+        <p:outputPanel  id="acreditacionesAprobadas" rendered="#{(mbReporte.dtoFiltros.getIdEstadoSeleccionado() != null 
+                                                                 and mbReporte.dtoFiltros.getIdEstadoSeleccionado() != 0)
+                                                                 and mbReporte.dtoFiltros.filtroAcreditacion eq 2 }" styleClass="ui-g-6">
+            <div class="divider"></div>
+            <h2>#{messageSource['etiqueta_reportes_filtrosInformacion']}</h2>
+            <div class="ui-g-12 ui-md-12">
+                <p:selectOneRadio id="filtroAcreditacionAprobada"
+                                  layout="responsive" 
+                                  columns="1" 
+                                  required="true"
+                                  >
+                    <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_concentrado']}" itemValue="1"/>
+                    <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_listadoObservadores']}" itemValue="2"/>
+
+                </p:selectOneRadio>
+
+            </div>
+        </p:outputPanel>
+        <!--Filtros para Acreditaciones no aprobadas-->
+        <p:outputPanel  id="acreditacionesNoAprobadas" rendered="#{mbReporte.dtoFiltros.filtroAcreditacion eq 3}" styleClass="ui-g-6">
+            <div class="divider"></div>
+            <h2>#{messageSource['etiqueta_reportes_filtrosInformacion']}</h2>
+            <div class="ui-g-12 ui-md-12">
+                <p:selectOneRadio id="filtroAcreditacionNoAprobada"
+                                  layout="responsive" 
+                                  columns="1" 
+                                  required="true"
+                                  >
+                    <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_concentrado']}" itemValue="1"/>
+                    <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_agrupacion']}" itemValue="2"/>
+                    <f:selectItem itemLabel="#{messageSource['etiqueta_reportes_filtro_entidad']}" itemValue="3"/>
+
+                </p:selectOneRadio>
+
+            </div>
+        </p:outputPanel>
+
+    </div>
+</ui:composition>

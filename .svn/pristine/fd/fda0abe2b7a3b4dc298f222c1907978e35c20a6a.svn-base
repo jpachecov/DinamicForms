@@ -1,0 +1,759 @@
+#---------------------------------------------------------------------------------
+# 							MENSAJES Y ETIQUEDAS 
+#
+# Contiene los mensajes y etiquetas que se utilizan en el sistema
+#
+#  Estructura:
+#
+#  (Apartado)        (Secci\u00c3\u00b3n)      
+#
+#   MENSAJES 
+#          ->         GENERALES
+#          ->         VALIDACIONES
+#          ->         MODULOS (NOMRE DEL MODULO)
+#
+#   ETIQUETAS 
+#          ->         GENERALES
+#          ->         VALIDACIONES
+#          ->         MODULOS (NOMRE DEL MODULO)
+#
+#   VALIDACIONES 
+#          ->         GENERALES
+#          ->         MODULOS (NOMRE DEL MODULO)
+#
+#   URL 
+#          ->         GENERALES
+#          ->         MODULOS (NOMRE DEL MODULO)
+#
+#   MASCARAS 
+#          ->         GENERALES
+#          ->         MODULOS (NOMRE DEL MODULO)
+#
+# 
+# Mensajes nomenclatura:  mensaje_"Secci\u00c3\u00b3n"_"Descripci\u00c3\u00b3n del mensaje"
+# Etiquetas nomenclatura: etiqueta_"Secci\u00c3\u00b3n"_"Descripci\u00c3\u00b3n del mensaje"
+# URL nomenclatura: url_"Secci\u00c3\u00b3n"_"Descripci\u00c3\u00b3n del mensaje"
+# M\u00c3\u00a1scara nomenclatura: mascara_"Secci\u00c3\u00b3n"_"Descripci\u00c3\u00b3n del mensaje"
+# 
+#
+# Los acentos se deben de remplazar por el sguiente  unicode
+#
+# UNICODE: 
+# \u00e1 -> \u00c3\u00a1 
+# \u00e9 -> \u00c3\u00a9 
+# \u00ed -> \u00c3\u00ad 
+# \u00f3 -> \u00c3\u00b3 
+# \u00fa -> \u00c3\u00ba 
+# \u00c1 -> \u00c3\u0081 
+# \u00c9 -> \u00c3\u0089 
+# \u00cd -> \u00c3\u008d 
+# \u00d3 -> \u00c3\u0093 
+# \u00da -> \u00c3\u009a 
+# \u00f1 -> \u00c3\u00b1 
+# \u00d1 -> \u00c3\u0091 
+#---------------------------------------------------------------------------------
+
+
+#---------------------------------------------------------------------------------
+# 									MENSAJES 
+#---------------------------------------------------------------------------------
+
+sistema_nombre_corto													 = Observadoras/es
+
+####### GENERALES  ####### 
+
+validacion_mensaje_generales_campos_requeridos							 = Los campos marcados con (<span style="color:red;">*</span>) son requeridos.
+mensaje_generales_procesando                               		         = Procesando...
+mensaje_generales_sinResultados 										 = Sin Resultados
+mensaje_generales_sin_areas_registradas									 = No hay \u00e1reas registradas
+mensaje_generales_sin_areas_registradas_con_proyecto					 = No hay \u00e1reas registradas con proyectos
+mensaje_generales_sin_proyectos_registrados								 = No hay proyectos registrados
+mensaje_generales_borrar_registro										 = \u00bf Deseas eliminar la informaci\u00f3n?
+mensaje_generales_proyecto_con_empleados	                			 = El proyecto no puede ser eliminado, tiene empleados asignados.
+mensaje_generales_confirmar                                     		 = Confirmaci\u00f3n
+
+####### MENU  ####### 
+mensaje_menu_no_datos													 = No existe un men\u00fa dado de alta para la informaci\u00f3n proporcionada
+mensaje_menu_error_consultaEstadosWS	                                 = Sucedi\u00f3 un error al consultar los estados del Servicio Web.
+mensaje_menu_error_consultaDIstritosWS	                                 = Sucedi\u00f3 un error al consultar los distritos del Servicio Web.
+
+####### ARCHIVOS  ####### 
+mensaje_archivos_tipo_incorrecto										 = El tipo de archivo no es v\u00e1lido, solo se permiten im\u00e1genes en formato (gif, jpg, jpeg, png).
+mensaje_archivos_tamano_incorrecto										 = El tama\u00f1o del archivo no es v\u00e1lido, el tama\u00f1o m\u00e1ximo del archivo debe ser de 1MB.
+mensaje_archivos_limite_incorrecto										 = Solo se puede subir un archivo.
+mensaje_archivos_subir										 			 = El archivo que se intenta subir es el siguiente:
+
+####### SOBRE-ESCRITOS  ####### 
+AbstractUserDetailsAuthenticationProvider.badCredentials 				= Usuario o contrase\u00f1a incorrecta
+
+####### MENSAJES GENERICOS  ####### 
+mensaje_generico.sin.datos                                              = No existe informaci\u00f3n para el criterio seleccionado
+
+
+####### MENSAJES PARA CONFIGURACI\u00d3N DE CAT\u00c1LOGOS #######
+mensaje_instrucciones_catalogo_acciones_captura							= Selecciona las acciones a cargar para este proceso y detalle.
+mensaje_instrucciones_edita_catalogo									= Edita el cat\u00e1logo directamente en la tabla.
+mensaje_acciones_no_seleccionadas_captura								= No selecciono ninguna acci\u00f3n del cat\u00e1logo inicial, puede crear una nueva acci\u00f3n para agregar.
+mensaje_cargos_no_seleccionados_captura									= No selecciono ning\u00fan cargo del cat\u00e1logo inicial, puede crear un nuevo cargo de responsable para agregar.
+mensaje_escolaridades_no_seleccionadas_captura							= No selecciono ninguna escolaridad del cat\u00e1logo inicial, puede crear una nueva escolaridad para agregar.
+mensaje_justificaciones_no_seleccionadas_captura						= No selecciono ninguna jutificaci\u00f3n del cat\u00e1logo inicial, puede crear una nueva justificaci\u00f3n para agregar.
+mensaje_evaluaciones_no_seleccionadas_captura							= No selecciono ninguna evaluaci\u00f3n del cat\u00e1logo inicial, puede crear una nueva evaluaci\u00f3n para agregar.
+mensaje_tabla_vacia_acciones_seleccionadas								= Sin registros, regresa y selecciona o crea nuevas acciones.
+mensaje_tabla_vacia_cargos_seleccionados								= Sin registros, regresa y selecciona o crea nuevos cargos de responsables.
+mensaje_tabla_vacia_escolaridades										= Sin registros, regresa y selecciona o crea nuevas escolaridades.
+mensaje_tabla_vacia_justificaciones										= Sin registros, regresa y selecciona o crea nuevas justificaciones.
+mensaje_tabla_vacia_evaluaciones										= Sin registros, regresa y selecciona o crea nuevas evaluaciones.
+mensaje_tabla_vacia_reglas												= Sin registros de reglas.
+mensaje_registro_insertado_igual_seleccionado							= El registro que desea ingresar ya se encuentra, intente con otro.
+mensaje_registro_insertado_no_acreditado								= El registro que desea ingresar no es una oraci\u00f3n de acreditaci\u00f3n, intente con otro.
+mensaje_registro_igual_seleccionado_insertado_no_acreditado				= El registro que desea ingresar ya se encuentra, adem\u00e1s de no ser una oraci\u00f3n de acreditaci\u00f3n. Intente con otro.
+mensaje_instrucciones_catalogo_cargo_responsable_captura				= Selecciona los cargos del responsable a cargar para este proceso y detalle.
+mensaje_instrucciones_catalogo_escolaridades_captura					= Selecciona las escolaridades a cargar para este proceso y detalle.
+mensaje_instrucciones_catalogo_justificaciones_captura					= Selecciona las justificaciones a cargar para este proceso y detalle.
+mensaje_instrucciones_catalogo_evaluaciones_captura						= Selecciona las evaluaciones a cargar para este proceso y detalle.
+mensaje_instrucciones_registros_encontrados_otros_modulos				= No se puede configurar este m\u00f3dulo, debido a que ya existen registros del sistema.
+mensaje_configuracion_por_defecto										= Las siguiente tabla muestra la configuraci\u00f3n que se carga por defecto en el cat\u00e1logo.
+mensaje_error_generacion_reportes                                                       = Sucedi\u00f3 un error al consultar el reporte
+
+#---------------------------------------------------------------------------------
+# 									ETIQUETAS 
+#---------------------------------------------------------------------------------
+
+####### SISTEMA  ####### 
+etiqueta_sistema_nombre	                                        = Observadoras/es
+etiqueta_sistema_nombre_largo									= Sistema de Observadoras/es Electorales
+etiqueta_sistema_cerrarSesion		            				= Cerrar sesi\u00f3n
+etiqueta_sistema_area_responsable								= \u00c1rea responsable
+etiqueta_sistema_area											= Direcci\u00f3n Ejecutiva de Organizaci\u00f3n Electoral | DEOE
+etiqueta_sistema_objetivo										= Este sistema permite la administraci\u00f3n y registro de quienes actuar\u00e1n como Observadoras/es Electorales, la capacitaci\u00f3n que se imparte para acreditar y las actividades de promoci\u00f3n que se realizan para ello.
+etiqueta_sistema_sistemas_relacionados							= Sistemas relacionados
+etiqueta_sistema_sistema_a										= Ubicaci\u00f3n de casillas
+etiqueta_sistema_sistema_b										= Reclutamiento y Seguimiento a Supervisores y Capacitadores-Asistentes
+etiqueta_sistema_ayuda											= Ayuda
+etiqueta_sistema_guia											= Gu\u00eda general del sistema
+etiqueta_sistema_cau											= CAU
+etiqueta_sistema_proteccion										= Protecci\u00f3n de datos
+etiqueta_sistema_footer											= Sistema de Observadores Electorales 8.0.0 rev 1| Proceso Electoral Ordinario 2016 | Compatibilidad \u00f3ptima con Google Chrome
+etiqueta_sistema_derechos_reservados							= \u00a9 Derechos reservados Instituto Nacional Electoral
+etiqueta_sistema_inicio_unico									= Inicio \u00fanico
+etiqueta_sistema_centro_ayuda									= Centro de ayuda
+etiqueta_sistema_menu											= MEN\u00da
+etiqueta_sistema_proceso_electoral								= Proceso electoral
+etiqueta_sistema_entidad										= Entidad
+etiqueta_sistema_distrito										= Distrito
+
+####### GENERALES  ####### 
+etiqueta_generales_requerido_0	                                = Los datos con ( 
+etiqueta_generales_requerido_1								 	= *
+etiqueta_generales_requerido_2	                                = ) son requeridos.
+etiqueta_generales_datos_proyecto	                            = Datos del proyecto
+etiqueta_generales_datos_empleado	                            = Datos del empleado
+etiqueta_generales_nombre_proyecto	                            = Nombre del proyecto
+etiqueta_generales_fecha_inicio	                           		= Fecha de inicio
+etiqueta_generales_fecha_fin                           			= Fecha de termino
+etiqueta_generales_fecha_nacimiento                          	= Fecha de nacimiento
+etiqueta_generales_tipo_sistema	                           		= Tipo de sistema
+etiqueta_generales_electoral	                           		= Electoral
+etiqueta_generales_institucional	                         	= Institucional
+etiqueta_generales_fotografia	                          		= Fotografia
+etiqueta_generales_selecciona	                          		= Selecciona
+etiqueta_generales_selecciona_foto	                         	= Seleccionar fotograf\u00eda
+etiqueta_generales_area_pertenece	                       		= \u00c1rea a la que pertenece 
+etiqueta_generales_area_proyecto	                       		= \u00c1rea a la que pertenece el proyecto
+etiqueta_generales_area_empleado	                       		= \u00c1rea a la que pertenece el empleado
+etiqueta_generales_nombre	                       				= Nombre(s)
+etiqueta_generales_cabecera_distrital							= Cabecera distrital
+etiqueta_generales_apellido_paterno                				= Apellido paterno
+etiqueta_generales_apellido_materno                				= Apellido materno
+etiqueta_generales_clave_elector                				= Clave de elector
+etiqueta_generales_genero		                				= G\u00e9nero
+etiqueta_generales_hombre		                				= Hombre
+etiqueta_generales_mujer		                				= Mujer
+etiqueta_generales_tratamiento		                			= Tratamiento
+etiqueta_generales_profesion		                			= Profesi\u00f3n
+etiqueta_generales_cargo			                			= Cargo
+etiqueta_generales_estatus_empleado	                			= Estatus del empleado
+etiqueta_generales_estatus			                			= Estatus
+etiqueta_generales_activo			                			= Activo
+etiqueta_generales_inactivo			                			= Inactivo
+etiqueta_generales_fecha			                			= Fecha
+etiqueta_generales_entidad_federativa			            	= Entidad federativa
+etiqueta_generales_delegacion_municipio		           			= Delegaci\u00f3n o municipio
+etiqueta_generales_colonia_localidad		           			= Colonia o localidad
+etiqueta_generales_codigo_postal		           				= C\u00f3digo postal
+etiqueta_generales_calle		           						= Calle
+etiqueta_generales_numero_exterior		           				= N\u00famero exterior
+etiqueta_generales_numero_interior		           				= N\u00famero interior
+etiqueta_generales_telefono		           						= Tel\u00e9fono
+etiqueta_generales_telefono_domicilio		           			= Tel\u00e9fono domicilio
+etiqueta_generales_telefono_celular			           			= Tel\u00e9fono celular
+etiqueta_generales_telefono_otro			           			= Tel\u00e9fono otro
+etiqueta_generales_telefono_asignado			           		= Tel\u00e9fono oficina asignado
+etiqueta_generales_correo_personal			           			= Correo electr\u00f3nico personal
+etiqueta_generales_correo_institucional			        		= Correo electr\u00f3nico institucional
+etiqueta_generales_domicilio_oficina			        		= Domicilio de la oficina
+etiqueta_generales_oficina			        					= Oficina
+etiqueta_generales_referencia			        				= Referencia
+etiqueta_generales_ip		           							= Ip
+etiqueta_generales_ip_asignada		           					= Ip asignada
+etiqueta_generales_historial_actividad         					= Historial de actividad
+etiqueta_generales_alerta								   	   	= Alerta
+etiqueta_generales_proyectos									= Proyectos
+etiqueta_generales_proyecto			   							= Proyecto
+etiqueta_generales_si		   									= S\u00ed
+etiqueta_generales_no			   								= No
+etiqueta_generales_are											= ARE:
+etiqueta_generales_casilla										= Casilla:
+etiqueta_generales_datos_instalacion                            = Datos de la Casilla 
+etiqueta_generales_horas                                        = h.
+etiqueta_generales.horaVisita                                   = Hora de visita:
+etiqueta_generales_configuracion                                = Configuraci\u00f3n
+etiqueta_generales_disponibles                                  = Disponibles
+etiqueta_generales_agregados                                    = Agregados
+etiqueta_generica.confirmar                                     = Confirmar
+etiqueta_generica.confirmacion.eliminar                         = \u00bfEst\u00e1 seguro que desea eliminar el registro?
+etiqueta_generales.horaVisitaFormato                            = Hora de visita (formato de 24 horas por ej: 13:30):
+etiqueta_generales_distrito										= Distrito:
+etiqueta_generales_no_hay_agrupaciones							= No se encontraron agrupaciones.
+
+
+######   ETIQUETAS ACREDITACION(ES) Y/O GAFETE(E)	######
+etiqueta_acreditacionGafete_titulo								= Acreditaci\u00f3n(es) y/o Gafete(s)
+etiqueta_acreditacionGafete_observadorElectoral					= Datos del observador/a
+etiqueta_acreditacionGafete_seleccionaCriterios					= Seleccione los siguientes criterios para generar las acreditaciones o gafetes:
+etiqueta_acreditacionGafete_seleccionaOpcion					= Selecciona una opci\u00f3n para generar las acreditaciones o gafetes
+etiqueta_acreditacionGafete_acreditacionGafete					= Acreditaci\u00f3n o gafete otorgado por:
+etiqueta_acreditacionGafete_individual							= INE
+etiqueta_acreditacionGafete_agrupacion							= Agrupaci\u00f3n
+etiqueta_acreditacionGafete_nombreObservador					= Nombre del o de la observadora
+etiqueta_acreditacionGafete_nombreAgrupacion					= Nombre de la agrupaci\u00f3n
+etiqueta_acreditacionGafete_porFecha							= Imprimir s\u00f3lo las/los observadoras/obsevadores acreditadas/acreditados en la(s) sesi\u00f3n(es) de consejo de la fecha
+etiqueta_acreditacionGafete_generar								= Generar
+etiqueta_acreditacionGafete_acreditacion						= Acreditaci\u00f3n(es)
+etiqueta_acreditacionGafete_gafetes								= Gafete(s)
+etiqueta_acreditacionGafete_fechaExtraccion						= Fecha de expedici\u00f3n
+etiqueta_acreditacionGafete_mes									= mes
+etiqueta_acreditacionGafete_anio								= a\u00f1o
+etiqueta_acreditacionGafete_nombreAcreditacionGafete			= Nombre
+etiqueta_acreditacionGafete_noFolioAcreditacionGafete			= Folio No.
+etiqueta_acreditacionGafete_fechaAcred							= Fecha de Acred.
+etiqueta_acreditacionGafete_folio								= Folio
+etiqueta_acreditacionGafete_accionVer							= Acciones
+etiqueta_acreditacionGafete_verGafete							= Ver
+etiqueta_acreditacionGafete_pagina								= P\u00e1gina
+etiqueta_acreditacionGafete_formatoNoValido						= Formato no v\u00e1lido
+etiqueta_acreditacionGafete_sinregistros						= No hay registros.
+etiqueta_acreditacionGafete_imagenPng							= png
+etiqueta_acreditacionGafete_rutaTemporalFotos					= /fotostemporales
+etiqueta_acreditacionGafete_rutaImagenDefault					= /resources/imgObs/observador.png
+constante_acreditacionGafete_rutaImagenReportesINE				= /resources/imgObs/logo-INE.png
+etiqueta_acreditacionGafete_procecoElectoral					= Proceso Electoral 2017-2018
+etiqueta_acreditacionGafete_ciudadano							= El presente acredita al o la C.
+etiqueta_acreditacionGafete_comoObservadorElectoral				= Como Observador/a del
+etiqueta_acreditacionGafete_vigencia							= Vigencia: 
+etiqueta_acreditacionGafete_VigenciaFecha						= 31 Julio de 2018
+etiqueta_acreditacionGafete_interesado							= Interesada/o
+etiqueta_acreditacionGafete_consejeroPresidenteL				= La/El Consejera/o Presidenta/e del Consejo Local
+etiqueta_acreditacionGafete_consejeroPresidenteD				= La/El Consejera/o Presidenta/e del Consejo Distrital
+etiqueta_acreditacionGafete_secretarioL							= La/El Secretaria/o del Consejo Local
+etiqueta_acreditacionGafete_secretarioD							= La/El Secretaria/o  del Consejo Distrital
+etiqueta_acreditacionGafete_presidenteOPLE						= El \u00d3rgano P\u00fablico Electoral Local Presidenta/e
+etiqueta_acreditacionGafete_presidenteGeneral					= La/El Consejera/o Presidenta/o del Consejo General
+etiqueta_acreditacionGafete_firma								= Firma
+etiqueta_acreditacionGafete_firmaAutoriza						= Firma de qui\u00e9n autorizo
+etiqueta_acreditacionGafete_firmaInteresado						= Firma de interesada/o
+etiqueta_acreditacionGafete_lugar								= Lugar
+etiqueta_acreditacionGafete_leyGEneral							= DISPOSICIONES DE LA LEY GENERAL DE INSTITUCIONES Y PROCEDIMIENTOS ELECTORALES SOBRE OBSERVADORES ELECTORALES
+mensaje_validacionRegistros										= No existe informaci\u00f3n.
+mensaje_validaConsejeroPresidente								= No se han capturado los datos del vocal presidente y/o vocal secretario, favor de contactar a la junta local o al CAU
+mensaje_validaConsejeroPresidenteGafete							= No se han capturado los datos del vocal presidente, favor de contactar a la junta local o al CAU
+etiqueta_acreditacionGafete_SinFirma							= Sin firma
+etiqueta_acreditacionGafete_ConFirma							= Con firma
+
+####### ACCIONES PROMOCION ########
+etiqueta_acciones_fechaAccion 									= Fecha de realizaci\u00f3n
+etiqueta_acciones_consulta_fechaAccion 							= Fecha de realizaci\u00f3n:
+etiqueta_acciones_consulta_descripcion 							= Descripci\u00f3n:
+etiqueta_acciones_medioComunicacion 							= Medio de comunicaci\u00f3n
+etiqueta_acciones_descripcion 									= Descripci\u00f3n
+etiqueta_acciones_placeholder_descripcion						= Escribe detalladamente una descripci\u00f3n
+etiqueta_titulo_modulo_promociones								= Datos de la acci\u00f3n de promoci\u00f3n
+etiqueta_titulo_dialogo_consulta 								= Detalle de acci\u00f3n de promoci\u00f3n
+etiqueta_titulo_dialogo_modifica 								= Modificar acci\u00f3n de promoci\u00f3n
+etiqueta_acciones_selecciona_accion								= Selecciona una opci\u00f3n
+etiqueta_acciones_mensaje_elimina_accion						= \u00bfEst\u00e1 seguro de eliminar la acci\u00f3n de promoci\u00f3n seleccionada?
+etiqueta_titulo_resultado_busqueda 								= Resultado de la b\u00fasqueda
+etiqueta_titulo_dialogo_elimina									= Importante
+validacion_mensajes_caracteresValidos_descripcion			    = Caracteres permitidos 0-9 a-z A-Z \u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc #\$" ',.:;\u00bf?\u00a1!_\u00b4()[]{}=%*+-\/
+validacion_expresion_caracteresValidos_descripcion_filtro		= /[0-9a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc#\$"',.:;\u00bf?\u00a1!_\u00b4()\/\\[\\]{}=%*+-\\s]/
+validacion_expresion_caracteresValidos_descripcion_java 		= [^0-9a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc#\\s/\\u005c$"',.:;\u00bf?\u00a1!_\u00b4()\/\\[\\]{}=%*+-]
+
+####### AGRUPACIONES   #########
+etiqueta_nombre_modulo_agrupaciones 							= Agrupaciones
+etiqueta_agrupaciones_datos_generales 							= Datos generales
+etiqueta_agrupaciones_domicilio									= Domicilio
+etiqueta_agrupaciones_datos_contacto							= Tel\u00e9fonos
+etiqueta_agrupaciones_titular									= Registra el nombre del titular, presidente, dirigente o similar
+validacion_agrupaciones_formato_correo_mal						= El correo no tiene un formato v\u00e1lido
+etiqueta_agrupaciones_nombre_agrup								= Nombre de la agrupaci\u00f3n
+etiqueta_agrupaciones_abrevi_agrup								= Abreviatura de la agrupaci\u00f3n
+etiqueta_agrupaciones_titular_cons								= Nombre del Titular, Presidente, Dirigente o similar
+etiqueta_agrupaciones_estado									= Entidad federativa
+etiqueta_agrupaciones_municipio									= Delegaci\u00f3n o Municipio
+etiqueta_agrupaciones_localidad									= Colonia o Localidad
+etiqueta_agrupaciones_codigo_postal								= C\u00f3digo postal
+etiqueta_agrupaciones_calle										= Calle
+etiqueta_agrupaciones_numero_exterior							= N\u00famero exterior
+etiqueta_agrupaciones_numero_interior							= N\u00famero interior
+etiqueta_agrupaciones_sin_numero								= Sin n\u00famero
+etiqueta_agrupaciones_telefono_dom								= Tel\u00e9fono 1
+etiqueta_agrupaciones_extension									= Extensi\u00f3n
+etiqueta_agrupaciones_correo									= Correo electr\u00f3nico
+etiqueta_agrupaciones_busqueda									= B\u00fasqueda por nombre de agrupaci\u00f3n:
+etiqueta_agrupaciones_a_paterno									= Apellido paterno
+etiqueta_agrupaciones_a_materno									= Apellido materno
+etiqueta_agrupaciones_nombre_s									= Nombre(s)
+etiqueta_agrupaciones_telefono_2								= Tel\u00e9fono 2
+
+
+
+######   ETIQUETAS OBSERVADORES	######
+
+etiqueta_solicitudes_titulo_solicitudes					= Solicitudes
+etiqueta_solicitudes_titulo								= Datos de el/la Observador/Observadora Electoral
+etiqueta_solicitudes_titulo_domicilio					= Domicilio
+etiqueta_solicitudes_titulo_info				    	= Informaci\u00f3n de la solicitud
+etiqueta_solicitudes_titulo_estatus				    	= Estatus
+etiqueta_clave_elector									= Clave de Elector:
+etiqueta_clave_elector_validador						= Revisa la clave de elector, no es correcto el formato.
+etiqueta_sexo											= Sexo:
+etiqueta_ratifica										= Ratifica:
+etiqueta_apellido_obligatorio							= Al menos uno de los dos apellidos es obligatorio.
+etiqueta_apellido_paterno								= Apellido Paterno:
+etiqueta_apellido_materno								= Apellido Materno:
+etiqueta_nombre											= Nombre(s):
+etiqueta_fecha_nacimiento								= Fecha de Nacimiento:
+etiqueta_edad											= Edad:
+etiqueta_lada											= Lada:
+etiqueta_nivel_estudio									= Nivel de Estudios:
+etiqueta_generales_hombre								= Hombre
+etiqueta_generales_mujer								= Mujer
+etiqueta_calle											= Calle:
+etiqueta_numero											= N\u00famero:
+etiqueta_sin_numero										= Sin N\u00famero:
+etiqueta_colonia_localidad								= Colonia o Localidad:
+etiqueta_cp											    = C\u00f3digo Postal:
+etiqueta_entidad										= Entidad Federativa:
+etiqueta_delegacion										= Delegaci\u00f3n o Municipio:
+etiqueta_telefono_LADA									= Tel\u00e9fonos (con clave LADA):
+etiqueta_domicilio_oficina								= Domicilio u oficina:
+etiqueta_-											    = -
+etiqueta_extension										= Extensi\u00f3n:
+etiqueta_celular										= Celular:
+etiqueta_mail											= Correo Electr\u00f3nico:
+validacion_mensajes_generales_dato_requerido_fecha_invalida = Fecha inv\u00e1lida
+etiqueta_agrupacion_individual							= Agrupaci\u00f3n / Individual:
+etiqueta_individual										= Individual
+etiqueta_agrupacion										= Agrupaci\u00f3n
+etiqueta_seccion										= Secci\u00f3n:
+etiqueta_folio											= Folio:
+etiqueta_fecha_solicitud								= Fecha de Solicitud:
+etiqueta_fotografia										= Agregar Fotograf\u00eda (M\u00e1x. 1MB):
+etiqueta_formatos										= Formatos de imagen permitidos: *.jpg/*.jpeg/*.png/*.gif
+etiqueta_fotografia_restriccion							= No se permiten nombres de im\u00e1genes con caracteres como '\u00f1' o acentos '\u00e1,\u00e9,\u00ed,\u00f3,\u00fa', ya que la imagen no cargar\u00e1 de manera correcta
+etiqueta_INE											= INE
+etiqueta_OPLE											= OPLE
+etiqueta_origen											= Registro de Solicitud recibido por:
+etiqueta_estatus_evaluacion								= Evaluaci\u00f3n:
+etiqueta_estatus_fecha_curso							= Fecha y horario del curso:
+etiqueta_estatus_resultado_acredi						= Resultado de solicitud de la acreditaci\u00f3n:
+etiqueta_estatus_fecha_sesion							= Fecha de sesi\u00f3n en que resolvi\u00f3 el Consejo sobre la solicitud de acreditaci\u00f3n :
+etiqueta_boton_examinar									= Examinar
+mensaje_etiqueta_boton_examinar_formatoInvalido         = Este formato no es valido.
+mensaje_busqueda_nombre									= Nombre y/o al menos uno de los apellidos
+mensaje_busqueda_claveEl								= Clave de Elector 
+etiqueta_titulo_busqueda_nce							= Consulta por:
+etiqueta_evaluacion										= Evaluaci\u00f3n:
+etiqueta_fecha_hora_curso								= Fecha y horario del curso:
+etiqueta_resultado_solicitud							= Resultado de solicitud de la acreditaci\u00f3n:
+etiqueta_fecha_sesion 									= Fecha de sesi\u00f3n en que resolvi\u00f3 el Consejo sobre la solicitud de acreditaci\u00f3n :
+etiqueta_nombre_completo								= Nombre de el/la Observador/Observadora Electoral:
+etiqueta_junta_local									= Junta Local
+etiqueta_junta_distrital								= Junta Distrital
+etiqueta_consejo_local									= Consejo Local
+etiqueta_consejo_distrital								= Consejo Distrital
+mensaje_archivos_tamano_incorrecto_img					= Archivo no v\u00e1lido, el tama\u00f1o m\u00e1ximo para adjuntar es de 1MB.
+
+################## ETIQUETAS CURSOS ##############################
+etiqueta_cursos_titulo 											= Capacitaci\u00f3n
+etiqueta_cursos_datos_generales									= Datos generales
+etiqueta_cursos_placeholder_agrupacion							= Nombre de la agrupaci\u00f3n	
+etiqueta_cursos_impartido										= Impartido por
+etiqueta_cursos_domicilio_sede									= Sede
+etiqueta_cursos_domicilio										= Domicilio:
+etiqueta_cursos_comentarios_observaciones						= Comentarios | Observaciones
+etiqueta_cursos_fecha_curso                                     = Fecha del curso:
+etiqueta_cursos_hora_incio										= Hora de inicio del curso:
+etiqueta_cursos_hora_fin										= Hora de t\u00e9rmino del curso:
+etiqueta_cursos_cargo_imparte									= Cargo de quien imparte el curso:
+etiqueta_cursos_nota_escribe_nombre_cargo						= Registra el nombre de la persona que imparte el curso
+etiqueta_cursos_nota_apellido_requerido							= Al menos un apellido es requerido.
+etiqueta_cursos_sin_numero_domicilio							= Sin n\u00famero
+etiqueta_cursos_no_hay_datos									= No se encontraron registros
+etiqueta_cursos_titulo_popup									= Detalle de Capacitaci\u00f3n impartida por
+etiqueta_cursos_llevada											= Llevada a cabo:
+etiqueta_cursos_impartida_por									= Impartida por:
+etiqueta_cursos_realizada_sede									= Realizada en
+etiqueta_cursos_consulta_sin_numero                             = S/N
+etiqueta_cursos_realizada_sede_2								= ubicada en:
+etiqueta_cursos_consulta_observaciones						    = Notas u observaciones de la capacitaci\u00f3n
+etiqueta_cursos_colonia											= Colonia
+etiqueta_cursos_municipio										= Municipio
+etiqueta_cursos_entidad											= Entidad
+mensaje_error_cursos_apellidos									= Debe ingresar al menos un apellido
+mensaje_aceptacion_cursos_guardado								= Curso guardado exitosamente
+mensaje_error_cursos_guardado									= No se pudo guardar el curso, hubo un error en el sistema
+mensaje_error_cursos_error_sistema								= Ocurrio un error en el sistema
+mensaje_advertencia_no_se_encontraron_cursos					= No se encontraron cursos.
+mensaje_error_cursos_sin_municipios								= Error, no hay municipios disponibles
+mensaje_error_cursos_sin_entidades								= Error, no hay entidades disponibles
+mensaje_error_hora_inicio_mayo_a_hora_fin						= La hora de inicio no puede ser mayor o igual a la hora de t\u00e9rmino
+mensaje_error_hora_termino_menor_a_hora_ini						= La hora de t\u00e9rmino no puede ser menor o igual a la hora de inicio
+mensaje_error_hora_inicio_vacia									= La hora de inicio es requerida
+mensaje_error_hora_termino_vacia								= La hora de termino es requerida
+mensaje_error_curso_con_observador								= El curso no se puede eliminar, ya tiene un observador asociado
+
+####### INSTRUCCIONES  ####### 
+etiqueta_generales_instrucciones_apellidos                      = Al menos uno de los dos apellidos es obligatorio.
+etiqueta_generales_instrucciones_telefonos                      = Al menos uno de los tel\u00e9fonos es obligatorio. Incluir la clave LADA  y si es necesario incluir la extesi\u00f3n
+
+####### MENU ACCIONES  ####### 
+etiqueta_menu_accion_inicio								    	= Inicio
+etiqueta_menu_accion_capturar									= Capturar
+etiqueta_menu_accion_captura									= Captura
+etiqueta_menu_accion_consultar								   	= Consultar
+etiqueta_menu_accion_consulta								   	= Consulta
+etiqueta_menu_accion_eliminar									= Eliminar
+etiqueta_menu_accion_descargar								    = Descargar
+etiqueta_menu_accion_modificar								   	= Modificar
+etiqueta_menu_accion_modifica									= Modifica
+etiqueta_menu_accion_imprimir									= Imprimir
+etiqueta_menu_accion_ayuda 									    = Ayuda
+etiqueta_menu_accion_exportar 									= Exportar
+
+####### MENU GRUPO  ####### 
+etiqueta_menu_grupo_administracionProyectos 					= Administraci\u00f3n de proyectos
+etiqueta_menu_grupo_administracionEmpleados 					= Administraci\u00f3n de empleados
+etiqueta_menu_grupo_administracionUsuarios 						= Administraci\u00f3n de usuarios
+etiqueta_menu_grupo_administracionCatalogos 					= Administraci\u00f3n de cat\u00e1logos
+
+####### MENU SUBGRUPO  ####### 
+etiqueta_menu_subGrupo_administracionProyectos_modulo 			= M\u00f3dulos
+etiqueta_menu_subGrupo_administracionEmpleados_modulo 			= M\u00f3dulos
+etiqueta_menu_subGrupo_administracionUsuarios_modulo			= M\u00f3dulos
+etiqueta_menu_subGrupo_administracionCatalogos_modulo 			= M\u00f3dulos
+
+####### MENU MODULOS  ####### 
+etiqueta_menu_modulos_registroProyectos 						= Registro de proyectos
+etiqueta_menu_modulos_registroEmpleados 						= Registro de empleados
+etiqueta_menu_modulos_asignacionEmpleaosProyecto 				= Asignaci\u00f3n de empleados a proyectos
+etiqueta_menu_modulos_designacionEmpleaosProyecto 				= Designaci\u00f3n de empleados a proyectos
+etiqueta_menu_modulos_registroUsuarios 							= Registro de usuarios
+etiqueta_menu_modulos_asignacionUsuariosProyecto 				= Asignaci\u00f3n de usuarios a proyectos
+etiqueta_menu_modulos_registroOficinas 							= Registro de oficinas
+
+
+####### BOTONES  ####### 
+etiqueta_boton_aceptar				                			= Aceptar
+etiqueta_boton_guardar											= Guardar
+etiqueta_boton_consultar										= Consultar
+etiqueta_boton_buscar											= Buscar
+etiqueta_boton_cancelar           								= Cancelar
+etiqueta_boton_regresar											= Regresar
+etiqueta_boton_buscar											= Buscar
+etiqueta_boton_agregar											= Agregar
+etiqueta_boton_agregar_todo                                     = Agregar todo
+etiqueta_boton_remover                                          = Remover
+etiqueta_boton_remover_todo                                     = Remover todo
+etiqueta_boton_eliminar                                         = Eliminar
+etiqueta_boton_modificar                                        = Modificar
+etiqueta_boton_regresar_seleccionar								= Regresar a seleccionar
+etiqueta_boton_agregar_accion									= Agregar acci\u00f3n
+etiqueta_boton_eliminar_configuracion							= Eliminar configuraci\u00f3n
+etiqueta_boton_continuar										= Continuar
+
+
+####### SIMBOLOS  ####### 
+etiqueta_simbolo_asterisco							   		 	= *
+etiqueta_simbolo_dosPuntos							   		 	= :
+
+####### MESES  ####### 
+etiqueta_mes_enero                                     			= Enero
+etiqueta_mes_febrero                                   			= Febrero
+etiqueta_mes_marzo                                     			= Marzo
+etiqueta_mes_abril                                     			= Abril
+etiqueta_mes_mayo                                      			= Mayo
+etiqueta_mes_junio                                     			= Junio
+etiqueta_mes_julio                                     			= Julio
+etiqueta_mes_agosto                                    			= Agosto
+etiqueta_mes_septiembre                                			= Septiembre
+etiqueta_mes_octubre                                   			= Octubre
+etiqueta_mes_noviembre                                 			= Noviembre
+etiqueta_mes_diciembre                                 			= Diciembre
+
+####### HOME  #######
+etiqueta_home_periodoOperacion 						   			= Periodo de operaci\u00f3n
+etiqueta_home_periodoOperacion_descripcion			  			= Continuo
+etiqueta_home_area_responsable_sistema 				   			= \u00c1rea responsable
+etiqueta_home_area_responsable_descripccion			  			= UNICOM
+etiqueta_home_sistemas_relacionados			   			        = Sistemas relacionados
+etiqueta_home_sistemas_relacionados_1 				  			= Nombre del sistema relacionado
+etiqueta_home_liga_permisos 				  			        = Liga con permisos
+
+
+####### TIPO SISTEMA  #######
+etiqueta_tipoSistema_electoral_sigla                       		= E
+etiqueta_tipoSistema_electoral	                           		= Electoral
+etiqueta_tipoSistema_institucional_sigla                       	= I
+etiqueta_tipoSistema_institucional	                         	= Institucional
+
+####### REGISTRO DE PROYECTOS  #######
+etiqueta_registroProyectos_tituloModulo 						= Registro de proyectos
+
+
+####### REGISTRO DE EMPLEADOS  #######
+etiqueta_registroEmpleados_tituloModulo 						= Registro de empleados
+
+
+####### ASIGNACI\u00c3\u0093N DE EMPLEADOS A PROYECTOS #######
+etiqueta_asignacionEmpleadosProyectos_tituloModulo 				= Asignaci\u00f3n de empleados a proyectos
+
+####### DESIGNACI\u00c3\u0093N DE EMPLEADOS A PROYECTOS #######
+etiqueta_designacionEmpleadosProyectos_tituloModulo 			= Designaci\u00f3n de empleados a proyectos
+
+
+####### REGISTRO DE USUARIOS  #######
+etiqueta_registroUsuarios_tituloModulo 							= Registro de usuarios
+
+
+####### ASIGNACI\u00c3\u0093N DE USUARIOS A PROYECTOS #######
+etiqueta_asignacionUsuariosProyectos_tituloModulo 				= Asignaci\u00f3n de usuarios a proyectos
+
+
+####### REGISTRO DE OFICINAS  #######
+etiqueta_registroOficinas_tituloModulo 							= Registro de oficinas
+
+
+####### ETIQUETAS PARA CONFIGURACI\u00d3N DE CAT\u00c1LOGOS #########
+etiqueta_accion													= Acci\u00f3n
+etiqueta_acciones												= Acciones
+etiqueta_cargos_responsable										= Cargos de responsable
+etiqueta_escolaridades											= Escolaridades
+etiqueta_cargos_responsable_descripcion							= Descripci\u00f3n
+etiqueta_cargos_responsable_iniciales							= Iniciales
+etiqueta_cargos_responsable_origen								= Origen
+etiqueta_justificaciones_descripcion_corta						= Descripci\u00f3n corta
+etiqueta_justificaciones_resultado								= Resultado
+etiqueta_evaluaciones_tipo										= Tipo
+etiqueta_reglas_numero_regla									= N\u00famero
+etiqueta_reglas_descripcion_regla								= Descripci\u00f3n regla
+etiqueta_reglas_descripcion_evaluacion_ver_reglas_asociadas		= Ver reglas asociadas
+etiqueta_reglas_asociadas_evaluacion							= Reglas asociadas
+etiqueta_cargos_responsable_id_cargo_alterno					= Id Cargo Alterno
+etiqueta_titulo_catalogo_acciones								= Cat\u00e1logo de acciones
+etiqueta_titulo_catalogo_cargo_responsable						= Cat\u00e1logo de Cargo de Responsable
+etiqueta_titulo_catalogo_escolaridades							= Cat\u00e1logo de escolaridades
+etiqueta_titulo_catalogo_justificaciones						= Cat\u00e1logo de justificaciones
+etiqueta_titulo_catalogo_evaluaciones							= Cat\u00e1logo de evaluaciones
+etiqueta_titulo_justificaciones_por_defecto						= Justificaciones por defecto
+etiqueta_titulo_evaluaciones_por_defecto						= Evaluaciones por defecto
+etiqueta_tabla_acciones_adicionales								= Acciones adicionales
+etiqueta_tabla_cargos_adicionales								= Cargos de responsable adicionales
+etiqueta_tabla_escolaridades_adicionales						= Escolaridades adicionales
+etiqueta_tabla_justificaciones_adicionales						= Justificaciones adicionales
+etiqueta_tabla_evaluaciones_adicionales							= Evaluaciones adicionales
+etiqueta_tabla_reglas_evaluacion								= Reglas de evaluaci\u00f3n
+etiqueta_texto_nueva_accion_introducir							= Nombre de la acci\u00f3n:
+etiqueta_texto_nuevo_cargo_introducir_descripcion				= Descripci\u00f3n del cargo:
+etiqueta_texto_nuevo_cargo_introducir_iniciales					= Iniciales del cargo:
+etiqueta_texto_nuevo_cargo_introducir_origen					= Origen del cargo:
+etiqueta_texto_nuevo_cargo_introducir_id_cargo_alterno			= Id del cargo alterno:
+etiqueta_texto_nueva_escolaridad_introducir_descripcion			= Descripci\u00f3n de la escolaridad:
+etiqueta_titulo_agrega_nueva_accion								= Agrega nueva acci\u00f3n
+etiqueta_titulo_agrega_nuevo_cargo								= Agrega nuevo cargo de responsable
+etiqueta_titulo_agrega_nueva_escolaridad						= Agrega nueva escolaridad
+etiqueta_titulo_agrega_nueva_justificacion						= Agrega nueva justificaci\u00f3n
+etiqueta_titulo_agrega_nueva_evaluacion							= Agrega nueva evaluaci\u00f3n
+etiqueta_titulo_reglas_aosciadas_evaluacion						= Reglas asociadas a la evaluaci\u00f3n
+etiqueta_texto_nueva_justificacion_introducir_descripcion		= Descripci\u00f3n de la justificaci\u00f3n:
+etiqueta_texto_nueva_justificacion_introducir_descripcion_corta	= Descripci\u00f3n corta de la justificaci\u00f3n:
+etiqueta_texto_nueva_justificacion_introducir_resultado			= Resultado de la justificaci\u00f3n:
+etiqueta_texto_nueva_evaluacion_introducir_descripcion			= Descripci\u00f3n de la evaluaci\u00f3n:
+etiqueta_texto_nueva_evaluacion_introducir_tipo					= Tipo de la evaluaci\u00f3n:
+etiqueta_boton_agregar_accion									= Agregar acci\u00f3n
+etiqueta_boton_agregar_cargo									= Agregar cargo
+etiqueta_boton_agregar_escolaridad								= Agregar escolaridad
+etiqueta_boton_agregar_justificacion							= Agregar justificaci\u00f3n
+etiqueta_boton_agregar_evaluacion								= Agregar evaluaci\u00f3n
+
+
+#---------------------------------------------------------------------------------
+# 								  VALIDACIONES 
+#---------------------------------------------------------------------------------
+#   0-9 a-z A-Z \u00e1 \u00e9 \u00ed \u00f3 \u00fa \u00c1 \u00c9 \u00cd \u00d3 \u00da \u00d1 \u00f1   \u00dc  \u00fc     \\r  \\n     #       \\$      '        ,       .      :        ;        ?       @      _      ~      \u00c2\u00b4 
+#   0-9 a-z A-Z   \u00c3\u00a1      \u00c3\u00a9      \u00c3\u00ad      \u00c3\u00b3       \u00c3\u00ba     \u00c3\u0081      \u00c3\u0089      \u00c3\u008d       \u00c3\u0093     \u00c3\u009a      \u00c3\u0091       \u00c3\u00b1        \u00c3\u009c      \u00c3\u00bc         \n   \r     #        $       '        ,       .      :        ;        ?       @      _      ~      \u00c2\u00b4      
+
+#   \\(    \\)   \\[  \\]  \\{   \\}    \\!       <         =      >       %      *    +     -       /      \\&      \\|     ^  \u0020  
+#     (      )     [     ]   {    }      !        <         =      >       %      *    +     -       /        &        |     ^   espacio  
+
+
+####### MENSAJES GENERALES  #######
+validacion_mensajes_generales_dato_requerido                     		 = Dato requerido
+validacion_mensajes_generales_solo_numeros						         = Solo n\u00fameros
+validacion_mensajes_generales_minutos_maximo						     = M\u00e1ximo 59 min.
+validacion_mensajes_generales_caracteresValidos_nombre_proyecto		     = Caracteres permitidos 0-9 a-z A-Z \u00c3\u00a1\u00c3\u00a9\u00c3\u00ad\u00c3\u00b3\u00c3\u00ba\u00c3\u0081\u00c3\u0089\u00c3\u008d\u00c3\u0093\u00c3\u009a\u00c3\u0091\u00c3\u00b1\u00c3\u009c\u00c3\u00bc .\u00c2\u00b4 
+validacion_mensajes_generales_caracteresValidos_descripcion			     = Caracteres permitidos 0-9 a-z A-Z \u00c3\u00a1\u00c3\u00a9\u00c3\u00ad\u00c3\u00b3\u00c3\u00ba\u00c3\u0081\u00c3\u0089\u00c3\u008d\u00c3\u0093\u00c3\u009a\u00c3\u0091\u00c3\u00b1\u00c3\u009c\u00c3\u00bc #$',.:;?@_\u00c2\u00b4()[]{}<=>%*+-/ 
+validacion_mensajes_generales_caracteresValidos_dia					     = Caracteres permitidos 0-9, solo n\u00fameros
+validacion_mensajes_generales_dia_invalido								 = D\u00eda inv\u00e1lido
+validacion_mensajes_generales_fecha_invalida						     = Fecha inv\u00e1lida
+validacion_mensajes_generales_fechaFin_menor_fechaInicio				 = La fecha fin es menor a la fecha de inicio
+validacion_mensajes_generales_fechaFin_igual_fechaInicio				 = La fecha fin debe ser mayor a la fecha de inicio
+validacion_mensajes_generales_exito_captura_detalle	                	 = Los datos se capturaron exitosamente.
+validacion_mensajes_generales_error_captura_detalle	                	 = No se pudo llevar a cabo la captura, favor de verificar la informaci\u00f3n
+validacion_mensajes_generales_error_validaciones_detalle	           	 = No se pudieron llevar a cabo las validaciones, favor de verificar la informaci\u00f3n
+validacion_mensajes_generales_exito_modifica_detalle	               	 = Los datos se modificaron exitosamente.
+validacion_mensajes_generales_error_modifica_detalle	               	 = No se pudo llevar a cabo la modificaci\u00f3n, favor de verificar la informaci\u00f3n
+validacion_mensajes_generales_error_modifica_borrado					 = No se pudo llevar a cabo la modificaci\u00f3n, el proyecto ya no se encuentra registrado, favor de verificar la informaci\u00f3n
+validacion_mensajes_generales_exito_elimina_detalle	                	 = Los datos se eliminaron exitosamente.
+validacion_mensajes_generales_error_elimina_detalle	                	 = No se pudo llevar a cabo la eliminaci\u00f3n, favor de verificar la informaci\u00f3n
+validacion_mensajes_generales_proyecto_con_registros                	 = No se pudo llevar a cabo la eliminaci\u00f3n,el proyecto ya tiene empleados/usuarios asignados, favor de verificar la informaci\u00f3n
+validacion_mensajes_generales_casilla_existente                          = Casilla ya existe
+validacion_mensaje_generales_casilla_duplicada                           = Casilla ya existe o se repite la pk  
+validacion_mensaje_generales_existe_config								 = La configuraci\u00f3n ya se encuentra registrada.
+validacion_mensaje_generales_confirmacion_guarda						 = El registro ha sido guardado correctamente.
+validacion_mensaje_generales_confirmacion_elimina						 = El registro ha sido eliminado correctamente.
+validacion_mensaje_generales_confirmacion_modifica						 = El registro ha sido modificado correctamente.
+validacion_mensaje_generales_confirmacion_guardados						 = Los registros han sido guardados correctamente.
+validacion_mensaje_generales_confirmacion_eliminados					 = Los registros han sido eliminados correctamente.
+validacion_mensaje_generales_confirmacion_modificados					 = Los registros han sido modificados correctamente.
+validacion_mensaje_generales_no_confirmacion_modifica					 = No se logr\u00f3 modificar el registro.
+validacion_mensaje_generales_no_confirmacion_guarda						 = No se logr\u00f3 guardar el registro.
+validacion_mensaje_generales_no_confirmacion_elimina 					 = No se logr\u00f3 eliminar el registro.
+validacion_mensaje_generales_no_confirmacion_consulta 					 = Error al consultar el registro.
+validacion_mensaje_generales_registro_no_existe							 = El registro ya no existe.
+validacion_mensaje_generales_no_datos									 = No hay datos que mostrar 
+validacion_mensaje_generales_no_existe_config								 = No existe configuraci\u00f3n para este m\u00f3dulo. 
+validacion_mensaje_generales_info                                                                        = Info
+validacion_mensaje_generales_seleccionar                                                                 = Se requiere seleccionar al menos un elemento
+validacion_mensaje_generales_guardarFallo                                = Ocurri\u00f3 un error al guardar los datos, favor de intentarlo m\u00e1s tarde
+validacion_mensaje_generales_guardarFallo_faltan_datos                   = Ocurri\u00f3 un error al agregar el registro, favor de llenar todos los campos
+validacion_mensaje_generales_eliminarFallo                                = Ocurri\u00f3 un error al eliminar los datos, favor de intentarlo m\u00e1s tarde
+validacion_mensaje_generales_error                                       = Se encontr\u00f3 un problema durante la ejecuci\u00f3n del sistema
+validacion_mensaje_generales_confirmacion_no_cancelado                   = La modificaci\u00f3n ha sido cancelada
+validacion_mensaje_generales_confirmacion_no_eliminado                   = La eliminaci\u00f3n ha sido cancelada 
+validacion_mensaje_generales_no_se_elimino                               = No se pudo llevar a cabo la eliminaci\u00f3n, favor de verificar la informaci\u00f3n seleccionar Area Responsabilidad y la Casilla
+validacion_mensaje_generales_no_datos_404                                = No hay datos que mostrar, no exiten secciones para esta Area de Responsabilidad
+validacion_mensaje_generales_no_datos_500                                = No hay datos que mostrar error 500
+validacion_mensaje_formato_fecha                                         = Formato de hora incorrecto
+validacion_mensaje_generales_elige_opcion                                = Elige una opci\u00f3n
+
+####### MENSAJES PARA LA CONFIGURACION DE CATALOGOS #########
+validacion_mensaje_titulo_cuadro_valida_eliminar_acciones				 = Eliminar acciones
+validacion_mensaje_valida_elimina_configuracion							 = \u00bfEst\u00e1s seguro de <b>eliminar TODA la configuraci\u00f3n capturada</b>?
+validacion_mensaje_titulo_cuadro_valida_eliminar_cargos					 = Eliminar cargos de responsable
+validacion_mensaje_valida_elimina_cargos								 = \u00bfEst\u00e1s seguro de eliminar los cargos de responsable?
+validacion_mensaje_titulo_cuadro_valida_eliminar_escolaridades			 = Eliminar escolaridades
+validacion_mensaje_valida_elimina_escolaridades							 = \u00bfEst\u00e1s seguro de eliminar las escolaridades?
+validacion_mensaje_titulo_cuadro_valida_eliminar_justificaciones		 = Eliminar justificaciones
+validacion_mensaje_valida_elimina_justificaciones						 = \u00bfEst\u00e1s seguro de eliminar las justificaciones?
+
+####### EXPRESIONES GENERALES  #######
+validacion_expresion_generales_caracteresValidos_nombre_proyecto		 = ^([0-9a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc.\u00c2\u00b4   ]*)|([+-]?)$
+validacion_expresion_generales_caracteresValidos_nombre_proyecto_filtro	 = /[0-9a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc.\u00c2\u00b4   ]/
+validacion_expresion_generales_caracteresValidos_descripcion		     = ^([0-9a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc\\r\\n\#\\$',.\:;?@_\u00c2\u00b4\\(\\)\\[\\]\\{\\}\=%*+-\u00b0/   ]*)|([+-]?)$
+validacion_expresion_generales_caracteresValidos_descripcion_filtro	     = /[0-9a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc\\r\\n\#\\$"',.\:;?@_\u00c2\u00b4\\(\\)\\[\\]\\{\\}\=%*+-\u00b0/   ]/i
+validacion_expresion_generales_caracteresValidos_dia					 = ^([0-9]+[0-9]*)$
+validacion_expresion_generales_caracteresValidos_dia_filtro				 = /[0-9]/
+validacion_expresion_generales_tipoArchivo_imagen				 		 = ^(gif|jpe?g|png)$
+validacion_expresion_generales_tipoArchivo_imagen_filtro		 		 = /(^image\\/){1}(gif|jpe?g|png)$/
+validacion_expresion_generales_cero                                      = 00
+validacion_expresion_generales_hrs                                       = hrs
+validacion_expresion_generales_puntos                                    = :
+validacion_expresion_generales_minCero                                   = :00
+validacion_expresion_generales_min                                       = min.
+validacion_expresion_generales_siete                                     = 7
+validacion_expresion_generales_treinta                                   = 30
+validacion_expresion_generales_hora_instalacion                          = Por favor verifique nuevamente con el CAE la hora de instalaci\u00f3n
+validacion_expresion_generales_cero_inicial                              = 0
+validacion_expresion_generales_hora_despues                              = 23
+validacion_expresion_generales_minutos_despues                           = 59
+validacion_expresion_generales_caracteresValidos_cadenas_texto           = ^([a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc   ]*)|([+-]?)$
+validacion_expresion_generales_caracteresValidos_cadenas_texto_filtro    = /[a-zA-Z\u00e1\u00e9\u00ed\u00f3\u00fa\u00c1\u00c9\u00cd\u00d3\u00da\u00d1\u00f1\u00dc\u00fc   ]/
+validacion_expresion_generales_caracteresValidos_solo_numeros			 = /^([0-9])*$/
+validacion_expresion_generales_caracteresValidos_solo_numeros_filtros	 = /^[0-9]$/
+
+####################### Reportes #############################################
+etiqueta_reportes_controlDeObservadores                                 = Control de Observadoras/es
+etiqueta_reportes_accionesDePromocion                                   = Acciones de Promoci\u00f3n
+etiqueta_reportes_accionesDePromocion_pdf								= Acciones_de_Promoci\u00f3n
+etiqueta_reportes_agrupaciones                                          = Agrupaciones
+etiqueta_reportes_cursosDeCapacitacion                                  = Cursos de capacitaci\u00f3n
+etiqueta_reportes_Observadores                                          = Observadoras y Observadores
+etiqueta_reportes_solicitudDeAcreditacion                               = Solicitud de acreditaci\u00f3n de Observadoras/es de las actividades del proceso electoral
+etiqueta_reportes_solicitudDeRatificacion                               = Solicitud de ratificaci\u00f3n de acreditaci\u00f3n de observadoras/es de las actividades del proceso electoral 
+etiqueta_reportes_solicitudesDeAcreditacion                             = Solicitudes de acreditaci\u00f3n
+etiqueta_reportes_acreditacionesAprobadas                               = Acreditaciones aprobadas
+etiqueta_reportes_acreditacionesNoAprobadas                             = Acreditaciones no aprobadas
+etiqueta_reportes_seleccioneInformacion                                 = Selecciona una opci\u00f3n para generar el reporte
+etiqueta_reportes_filtrosInformacion                                    = Filtros de informaci\u00f3n
+etiqueta_reportes_filtro_nacional                                       = Nacional
+etiqueta_reportes_filtro_entidad                                        = Por Entidad
+etiqueta_reportes_filtro_distrito                                       = Por Distrito
+etiqueta_reportes_filtro_agrupacion                                     = Por Agrupaci\u00f3n
+etiqueta_reportes_filtro_concentrado                                    = Concentrado
+etiqueta_reportes_filtro_listadoObservadores                            = Listado de Observadoras/es
+etiqueta_reportes_filtro_aprobadasPorConsejo                            = Aprobadas por Consejo Distrital
+etiqueta_reportes_filtro_aprobadasPorConsejoLocal                       = Aprobadas por Consejo Local
+etiqueta_reportes_filtro_aprobadasPorConsejoGeneral                     = Aprobadas por Consejo General
+etiqueta_reportes_filtro_aprobadasPorOPLE                               = Aprobadas por OPLE
+etiqueta_reportes_filtro_porFechaAprobacion                             = Por fecha de aprobaci\u00f3n/sesi\u00f3n
+etiqueta_reportes_filtro_fechaInicio                                    = Fecha inicio
+etiqueta_reportes_filtro_fechaFin                                       = Fecha fin
+ruta_reportes_img_ine													= /resources/imgObs/logo-INE.png
+etiqueta_reportes_filtro_denegadas                                      = Denegadas
+etiqueta_reportes_filtro_candeladas                                     = Canceladas
+etiqueta_reportes_filtro_porFechaSesion                                 = Por fecha de sesi\u00f3n
+etiqueta_reportes_agrupaciones_titulo									= Resultados Agrupaciones
+etiqueta_reportes_agrupaciones_listados									= Listado de Agrupaciones
+etiqueta_reportes_agrupaciones_total									= Total: 
+etiqueta_reportes_agrupaciones_nombre 									= Nombre de la agrupaci\u00f3n
+etiqueta_reportes_agrupaciones_siglas 									= Siglas
+etiqueta_reportes_agrupaciones_titular 									= Titular
+etiqueta_reportes_agrupaciones_domicilio 								= Domicilio
+etiqueta_reportes_detalle_observadores									= Detalle de observadores registrados
+etiqueta_reportes_filtro_declinadas                                     = Declinadas
+
+
+etiqueta_reportes_acciones_fecha										= Fecha en que se lleva a cabo las acciones
+etiqueta_reportes_acciones_nom_accion									= Nombre de la acci\u00f3n
+etiqueta_reportes_acciones_descripcion									= Descripci\u00f3n de la acci\u00f3n
+
+
+#---------------------------------------------------------------------------------
+# 									  URL 
+#---------------------------------------------------------------------------------
+
+ url_ayuda   =	window.open('https://intranet.ife.org.mx/tutoriales/sistemas/Electorales/2015/Materiales')
+
+#---------------------------------------------------------------------------------
+# 									MASCARAS 
+#--------------------------------------------------------------------------------- 
+mascara_dia                                 = DD
+mascara_mes                                 = MM
+mascara_anio                                = HH
+
+#---------------------------------------------------------------------------------
+# 									FECHAS 
+#--------------------------------------------------------------------------------- 
+fecha_formato_1                             = d 'de' MMMM 'de' yyyy
+

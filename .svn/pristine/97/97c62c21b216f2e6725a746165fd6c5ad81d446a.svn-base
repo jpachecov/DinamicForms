@@ -1,0 +1,402 @@
+package mx.ine.observadoresINE.mb;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import mx.ine.common.ws.administracion.dto.response.DTODetalleDistritoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleEstadoProcesoWS;
+import mx.ine.observadoresINE.bsd.BSDReportesCursosInterface;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.helper.HLPReportesEncabezado;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+public class MBReportesCursos extends MBReportesMenu {
+	private static final long serialVersionUID = 3113130095648135798L;
+	private static final Log LOGGER = LogFactory.getLog(MBReportesCursos.class);
+	@Autowired
+	@Qualifier("bsdReportesCursos")
+	private transient BSDReportesCursosInterface bsdReportesCursos;
+
+	private DTOFiltroReporteAcciones filtroReportes;
+	private boolean muestraTabla;
+	private Map<String, Serializable> parametrosPDF;
+	private Integer tipoListado;
+	private Integer tipoCurso;
+	private String[] selectTipoCurso;
+	private boolean habilitaFiltroCursos;
+	private boolean habilitaFiltroCursos1;
+	private boolean habilitaListadoCursos;
+	private boolean habilitaListadoIntegrantes;
+	private List<DTOCursos> listaCursosMostrar;
+
+	@Override
+	public void init() {
+		try {
+			super.init();
+			this.filtroReportes = new DTOFiltroReporteAcciones();
+			this.filtroReportes.setUsuario(this.getUsuario());
+			this.setMuestraTabla(false);
+			this.habilitaFiltroCursos = false;
+			this.habilitaFiltroCursos1 = false;
+			this.habilitaListadoCursos = false;
+			this.habilitaListadoIntegrantes = false;
+			this.filtroReportes.setOrigenCurso("1,2");
+			this.filtroReportes.setCampoOrdenamiento(null);
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en :: ", e);
+		}
+	}
+
+	public void obtenCurso() {
+		this.filtroReportes.setOrigenCurso(this.regresaorigenCurso());
+		this.listaCursosMostrar = new ArrayList<DTOCursos>();
+		if (this.filtroReportes.getOrigenCurso().length() >= 1) {
+			this.listaCursosMostrar = this.obtenListaCursos(this.filtroReportes);
+		}
+		LOGGER.info("obtenCurso");
+	}
+
+	private String regresaorigenCurso() {
+		String resultado = "";
+		for (int i = 0; i < this.filtroReportes.getSelectTipoCurso().length; i++) {
+			LOGGER.info("Lo que tiene setTipoCurso es :: " + this.filtroReportes.getSelectTipoCurso()[i]);
+			resultado += this.filtroReportes.getSelectTipoCurso()[i];
+			resultado += (i == this.filtroReportes.getSelectTipoCurso().length - 1 ? "" : " , ");
+
+		}
+		return resultado;
+	}
+
+	private List<DTOCursos> obtenListaCursos(DTOFiltroReporteAcciones filtros) {
+		this.filtroReportes.setQueryCurso(this.construyeQuery(filtros));
+		List<DTOCursos> resultado = bsdReportesCursos.obtenListaCursos(filtros);
+		if (resultado != null) {
+		} else {
+			resultado = new ArrayList<DTOCursos>();
+		}
+		return resultado;
+	}
+
+	public void generaQuery() {
+		try {
+			this.filtroReportes.setQueryCurso(this.construyeQuery(this.filtroReportes));
+			this.consultaReporte();
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en generaQuery  :::", e);
+		}
+	}
+
+	// TODO
+	private String construyeQuery(DTOFiltroReporteAcciones filtros) {
+		String queryGeneral = "select (o.nombre ||' '|| o.apellido_paterno ||' '|| o.apellido_materno ) nombre , "
+				+ " case when origen_curso = 1 then 'INE'  when origen_curso = 2 then 'OPLE' end origen , "
+				+ " to_char( o.FECHA_SOLICITUDES , 'dd/mm/yyyy' ) fechaSolicitud   , to_char( fecha , 'dd/mm/yyyy' ) fechaCurso , "
+				+ " (  TO_CHAR(HORA_INICIO,'HH24:MI') || ' - ' ||  TO_CHAR(HORA_FIN,'HH24:MI') || 'hrs.' ) horario , "
+				+ " (c.nombre ||' '|| c.apellido_paterno ||' '|| c.apellido_materno ) impartido , r.DESCRIPCION  cargo , "
+				+ " to_char(  o.FECHA_ACREDITACION  , 'dd/mm/yyyy' ) fechaAcreditacion from  observadores o  join cursos c on "
+				+ " o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
+				+ " o.id_curso = c.id_curso   join C_cargo_responsable r  on r.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and "
+				+ " r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO    -filtros- order by -ordenamiento-  ";
+		if (filtros.getTipoReporte().equals("C")) {
+			String cadenaFiltro = "";
+			if (filtros.getCampoOrdenamiento().equals(0)) {
+				cadenaFiltro += " fechacurso ";
+			} else {
+				cadenaFiltro += " impartido ";
+			}
+			if (filtros.getTipoOrdenamiento().equals(1)) {
+				cadenaFiltro += " ";
+			} else {
+				cadenaFiltro += " desc ";
+			}
+			queryGeneral = queryGeneral.replace("-ordenamiento-", cadenaFiltro);
+			queryGeneral = queryGeneral.replace("-filtros-", "");
+			LOGGER.info("El query es :::: " + queryGeneral);
+			return queryGeneral;
+		} else {
+			queryGeneral = "select  FECHACURSO, ORIGEN, DOMICILIO, HORARIO, IMPARTIDO, CARGO, OBSERVACIONES, totalPersonas from (select "
+					+ "  TO_CHAR( fecha , 'dd/mm/yyyy'  ) fechaCurso , case when origen_curso = 1 then 'INE'  when origen_curso = 2 then 'OPLE' end origen , "
+					+ " (c.CALLE  ||' '|| c.NUMERO_EXTERIOR ||' '|| c.NUMERO_INTERIOR ||' '|| c.COLONIA ||' '|| c.CODIGO_POSTAL) domicilio ,"
+					+ " (  TO_CHAR(HORA_INICIO,'HH24:MI') || ' - ' ||  TO_CHAR(HORA_FIN,'HH24:MI') || 'hrs.' ) horario , (c.nombre ||' '|| c.apellido_paterno ||' '|| c.apellido_materno ) impartido,"
+					+ " r.DESCRIPCION  cargo  , OBSERVACIONES   , c.id_curso "
+					+ " from  cursos c LEFT join C_cargo_responsable r  on "
+					+ " r.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
+					+ " r.ID_CARGO = c.ID_CARGO ) T   join ( select  c.id_curso , count(c.id_curso) totalPersonas from  cursos c  "
+					+ " LEFT join observadores o on o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO = "
+					+ " c.ID_DETALLE_PROCESO and o.id_curso = c.id_curso   LEFT join C_cargo_responsable r  on "
+					+ " r.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
+					+ " r.ID_CARGO = c.ID_CARGO group by c.id_curso ) S on T.id_curso = S.id_curso -filtros- order by -ordenamiento- ";
+			if (filtros.getTipoFiltroEspecifico().equals("C")) {
+				String idCurso = "Where T.id_curso = " + this.filtroReportes.getIdCursoSeleccionado() + "";
+				queryGeneral = queryGeneral.replace("-ordenamiento-", " 1 , 2, 3");
+				queryGeneral = queryGeneral.replace("-filtros-", idCurso);
+				LOGGER.info("El query es :::: " + queryGeneral);
+				return queryGeneral;
+			} else { // cuando es L
+				String tiposCurso = " WHERE T.id_curso in ( ";
+				for (int i = 0; i < this.filtroReportes.getSelectTipoCurso().length; i++) {
+					LOGGER.info("Lo que tiene setTipoCurso es :: " + this.filtroReportes.getSelectTipoCurso()[i]);
+					tiposCurso += this.filtroReportes.getSelectTipoCurso()[i];
+					tiposCurso += (i == this.filtroReportes.getSelectTipoCurso().length - 1 ? "" : " , ");
+				}
+				tiposCurso += " ) ";
+				queryGeneral = queryGeneral.replace("-ordenamiento-", " 1 , 2, 3");
+				queryGeneral = queryGeneral.replace("-filtros-", tiposCurso);
+				LOGGER.info("El query es :::: " + queryGeneral);
+				return queryGeneral;
+			}
+		}
+	}
+
+	/**
+	 * Método para crear reporte
+	 */
+	public void consultaReporte() {
+		try {
+			asignaParametrosReporte(bsdReportesCursos.obtenReporteCursos(filtroReportes));
+			setMuestraTabla(true);
+			setDatosPdf();
+		} catch (Exception e) {
+			LOGGER.error("Error en MBReporteCurso - consultaReporte()", e);
+		}
+	}
+
+	private void setDatosPdf() {
+		this.parametrosPDF = new LinkedHashMap<>();
+		this.parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 8);
+		this.parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO,"TITULO DEL REPORTE");
+		Integer idEstado = this.getUsuario().getIdEstadoSeleccionado() == null ? 0 : this.getUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = this.getUsuario().getIdDistritoSeleccionado() == null ? 0 : this.getUsuario().getIdDistritoSeleccionado();
+
+		this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, this.getUsuario().getEstadoSeleccionado());
+		this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, this.getUsuario().getDistritoSeleccionado());
+
+	}
+
+	private void inicializaDimensionesEncabezado() {
+		this.dtoParametros.setAnchoEntidad(2);
+		this.dtoParametros.setAnchoDistrito(2);
+		this.dtoParametros.setAnchoFechaHora(4);
+	}
+
+	/**
+	 * Método que asigna en la clase padre los datos para la visuzalición de la
+	 * tabla del reporte.
+	 * 
+	 * @param dto
+	 */
+	public void asignaParametrosReporte(DTOReportesParametros dto) {
+
+		LOGGER.info("::::::::::::::::::::::");
+		LOGGER.info(dto.getListaDatos().size());
+		LOGGER.info("::::::::::::::::::::::");
+		try {
+			super.inicializaParametrosEncabezado();
+			inicializaDimensionesEncabezado();
+			this.dtoParametros.setTituloReporte(dto.getTituloReporte());
+			this.dtoParametros.setEncabezado(this.obtenEncabezados());
+			this.dtoParametros.setColumnas(8);
+			this.dtoParametros.setListaDatos(dto.getListaDatos());
+			this.dtoParametros.setTituloReporte("titulo reporte");
+			super.setNombreReporte("AAAAAAAAA");
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en  asignaParametrosReporte ::::", e);
+		}
+	}
+
+	private List<HLPReportesEncabezado> obtenEncabezados() {
+		List<HLPReportesEncabezado> lista = new ArrayList<HLPReportesEncabezado>();
+		HLPReportesEncabezado hlpEncabezadoo = new HLPReportesEncabezado();
+		
+		if(this.filtroReportes.getTipoReporte().equals("C") ){
+		hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Nombre", 1);
+		hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Curso impartido por Agrupacion / INE / OPLE", 1);
+		hlpEncabezadoo.ingresarEncabezado(2, 1, 1, "Fecha Solicitud", 1);
+		hlpEncabezadoo.ingresarEncabezado(3, 1, 1, "Fecha Curso", 1);
+		hlpEncabezadoo.ingresarEncabezado(4, 1, 1, "Horario", 1);
+		hlpEncabezadoo.ingresarEncabezado(5, 1, 1, "Persona que impartio", 1);
+		hlpEncabezadoo.ingresarEncabezado(6, 1, 1, "Cargo", 1);
+		hlpEncabezadoo.ingresarEncabezado(7, 1, 1, "Fecha de aprobación", 1);
+		lista.add(hlpEncabezadoo);
+		}else{
+			hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Fecha", 1);
+			hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Impartido por ", 1);
+			hlpEncabezadoo.ingresarEncabezado(2, 1, 1, "Domicilio de quien impartio ", 1);
+			hlpEncabezadoo.ingresarEncabezado(3, 1, 1, "Horario", 1);
+			hlpEncabezadoo.ingresarEncabezado(4, 1, 1, "Persona que lo impartio y/o superviso ", 1);
+			hlpEncabezadoo.ingresarEncabezado(5, 1, 1, "Cargo ", 1);
+			hlpEncabezadoo.ingresarEncabezado(6, 1, 1, "Nota ", 1);
+			hlpEncabezadoo.ingresarEncabezado(7, 1, 1, "No. de ciudadanas/os que tomaron el curso ", 1);
+			lista.add(hlpEncabezadoo);
+		}
+		
+		return lista;
+	}
+
+	/**
+	 * 
+	 */
+	public void postProcessXLS(Object document) {
+		try {
+			this.dtoParametros.setRutaImgEstado("");
+			this.dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+		} catch (Exception e) {
+			LOGGER.error("Error en postProcessXLS", e);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	public void exportPDF() {
+		try {
+			this.setParametros(this.getParametrosPdf());
+			super.exportPDF();
+		} catch (Exception e) {
+			LOGGER.error("Error en exportPDF", e);
+		}
+	}
+
+	/**
+	 * 
+	 * @return
+	 */
+
+	public Map<String, Serializable> getParametrosPdf() {
+		Map<String, Serializable> parametrosPDF = new LinkedHashMap<>();
+		parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 3);
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO, "Nombre reporte A");
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_FILENAME, "Nombre reporte B" );
+		DTODetalleEstadoProcesoWS estado = getUsuario().getEstadoSeleccionado();
+		DTODetalleDistritoProcesoWS distrito = getUsuario().getDistritoSeleccionado();
+		parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, estado);
+		return parametrosPDF;
+	}
+
+	public void test() {
+		this.habilitaFiltroCursos = !this.habilitaFiltroCursos;
+		this.muestraTabla = false;
+		if (this.filtroReportes.getTipoReporte() != null) {
+			if (this.filtroReportes.getTipoReporte().equals("C")) {
+				this.habilitaFiltroCursos = true;
+				this.habilitaFiltroCursos1 = false;
+				this.filtroReportes.setCampoOrdenamiento(null);
+				this.filtroReportes.setTipoFiltroEspecifico(null);
+			} else {
+				this.habilitaFiltroCursos1 = true;
+				this.habilitaFiltroCursos = false;
+			}
+		} else {
+			this.filtroReportes.setTipoFiltroEspecifico(null);
+			this.filtroReportes.setSelectTipoCurso(new String[2]);
+		}
+		if (this.filtroReportes.getTipoFiltroEspecifico() != null) {
+			if (this.filtroReportes.getTipoFiltroEspecifico().equals("L")) {
+				this.habilitaListadoCursos = true;
+				this.habilitaListadoIntegrantes = false;
+				this.filtroReportes.setSelectTipoCurso(new String[2]);
+			} else {
+				this.habilitaListadoCursos = false;
+				this.habilitaListadoIntegrantes = true;
+			}
+		} else {
+			this.habilitaListadoIntegrantes = false;
+			this.habilitaListadoCursos = false;
+			this.filtroReportes.setSelectTipoCurso(new String[2]);
+		}
+	}
+
+	
+	
+	public boolean isMuestraTabla() {
+		return muestraTabla;
+	}
+	
+	public void setMuestraTabla(boolean muestraTabla) {
+		this.muestraTabla = muestraTabla;
+	}
+
+	public DTOFiltroReporteAcciones getFiltroReportes() {
+		return filtroReportes;
+	}
+
+	public void setFiltroReportes(DTOFiltroReporteAcciones datos) {
+		this.filtroReportes = datos;
+	}
+
+	public Integer getTipoListado() {
+		return tipoListado;
+	}
+
+	public void setTipoListado(Integer tipoListado) {
+		this.tipoListado = tipoListado;
+	}
+
+	public Integer getTipoCurso() {
+		return tipoCurso;
+	}
+
+	public void setTipoCurso(Integer tipoCurso) {
+		this.tipoCurso = tipoCurso;
+	}
+
+	public String[] getSelectTipoCurso() {
+		return selectTipoCurso;
+	}
+
+	public void setSelectTipoCurso(String[] selectTipoCurso) {
+		this.selectTipoCurso = selectTipoCurso;
+	}
+
+	public boolean isHabilitaFiltroCursos() {
+		return habilitaFiltroCursos;
+	}
+
+	public void setHabilitaFiltroCursos(boolean habilitaFiltroCursos) {
+		this.habilitaFiltroCursos = habilitaFiltroCursos;
+	}
+
+	public boolean isHabilitaListadoCursos() {
+		return habilitaListadoCursos;
+	}
+
+	public void setHabilitaListadoCursos(boolean habilitaListadoCursos) {
+		this.habilitaListadoCursos = habilitaListadoCursos;
+	}
+
+	public boolean isHabilitaListadoIntegrantes() {
+		return habilitaListadoIntegrantes;
+	}
+
+	public void setHabilitaListadoIntegrantes(boolean habilitaListadoIntegrantes) {
+		this.habilitaListadoIntegrantes = habilitaListadoIntegrantes;
+	}
+
+	public boolean isHabilitaFiltroCursos1() {
+		return habilitaFiltroCursos1;
+	}
+
+	public void setHabilitaFiltroCursos1(boolean habilitaFiltroCursos1) {
+		this.habilitaFiltroCursos1 = habilitaFiltroCursos1;
+	}
+
+	public List<DTOCursos> getListaCursosMostrar() {
+		return listaCursosMostrar;
+	}
+
+	public void setListaCursosMostrar(List<DTOCursos> listaCursosMostrar) {
+		this.listaCursosMostrar = listaCursosMostrar;
+	}
+}

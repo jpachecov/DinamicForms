@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:tx="http://www.springframework.org/schema/tx"	
+	   xmlns:jee="http://www.springframework.org/schema/jee"
+	   xmlns:context="http://www.springframework.org/schema/context"
+	   xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd	   	
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee.xsd">
+	
+		
+	<!-- Define el nombre  del datasource de la conexión a la base de datos -->
+	<jee:jndi-lookup id="dataSource" jndi-name="${dataSource.jndiName}"/>
+	
+	<!-- Define el bean  de la conexión a la base de datos -->
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" value="#{dataSource}"/>
+		
+		<property name="hibernateProperties"> 
+            <props> 
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop> 
+                <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <!-- Las siguientes líneas solo deben ser puestas en entorno de desarrollo para fines de debug -->      
+                <prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>                
+            </props> 
+        </property>   
+        
+		<!-- Definición de paquetes que escaneará para localizar los DTO mapeados con la BD que se subiran al contexto -->
+		<property name="packagesToScan">
+		 <list>
+		 	<value>${hibernate.pack.scan}</value>
+		 	<value>${hibernate.pack.scan.servicios}</value>
+		</list>
+		</property>
+	</bean>	
+	
+	<!-- Define el bean del manejador de las transacciones de la base de datos -->
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" value="#{sessionFactory}"></property>
+	</bean>	
+
+	<bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
+	
+	<tx:annotation-driven transaction-manager="transactionManager"/>	
+	
+</beans>

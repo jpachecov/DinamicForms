@@ -1,0 +1,5 @@
+package mx.ine.observadoresINE.as;
+
+public interface ASReportesCursosInterface {
+
+}

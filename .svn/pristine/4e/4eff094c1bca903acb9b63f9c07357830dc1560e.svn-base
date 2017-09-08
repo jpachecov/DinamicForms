@@ -1,0 +1,509 @@
+/**
+ * @(#)HLPReporteControlObs.java 12/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.helper;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import mx.ine.observadoresINE.dto.DTOList;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+
+/**
+ * @author Helaine Flores Cervantes
+ * @since 12/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class HLPReporteControlObs implements Serializable {
+
+    private static final long serialVersionUID = 8895329902895358281L;
+    private List<HLPReportesEncabezado> listaEncabezados;
+    private Integer columnas;
+
+    /**
+     * Constructor
+     *
+     * @param formFiltros
+     */
+    public HLPReporteControlObs(FormRepControlObs formFiltros) {
+        switch (formFiltros.getFormatoDeTabla()) {
+            case 1:
+                crearFormatoDeTablaUno(formFiltros);
+                break;
+            case 2:
+                crearFormatoDeTablaDos(formFiltros);
+                break;
+            case 3:
+                break;
+            case 4:
+                crearFormatoDeTablaCuatro(formFiltros);
+                break;
+            case 5:
+                crearFormatoDeTablaCinco(formFiltros);
+                break;
+            case 6:
+                crearFormatoDeTablaSeis(formFiltros);
+                break;
+            case 7:
+                crearFormatoDeTablaSiete(formFiltros);
+                break;
+            case 8:
+                crearFormatoDeTablaOcho(formFiltros);
+                break;
+            case 9:
+                crearFormatoDeTablaNueve(formFiltros);
+                break;
+            case 10:
+                crearFormatoDeTablaDiez();
+                break;
+            case 11:
+                crearFormatoDeTablaOnce();
+                break;
+            case 12:crearFormatoDeTablaDoce();
+                break;
+            case 13:crearFormatoDeTablaTrece();
+                break;
+            case 14:crearFormatoDeTablaCatorce();
+                break;
+            default: break;
+        }
+    }
+    //************FORMATOS DE TABLA PARA SOLICITUD DE ACREDITACIÓN **********************
+
+    /**
+     * Método que crea la tabla presentada en vista con el primer formato
+     *
+     * @param formFiltros
+     */
+    private void crearFormatoDeTablaUno(FormRepControlObs formFiltros) {
+        columnas = 23;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 3, formFiltros.getPrimerColumna(), 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 3, "Solicitudes", 1);
+        hlpEncabezado.ingresarEncabezado(2, 2, 2, "Procedencia", 1);
+        hlpEncabezado.ingresarEncabezado(3, 7, 1, "Personas que han tomado curso de capacitación impartido por", 1);
+        hlpEncabezado.ingresarEncabezado(4, 3, 2, "Pendientes", 1);
+        hlpEncabezado.ingresarEncabezado(5, 3, 2, "Aprobadas", 1);
+        hlpEncabezado.ingresarEncabezado(6, 3, 2, "Denegadas / Canceladas", 1);
+        hlpEncabezado.ingresarEncabezado(7, 3, 2, "Válidas", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //Segundo encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 2, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(1, 2, 1, "Agrupación", 1);
+        hlpEncabezado.ingresarEncabezado(2, 2, 1, "OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 2, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+        //Tercer encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "OPLE", 1);
+
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(6, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(7, 1, 1, "Cons. Dttales", 1);
+
+        hlpEncabezado.ingresarEncabezado(8, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(9, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(10, 1, 1, "Total", 1);
+        hlpEncabezado.ingresarEncabezado(11, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(12, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(13, 1, 1, "Total", 1);
+        hlpEncabezado.ingresarEncabezado(14, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(15, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(16, 1, 1, "Total", 1);
+        hlpEncabezado.ingresarEncabezado(17, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(18, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(19, 1, 1, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+
+    }
+
+    /**
+     * Método que crea la tabla presentada en vista con el primer formato
+     *
+     * @param formFiltros
+     */
+    private void crearFormatoDeTablaDos(FormRepControlObs formFiltros) {
+        columnas = 20;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 3, formFiltros.getPrimerColumna(), 1);
+        hlpEncabezado.ingresarEncabezado(1, 7, 1, "Personas que han tomado curso de capacitación impartido por", 1);
+        hlpEncabezado.ingresarEncabezado(2, 3, 2, "Pendientes", 1);
+        hlpEncabezado.ingresarEncabezado(3, 3, 2, "Aprobadas", 1);
+        hlpEncabezado.ingresarEncabezado(4, 3, 2, "Denegadas / Canceladas", 1);
+        hlpEncabezado.ingresarEncabezado(5, 3, 2, "Válidas", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //Segundo encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 2, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(1, 2, 1, "Agrupación", 1);
+        hlpEncabezado.ingresarEncabezado(2, 2, 1, "OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+        //Tercer encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Cons. Dttales", 1);
+
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Cons. Dttales", 1);
+
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Cons. Dttales", 1);
+
+        hlpEncabezado.ingresarEncabezado(6, 1, 1, "  ", 1);
+
+        hlpEncabezado.ingresarEncabezado(7, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(8, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(9, 1, 1, "Total", 1);
+
+        hlpEncabezado.ingresarEncabezado(10, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(11, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(12, 1, 1, "Total", 1);
+
+        hlpEncabezado.ingresarEncabezado(13, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(14, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(15, 1, 1, "Total", 1);
+
+        hlpEncabezado.ingresarEncabezado(16, 1, 1, "Cons. Loc", 1);
+        hlpEncabezado.ingresarEncabezado(17, 1, 1, "Cons. Dttales", 1);
+        hlpEncabezado.ingresarEncabezado(18, 1, 1, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+    }
+
+    /**
+     * Método que crea la tabla presentada en vista con el primer formato
+     *
+     * @param formFiltros
+     */
+    private void crearFormatoDeTablaCuatro(FormRepControlObs formFiltros) {
+        columnas = 12;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 2, formFiltros.getPrimerColumna(), 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 2, "Solicitudes", 1);
+        hlpEncabezado.ingresarEncabezado(2, 2, 1, "Procedencia", 1);
+        hlpEncabezado.ingresarEncabezado(3, 4, 1, "Personas que han tomado curso de capacitación impartido por", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 2, "Pendientes", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 2, "Aprobadas", 1);
+        hlpEncabezado.ingresarEncabezado(6, 1, 2, "Denegadas / Canceladas", 1);
+        hlpEncabezado.ingresarEncabezado(7, 1, 2, "Válidas", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //Segundo encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "OPL", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Agrupación", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+    }
+
+    /**
+     * Método que crea la tabla presentada en vista con el primer formato
+     *
+     * @param formFiltros
+     */
+    private void crearFormatoDeTablaCinco(FormRepControlObs formFiltros) {
+        columnas = 14;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 2, formFiltros.getPrimerColumna(), 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 2, formFiltros.getSegundaColumna(), 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 2, "Solicitudes", 1);
+        hlpEncabezado.ingresarEncabezado(3, 2, 1, "Procedencia", 1);
+        hlpEncabezado.ingresarEncabezado(4, 4, 1, "Personas que han tomado curso de capacitación impartido por", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 2, "Pendientes", 1);
+        hlpEncabezado.ingresarEncabezado(6, 1, 2, "Aprobadas", 1);
+        hlpEncabezado.ingresarEncabezado(7, 1, 2, "Denegadas", 1);
+        hlpEncabezado.ingresarEncabezado(8, 1, 2, "Canceladas", 1);
+        hlpEncabezado.ingresarEncabezado(9, 1, 2, "Válidas", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //Segundo encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "OPL", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Agrupación", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 2, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+    }
+
+    /**
+     * Método que crea la tabla presentada en vista con el primer formato
+     *
+     * @param formFiltros
+     */
+    private void crearFormatoDeTablaSeis(FormRepControlObs formFiltros) {
+        columnas = 10;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 2, formFiltros.getPrimerColumna(), 1);
+        hlpEncabezado.ingresarEncabezado(1, 4, 1, "Personas que han tomado curso de capacitación impartido por", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 2, "Pendientes", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 2, "Aprobadas", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 2, "Denegadas", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 2, "Canceladas", 1);
+        hlpEncabezado.ingresarEncabezado(6, 1, 2, "Válidas", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //Segundo encabezado
+        hlpEncabezado = new HLPReportesEncabezado();
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "INE", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Agrupación", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Total", 1);
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+    }
+
+    private void crearFormatoDeTablaSiete(FormRepControlObs formFiltros) {
+        columnas = 1 + formFiltros.getAbreviaturaEstados().size();
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupación", 1);
+        int indice = 1;
+        for (DTOList estado : formFiltros.getAbreviaturaEstados()) {
+            hlpEncabezado.ingresarEncabezado(indice, 1, 1, estado.getValue(), 1);
+            indice++;
+        }
+        listaEncabezados.add(hlpEncabezado);
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+    }
+
+    //************FORMATOS DE TABLA PARA ACREDITACIONES APROBADAS **********************
+    private void crearFormatoDeTablaOcho(FormRepControlObs formFiltros) {
+        columnas = 8;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha de Sesión", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Individuales local", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Individuales distrital", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Total individuales", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Agrupación local", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Agrupación distrital", 1);
+        hlpEncabezado.ingresarEncabezado(6, 1, 1, "Total agrupaciones", 1);
+        hlpEncabezado.ingresarEncabezado(7, 1, 1, "Totales", 1);
+
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice;
+            indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+
+    }
+
+    private void crearFormatoDeTablaNueve(FormRepControlObs formFiltros) {
+        columnas = 4;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha de Sesión", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Individuales ", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Agrupación ", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Totales", 1);
+
+        listaEncabezados.add(hlpEncabezado);
+
+        //TOTALES
+        if (formFiltros.getTotales() != null) {
+            int indice;
+            indice = 1;
+            hlpEncabezado = new HLPReportesEncabezado();
+            hlpEncabezado.ingresarEncabezado(0, 1, 1, "TOTALES", 2);
+            for (Integer campo : formFiltros.getTotales()) {
+                hlpEncabezado.ingresarEncabezado(indice, 1, 1, campo.toString(), 2);
+                indice++;
+            }
+            listaEncabezados.add(hlpEncabezado);
+        }
+
+    }
+
+    private void crearFormatoDeTablaDiez() {
+        columnas = 7;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Local/Cabecera Dist", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Nombre", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Agrupación/Individual", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Curso impartido por Agrupación/INE/OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Clave de elector", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Fechas de acreditación", 1);
+        hlpEncabezado.ingresarEncabezado(6, 1, 1, "Folio de gafete", 1);
+        listaEncabezados.add(hlpEncabezado);
+    }
+
+    private void crearFormatoDeTablaOnce() {
+        columnas = 6;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Nombre", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Agrupación/Individual", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Curso impartido por Agrupación/INE/OPLE", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Clave de elector", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Fechas de acreditación", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Folio de gafete", 1);
+        listaEncabezados.add(hlpEncabezado);
+    }
+
+    //************FORMATOS DE TABLA PARA ACREDITACIONES NO APROBADAS **********************
+    private void crearFormatoDeTablaDoce() {
+        columnas = 2;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Descripción", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Cantidad", 1);
+        listaEncabezados.add(hlpEncabezado);
+    }
+
+    private void crearFormatoDeTablaTrece() {
+        columnas = 6;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Distrito", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Nombre", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Agrupación/Individual", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Clave de elector", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Fecha denegada/cancelada/declinada", 1);
+        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Motivo denegada/cancelada/declinada", 1);
+        listaEncabezados.add(hlpEncabezado);
+    }
+
+    private void crearFormatoDeTablaCatorce() {
+        columnas = 5;
+        listaEncabezados = new ArrayList<>();
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        //Primer encabezado
+        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Nombre", 1);
+        hlpEncabezado.ingresarEncabezado(1, 1, 1, "Agrupación/Individual", 1);
+        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Clave de elector", 1);
+        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Fecha denegada/cancelada/declinada", 1);
+        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Motivo denegada/cancelada/declinada", 1);
+        listaEncabezados.add(hlpEncabezado);
+    }
+        //******************************GETTERS AND SETTERS**************************//
+
+
+    public List<HLPReportesEncabezado> getListaEncabezados() {
+        return listaEncabezados;
+    }
+
+    public void setListaEncabezados(List<HLPReportesEncabezado> listaEncabezados) {
+        this.listaEncabezados = listaEncabezados;
+    }
+
+    public Integer getColumnas() {
+        return columnas;
+    }
+
+    public void setColumnas(Integer columnas) {
+        this.columnas = columnas;
+    }
+
+}

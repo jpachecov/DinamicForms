@@ -1,0 +1,292 @@
+/**
+ * @(#)CrearPDF.java 30/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+
+package mx.ine.observadoresINE.pdf;
+
+import java.awt.Color;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.faces.context.FacesContext;
+
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.helper.HLPReportesEncabezado;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Image;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfPageEventHelper;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
+
+
+/**
+ * @author INE
+ *
+ */
+public class CrearPDF extends PdfPageEventHelper{
+	
+	private static final Log log = LogFactory.getLog(CrearPDF.class);
+	private int pageNumber;
+	private CustomCrearPDF cp;
+	private PdfTemplate tpl;
+	public BaseFont helv;
+	
+	public CrearPDF(DTOReportesParametros parametros) {
+		pageNumber = 0;
+		cp = new CustomCrearPDF(parametros);
+	}
+	
+	/**
+	 * Metetodo para el nÃºmero de pÃ¡gina
+	 */
+	@Override
+	public void onOpenDocument(PdfWriter writer, Document document) {
+		if(pageNumber < 1){
+			try{
+				tpl = writer.getDirectContent().createTemplate(80, 80);
+				tpl.setBoundingBox(new Rectangle(-10, -20, 70, 70));
+				helv = BaseFont.createFont("Helvetica", BaseFont.WINANSI, false);
+			}catch(Exception e){
+				log.error("Error al crear el template o la fuente 'helvetica'",e);
+			}
+		}
+	}
+	
+	/**
+	 * Metetodo para el nÃºmero de pÃ¡gina
+	 */
+	@Override
+	public void onCloseDocument(PdfWriter writer, Document document) {
+		tpl.beginText();
+		tpl.setFontAndSize(helv, 6);
+		tpl.setTextMatrix(-10, 0);
+		tpl.showText(" " + (writer.getPageNumber() -1));
+		tpl.endText();
+	}
+	
+	/**
+	 * MÃ©todo que genera el footer.
+	 */
+	@Override
+	public void onEndPage(PdfWriter writer, Document document) {
+	    PdfPTable table = null;
+		try {
+			table = new PdfPTable(3);
+			float[] width = {6,8,6};
+			table.setWidths(width);
+			table.setWidthPercentage(50);
+			PdfContentByte cd = writer.getDirectContent();
+			cd.saveState();
+			String text = "Página " + writer.getPageNumber() + " de ";
+			table.setTotalWidth(document.right() - document.left()-20);
+			table.writeSelectedRows(0, -1, document.left(), document.getPageSize().getHeight()-20, cd);
+			float textBase = document.bottom() - 15;
+			cd.beginText();
+			cd.setFontAndSize(helv, 6);
+			cd.setTextMatrix(document.right()-70, textBase);
+			cd.showText(text);
+			cd.endText();
+			cd.addTemplate(tpl, document.right()-16, textBase);
+			cd.restoreState();
+		}
+		catch (Exception e) {
+			log.error("Error al crear el numero de pÃ¡ginas",e);
+		}
+	}	
+	
+	/**
+	 * MÃ©todo que genera el header.
+	 */
+	@Override
+	public void onStartPage(PdfWriter writer, Document document) {
+	    pageNumber++;
+	    document.setPageSize(PageSize.A4.rotate());
+	    document.setMargins(42, 42, 42, 42);
+	    try{
+	    	document.add(cp.crearEncabezadoPDF());
+	    	document.add(cp.crearEncabezadoTablaPDF());
+			if(pageNumber==1){
+				document.add(cp.crearDetalle());
+			}
+			document.add(cp.crearFooterTablaPDF());
+		}catch(Exception e){
+			log.error("Fallo al crear PDF", e);
+		}
+	  }	
+	
+	class CustomCrearPDF{
+		
+		private BaseFont bf_helv;
+	    private Font fuenteEncabezado;
+	    private Font fuenteHora;
+	    private Font fuenteTabla;
+	    private String  dirLogo;
+	    private List<Object[]> resultado = new ArrayList<Object[]>();
+		private DTOReportesParametros dto;
+		
+		private int num;
+		private float[] w;
+		
+		public CustomCrearPDF(DTOReportesParametros dto) {
+			try {
+	    		bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+	  		}catch (DocumentException | IOException e) {
+	  			e.printStackTrace();
+	  		}
+			fuenteEncabezado = new Font(bf_helv, 7);
+	  	    fuenteHora = new Font(bf_helv, 6);
+	  	    fuenteTabla = new Font(bf_helv, 6);
+	  	    dirLogo= FacesContext.getCurrentInstance().getExternalContext().getRealPath("resources/imgObs/ine.png");
+	  	    this.resultado = dto.getListaDatos();
+	  	    this.dto = dto;
+		}
+		
+		public PdfPTable crearEncabezadoPDF() throws Exception{
+			BaseFont bf_helv;
+			bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+			Font fuenteEncabezado = new Font(bf_helv, 7);
+			PdfPTable encabezado = new PdfPTable(3);
+	        encabezado.setWidthPercentage(100);
+	        encabezado.setWidths(new int[]{1, 2, 1});
+	        encabezado.setSpacingBefore(15);
+	        encabezado.setSpacingAfter(15);
+//	            Crea logo
+	        Image img = Image.getInstance(FacesContext.getCurrentInstance().getExternalContext().getRealPath("resources/imgObs/ine.png"));
+	        img.scalePercent(45);
+	        PdfPCell cell=new PdfPCell(img);
+	        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+	        cell.setBorder(0);
+	        encabezado.addCell(cell);
+//	            Crea tabla del centro de encabezado
+	        PdfPTable centro = new PdfPTable(1);
+	        centro.setWidthPercentage(50);
+//	            Texto
+	        Phrase proceso = new Phrase(dto.getTituloReporte(), fuenteEncabezado);
+	        Phrase entidad = new Phrase(dto.getDescEntidad());
+	        if(dto.getAnchoDistrito() != null){
+	        	entidad = new Phrase(dto.getDescEntidad()+", Distrito electoral "+dto.getIdDistrito()+" "+dto.getDescMunicipioLocal());
+	        }else if(dto.getAnchoDistritoLocal() != null){
+	        	entidad = new Phrase(dto.getDescEntidad()+", Distrito local "+dto.getDescMunicipioLocal());
+	        }else if(dto.getAnchoMunicipioLocal() != null){
+	        	entidad = new Phrase(dto.getDescEntidad()+", Delegación "+dto.getDescMunicipioLocal());
+	        }
+//	            Celdas centro
+	        cell=new PdfPCell(proceso);
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cell.setBorder(0);
+	        centro.addCell(cell);
+	        cell=new PdfPCell(entidad);
+	        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	        cell.setBorder(0);
+	        centro.addCell(cell);
+	        cell=new PdfPCell(centro);
+	        cell.setBorder(0);
+	        encabezado.addCell(cell);
+//	            Fecha
+	        cell=new PdfPCell(new Phrase("Fecha de impresión: " + dto.getFechaHora() + " hrs.", fuenteEncabezado));
+	        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+	        cell.setVerticalAlignment(Element.ALIGN_TOP);
+	        cell.setBorder(0);
+	        encabezado.addCell(cell);
+	        return encabezado;
+		}
+
+		public PdfPTable crearEncabezadoTablaPDF() throws Exception {
+			BaseFont bf_helv;
+			bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+			Font fuenteEncabezado = new Font(bf_helv, 7);
+	        PdfPTable encabezado = new PdfPTable(dto.getColumnas());   
+	        PdfPCell cell = null;
+//	        Encabezados de la tabla
+	        for(HLPReportesEncabezado hlp: dto.getEncabezado()){
+	            for(Integer index: hlp.getIndex()){
+	            	if(hlp.getTipoFila().get(index) != 3){
+		                cell = new PdfPCell(new Phrase(hlp.getDescEncabezado().get(index),fuenteEncabezado));
+		                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+		                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+		                    cell.setBackgroundColor(Color.LIGHT_GRAY);
+		                    if(hlp.getAlto().get(index) > 1){
+		                        cell.setRowspan(hlp.getAlto().get(index));
+		                    }
+		                    if(hlp.getAncho().get(index) > 1){
+		                        cell.setColspan(hlp.getAncho().get(index));
+		                    }
+		                    encabezado.addCell(cell);
+	            	}
+	            }
+	        }
+	        return encabezado;
+	    }
+		
+		public PdfPTable crearDetalle() throws Exception {
+			BaseFont bf_helv;
+			bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+			Font fuenteDetalle = new Font(bf_helv, 8);
+	        PdfPTable detalle = new PdfPTable(dto.getColumnas());   
+	        PdfPCell cell = null;
+//	        Encabezados de la tabla
+	        for(Object[] obj: resultado){
+	        	for(int i = 0; i < dto.getColumnas(); i++){
+	        		 cell = new PdfPCell(new Phrase(obj[i].toString(),fuenteDetalle));
+	                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+	                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+	                    cell.setBackgroundColor(Color.WHITE);
+	                    detalle.addCell(cell);
+	        	}
+	        }
+	        return detalle;
+	    }
+		
+		public PdfPTable crearFooterTablaPDF() throws Exception {
+			BaseFont bf_helv;
+			bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+			Font fuenteEncabezado = new Font(bf_helv, 8);
+	        PdfPTable encabezado = new PdfPTable(dto.getColumnas());   
+	        PdfPCell cell = null;
+//	        Encabezados de la tabla
+	        for(HLPReportesEncabezado hlp: dto.getEncabezado()){
+	            for(Integer index: hlp.getIndex()){
+	            	if(hlp.getTipoFila().get(index) > 1){
+		                cell = new PdfPCell(new Phrase(hlp.getDescEncabezado().get(index),fuenteEncabezado));
+		                	if(hlp.getTipoFila().get(index) == 2){
+			                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+			                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+			                    cell.setBackgroundColor(Color.LIGHT_GRAY);
+		                	}else{
+		                		cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+			                    cell.setVerticalAlignment(Element.ALIGN_LEFT);
+			                    cell.setBackgroundColor(Color.WHITE);
+		                	}
+		                    if(hlp.getAlto().get(index) > 1){
+		                        cell.setRowspan(hlp.getAlto().get(index));
+		                    }
+		                    if(hlp.getAncho().get(index) > 1){
+		                        cell.setColspan(hlp.getAncho().get(index));
+		                    }
+		                    encabezado.addCell(cell);
+	            	}
+	            }
+	        }
+	        return encabezado;
+	    }
+	}
+}

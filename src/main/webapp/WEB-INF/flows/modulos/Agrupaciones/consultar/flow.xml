@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+	start-state="consultar" parent="parent-flow">
+
+
+	<secured
+		attributes="
+		ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+		ROLE_OBSERVADORES.ADMIN.CAPTURA.OC,ROLE_OBSERVADORES.CONSEJERO.OC,
+		ROLE_OBSERVADORES.CONSULTA.OC,
+		ROLE_OBSERVADORES.CAU.OC"
+		match="any" />
+
+	<var name="mbAgrupaciones" class="mx.ine.observadoresINE.mb.MBAgrupaciones" />
+	<view-state id="consultar" view="consultar.xhtml">
+		<on-entry>
+			<evaluate expression="mbAgrupaciones.initConsultar()"></evaluate>
+			<evaluate expression="mbAgrupaciones.setVista('consultar')"></evaluate>
+			<evaluate expression="mbAdmin.dto.setIdModulo(2)"></evaluate>
+			<evaluate expression="mbAdmin.dto.setIdAccion(2)"></evaluate>
+		</on-entry>
+		<transition on="captura" to="capturar" />
+		<transition on="modifica" to="modificar" />
+	</view-state>
+
+	<view-state id="modificar"
+		view="externalRedirect:servletRelative:/modulos/Agrupaciones/modificar" />
+	<view-state id="capturar"
+		view="externalRedirect:servletRelative:/modulos/Agrupaciones/capturar" />
+</flow>

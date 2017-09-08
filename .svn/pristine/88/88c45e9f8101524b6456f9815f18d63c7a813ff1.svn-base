@@ -1,0 +1,109 @@
+package mx.ine.observadoresINE.bsd.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import mx.ine.observadoresINE.as.ASObservadoresInterface;
+import mx.ine.observadoresINE.bsd.BSDObservadoresInterface;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridades;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacion;
+import mx.ine.observadoresINE.dto.db.DTOCJustificaciones;
+import mx.ine.observadoresINE.dto.db.DTOCursos;
+import mx.ine.observadoresINE.dto.db.DTOObservadores;
+import mx.ine.observadoresINE.dto.db.DTOObservadoresPK;
+import mx.ine.observadoresINE.dto.db.DTOReglasEvalucaion;
+import mx.org.ine.servicios.dto.db.DTOEstado;
+import mx.org.ine.servicios.dto.db.DTOMunicipio;
+@Component("bsdObservadores")
+@Scope("prototype")
+public class BSDObservadoresImpl implements BSDObservadoresInterface {
+
+	@Autowired
+	@Qualifier("asObservadores")
+	private transient ASObservadoresInterface asObservadores;
+	
+	@Override
+	public DTOObservadores consultaObservador(DTOObservadoresPK identificador) throws Exception {
+		return asObservadores.consultaObservador(identificador);
+	}
+
+	@Override
+	public void guarda(DTOObservadores observador) throws Exception {
+		asObservadores.guarda(observador);
+	}
+
+	@Override
+	public void modifica(DTOObservadores observador) throws Exception {
+		asObservadores.modifica(observador);
+
+	}
+
+	@Override
+	public void elimina(DTOObservadores observador) throws Exception {
+		asObservadores.elimina(observador);
+
+
+	}
+
+	@Override
+	public List<DTOCEscolaridades> obtenEscolaridad(DTOUsuarioLogin user) {
+		return asObservadores.obtenEscolaridad(user);
+	}
+
+	@Override
+	public List<DTOEstado> obtenEdos(DTOUsuarioLogin user) {
+		return asObservadores.obtenEdos(user);
+	}
+
+	@Override
+	public List<DTOMunicipio> obtenMunicipios(DTOObservadores observadores) {
+		return asObservadores.obtenMunicipios(observadores);
+	}
+
+	@Override
+	public List<DTOAgrupaciones> obtenListaAgrupaciones(DTOUsuarioLogin user) {
+		return asObservadores.obtenListaAgrupaciones(user);
+	}
+
+	@Override
+	public List<DTOCEvaluacion> obtenListaEvaluaciones(DTOUsuarioLogin user) {
+		return asObservadores.obtenListaEvaluaciones(user);
+	}
+
+	@Override
+	public List<DTOCursos> obtenListaCursos(DTOUsuarioLogin user) {
+		return asObservadores.obtenListaCursos(user);
+	}
+
+	@Override
+	public List<DTOCJustificaciones> obtenerJustificacion(DTOUsuarioLogin user) {
+		return asObservadores.obtenerJustificacion(user);
+	}
+
+	@Override
+	public List<DTOReglasEvalucaion> obtenReglasE(DTOObservadores obs) {
+		return asObservadores.obtenReglasE(obs);
+	}
+
+	@Override
+	public Boolean habilitaRatifica(DTOUsuarioLogin user) {
+		return asObservadores.habilitaRatifica(user);
+	}
+
+	@Override
+	public Short generaEdad(String fechaCadena) {
+		return asObservadores.generaEdad(fechaCadena);
+	}
+
+	@Override
+	public List<DTOObservadores> obtenerObservadores(DTOUsuarioLogin user) {
+		return asObservadores.obtenerObservadores(user);
+	}
+
+}

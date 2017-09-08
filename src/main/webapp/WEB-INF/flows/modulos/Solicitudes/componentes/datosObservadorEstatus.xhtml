@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:pe="http://primefaces.org/ui/extensions"
+    xmlns:sf="http://www.springframework.org/tags/faces"
+    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+	<div class="ui-g">
+		<h2>#{messageSource['etiqueta_solicitudes_titulo_estatus']}</h2>
+	</div>
+	<div class="ui-g">
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-9 ui-md-9 ui-sm-12">
+				<p:outputLabel for="comboEvaluacion" value="#{messageSource['etiqueta_estatus_evaluacion']}" />
+				<p:selectOneMenu id="comboEvaluacion" value="#{mbObservadores.observadorCaptura.idEvaluacion}"  
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+					required="true">
+					<f:selectItem itemLabel="Selecciona " itemValue="#{null}" itemDisabled="true" noSelectionOption="true" />
+					<f:selectItems value="#{mbObservadores.listaEvaluaciones}" var="evaluacion" itemLabel="#{evaluacion.descripcion}"
+					 itemValue="#{evaluacion.getDTOCEvaluacionPK().idEvaluacion}" />
+					<p:ajax event="itemSelect" process="@this"  listener="#{mbObservadores.obtenReglas()}" update="escondeEstatusP" />
+				</p:selectOneMenu>
+				<p:messages id="mensajecomboEvaluacion" for="comboEvaluacion" showIcon="false" autoUpdate="true" />
+			</div>	
+			<!--  -->
+	 <p:panel id="escondeEstatusP"  styleClass="ui-g-12 ui-md-12 ui-sm-12" style="border-color: white;" >
+			<p:outputPanel rendered="#{mbObservadores.regla1}"  styleClass="ui-g-9 ui-md-9 ui-sm-12">
+				<p:outputLabel for="comboFechaCurso" value="#{messageSource['etiqueta_estatus_fecha_curso']}" />
+				<p:selectOneMenu id="comboFechaCurso" value="#{mbObservadores.observadorCaptura.idCurso}"   >
+					<f:selectItems value="#{mbObservadores.listaCursos}" var="curso" itemLabel="#{curso.etiqueta}" 
+					itemValue="#{curso.getPk().idCurso}" />
+<!-- 					<p:ajax event="change" process="@this" update="mensajecomboFechaCurso" /> -->
+				</p:selectOneMenu>
+<!-- 				<p:messages id="mensajecomboFechaCurso" for="comboFechaCurso" showIcon="false" autoUpdate="true" /> -->
+			 </p:outputPanel>
+		
+				<p:outputPanel rendered="#{mbObservadores.regla2}"  styleClass="ui-g-12 ui-md-12 ui-sm-12">
+				<p:outputLabel for="comboResultadoAcred" value="#{messageSource['etiqueta_estatus_resultado_acredi']}" />
+				<p:selectOneMenu id="comboResultadoAcred" value="#{mbObservadores.observadorCaptura.idJustificacion}"  disabled="#{mbObservadores.habilitaJustificacion}" >
+					<f:selectItems value="#{mbObservadores.listaJustificaciones}" var="justificacion"
+					 itemLabel="#{justificacion.descripcion}" itemValue="#{justificacion.getDTOCJustificacionesPK().idJustificacion}" />
+<!-- 					<p:ajax event="change" process="@this" update="mensajecomboResultadoAcred" /> -->
+				</p:selectOneMenu>
+<!-- 				<p:messages id="mensajecomboResultadoAcred" for="comboResultadoAcred" showIcon="false" autoUpdate="true" /> -->
+			</p:outputPanel>
+
+				<p:outputPanel rendered="#{mbObservadores.regla3}"
+					styleClass="ui-g-8 ui-md-8 ui-sm-12">
+					<p:outputLabel for="fechaSolicitud"
+						value="#{messageSource['etiqueta_estatus_fecha_sesion']}" />
+
+					<p:calendar id="fechaSesion"
+						value="#{mbObservadores.observadorCaptura.fechaSesion}"
+						pattern="dd/MM/yyyy" locale="es" mask="true" navigator="true"
+						required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+						converterMessage="#{messageSource['validacion_mensajes_generales_dato_requerido_fecha_invalida']}"
+						placeholder="dd/mm/yyyy">
+						<p:ajax event="keyup" update="msgfechaSesion" />
+					</p:calendar>
+					<p:message for="fechaSesion" id="msgfechaSesion" />
+				</p:outputPanel>
+
+
+			</p:panel>
+	 <!--  -->
+		
+		</div>
+		
+	</div>
+</ui:composition>

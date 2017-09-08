@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:pe="http://primefaces.org/ui/extensions"
+    xmlns:sf="http://www.springframework.org/tags/faces"
+    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+    
+	<!-- DATOS GENERALES -->
+			<div class="card">
+				<h2>#{messageSource['etiqueta_cursos_datos_generales']}</h2>
+				<div class="ui-g">
+					<div class="ui-g-12">
+						<p><span class="requerido"></span>#{messageSource['etiqueta_cursos_impartido']}</p>
+						<div class="ui-g-12 ui-sm-12">
+							<p:selectOneRadio id="impartido"
+											  layout="responsive"
+											  columns="3"
+											  value="#{mbCursos.dto.origenCurso}"
+											  required="true"
+											  requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+						        <f:selectItems value="#{mbCursos.origenesCurso.entrySet()}" var="origen" itemLabel="#{origen.key}" itemValue="#{origen.value}"/>
+								<p:ajax event="change" listener="#{mbCursos.habilitaAutoComplete()}" process="@this" update="impartidoMessage panelGeneral"/>
+							 </p:selectOneRadio>
+							 <p:message for="impartido" id="impartidoMessage"/>
+						</div>
+					</div>
+					<div class="ui-g-12 ui-sm-12">
+					<p:outputPanel id="panelGeneral">
+						<p:outputPanel id="panelAgrupaciones" rendered="#{mbCursos.habilitaAgrupacion}">
+							<p:autoComplete id="agrupacion" forceSelection="true"
+								value="#{mbCursos.nombreAgrupacion}" style="width:100%"
+								onkeypress="if (window.event.which == 13 || window.event.which == 37) {return false;} "
+								minQueryLength="3" maxResults="10" maxlength="150" size="55"
+								required="true"
+								emptyMessage="#{messageSource['etiqueta_generales_no_hay_agrupaciones']}"
+								placeholder="#{messageSource['etiqueta_cursos_placeholder_agrupacion']}"
+								requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+								completeMethod="#{mbCursos.getAgrupacionesByNombreSiglasLike}" >
+								<f:validateRegex pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC \,\.\-\_]*)|([+-]?)$" />							
+								<p:ajax event="itemSelect" process="@this" listener="#{mbCursos.seleccionaAgrupacion()}" update="agrupacionMessage"/>
+								<pe:keyFilter regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC \,\.\-\_]/"
+											  preventPaste="false" />
+							</p:autoComplete>
+							<p:message for="agrupacion" id="agrupacionMessage"/>
+						</p:outputPanel>
+					</p:outputPanel>
+					</div>
+					<div class="ui-g-12 ui-sm-12">
+						<div class="ui-g-3 ui-sm-4">
+							<p:outputLabel for="fechaCurso" value="#{messageSource['etiqueta_cursos_fecha_curso']}"/>
+							<p:calendar id     = "fechaCurso" 
+				                        locale = "es"
+				                        pattern="dd/MM/yyyy"
+				                        required="true"
+				                        placeholder="dd/mm/yyyy"
+				                        value="#{mbCursos.dto.fecha}"
+				                        requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+				               <p:ajax event="blur" update="fechaCursoMessage"/>
+				               <p:ajax event="dateSelect" update="fechaCursoMessage"/>
+				               </p:calendar>
+				            <p:message for ="fechaCurso" id="fechaCursoMessage"/>
+						</div>
+						<div class="ui-g-3 ui-sm-4">
+							<p:outputLabel for="horaInicio" value="#{messageSource['etiqueta_cursos_hora_incio']}"/>
+							<p:calendar id="horaInicio" 
+										pattern="HH:mm" 
+										timeOnly="true"
+										mask="true" 
+										timeControlType=""
+										autocomplete="off"
+										validator="#{mbCursos.validateHoraInicio}"
+										value="#{mbCursos.dto.horaInicio}"
+										required="true"
+										requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+										placeholder="hh:mm">
+				                 <p:ajax event="change" process="@this" update="horaInicioMessage horaFinMessage"/>
+				            </p:calendar>
+				            <p:message for="horaInicio" id="horaInicioMessage"/>
+						</div>
+						<div class="ui-g-3 ui-sm-4">
+							<p:outputLabel for="horaFin" value="#{messageSource['etiqueta_cursos_hora_fin']}"/>
+							<p:calendar id ="horaFin"
+										pattern="HH:mm"
+										timeControlType="" 
+										autocomplete="off"
+										validator="#{mbCursos.validateHoraFin}"
+										value="#{mbCursos.dto.horaFin}" 
+										timeOnly="true"
+										locale="es"
+										mask="true"				                        
+				                        placeholder="hh:mm"
+				                        required="true"
+				                        requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+				               <p:ajax event="change" process="@this" update="horaFinMessage horaInicioMessage"/>
+				            </p:calendar>
+				            <p:message for="horaFin" id="horaFinMessage"/>
+						</div>
+						<div class="ui-g-3 ui-sm-12">
+							<p:outputLabel for="comboCargo" value="#{messageSource['etiqueta_cursos_cargo_imparte']}"/>
+							<p:selectOneMenu id="comboCargo"
+											 value="#{mbCursos.dto.idCargo}"
+											 required="true"
+											 requiredMessage="#{messageSource['validacion_mensaje_generales_elige_opcion']}">
+								<f:selectItem  itemValue="${null}" itemLabel = "Selecciona"/>
+								<f:selectItems value="#{mbCursos.cargos}"
+											   var="vistaCargos"
+											   itemLabel="#{vistaCargos.descripcion}"
+											   itemValue="#{vistaCargos.id.idCargo}"/>
+								<p:ajax event="change" process="@this" update="comboCargoMessage"/>
+							</p:selectOneMenu>
+							<p:messages  id="comboCargoMessage" for="comboCargo"/>
+						</div>
+					</div>
+					<div class="card">
+					<div class="ui-g-12 ui-sm-12">
+						<h3>#{messageSource['etiqueta_cursos_nota_escribe_nombre_cargo']}. #{messageSource['etiqueta_cursos_nota_apellido_requerido']}</h3>
+						<div class="ui-g-4 ui-sm-4">
+							<p:outputLabel value="#{messageSource['etiqueta_generales_apellido_paterno']}:"
+										   for="aPaterno" />
+							<p:inputText id="aPaterno"
+										onblur="this.value=this.value.trim();"
+										onkeypress="if (event.keyCode == 13) { return false; }"
+										maxlength="20" 
+										value="#{mbCursos.dto.apellidoPaterno}"
+									 	validatorMessage="#{messageSource['validacion_mensajes_generales_caracteresValidos_nombre']}">
+							 	<f:validateRegex
+									pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]*)|([+-]?)$" />
+								<p:ajax event="keyup" update="aPaternoMessage" />
+								<p:ajax event="blur" update="aPaternoMessage" />
+								<pe:keyFilter
+									regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]/"
+									preventPaste="false" />
+							</p:inputText>
+							<p:message for="aPaterno" id="aPaternoMessage"/>
+						</div>
+						<div class="ui-g-4 ui-sm-4">
+							<p:outputLabel value="#{messageSource['etiqueta_generales_apellido_materno']}:"
+										   for="aMaterno" />
+							<p:inputText id="aMaterno"
+										onblur="this.value=this.value.trim();"
+										value="#{mbCursos.dto.apellidoMaterno}"
+										onkeypress="if (event.keyCode == 13) { return false; }"
+										maxlength="20"
+									 	validatorMessage="#{messageSource['validacion_mensajes_generales_caracteresValidos_nombre']}">
+							 	<f:validateRegex
+									pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]*)|([+-]?)$" />
+								<p:ajax event="keyup" update="aMaternoMessage" />
+								<p:ajax event="blur" update="aMaternoMessage" />
+								<pe:keyFilter
+									regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]/"
+									preventPaste="false" />
+							</p:inputText>
+							<p:message for="aMaterno" id="aMaternoMessage"/>
+						</div>
+						<div class="ui-g-4 ui-sm-4">
+							<p:outputLabel value="#{messageSource['etiqueta_generales_nombre']}:"
+										   for="nombre" />
+							<p:inputText id="nombre"
+										onblur="this.value=this.value.trim();"
+										value="#{mbCursos.dto.nombre}"
+										onkeypress="if (event.keyCode == 13) { return false; }"
+										maxlength="20"
+									 	required="true"
+									 	validatorMessage="#{messageSource['validacion_mensajes_generales_caracteresValidos_nombre']}"
+									 	requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+							 	<f:validateRegex
+									pattern="^([a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]*)|([+-]?)$" />
+								<p:ajax event="keyup" update="nombreMessage" />
+								<p:ajax event="blur" update="nombreMessage" />
+								<pe:keyFilter
+									regEx="/[a-zA-Z\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]/"
+									preventPaste="false" />
+							</p:inputText>
+							<p:message for="nombre" id="nombreMessage"/>
+						</div>
+					</div>
+					</div>
+				</div>
+			</div>
+			<!-- FIN DATOS GENERALES -->
+			<!-- DOMICILIO -->
+			<div class="card">
+				<h2>#{messageSource['etiqueta_cursos_domicilio_sede']}</h2>
+				<div class="ui-g">
+					<div class="ui-g-12">
+						<p><span class="requerido"></span>#{messageSource['etiqueta_cursos_domicilio']}</p>
+						<div class="ui-g-12">
+							<p:selectOneRadio id="mismoDomicilio"
+											  layout="responsive"
+											  columns="3"
+											  value="#{mbCursos.dto.mismoDomicilio}"
+											  required="true"
+											  requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+						        <f:selectItems value="#{mbCursos.enumDomicilio}"
+											   var="vistaMismoDom"
+											   itemLabel="#{vistaMismoDom.description}"
+											   itemValue="#{vistaMismoDom}"/>
+								<p:ajax event="change" resetValues="true" listener="#{mbCursos.seleccionaDomJunta()}" update="mismoDomicilioMessage panelDomicilio sinNumero mismoDomicilio mensajesGlobal" />
+							 </p:selectOneRadio>
+							 <p:message for="mismoDomicilio" id="mismoDomicilioMessage"/>
+						</div>
+					</div>
+					<p:outputPanel id="panelDomicilio">
+						<div class="ui-g-12 ui-sm-12">
+							<div class="ui-g-6">
+								<p:outputLabel value="#{messageSource['etiqueta_generales_calle']}:" for="calle"/>
+								<p:inputText id="calle"
+											 required ="false"
+											 disabled="#{mbCursos.deshabilitaDomicilio}"
+											 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+											 onblur="this.value=this.value.trim();"
+											 value="#{mbCursos.dto.calle}"
+											 onkeypress="if (event.keyCode == 13) { return false; }"
+											 maxlength="50">
+										<f:validateRegex pattern="^([a-zA-Z0-9\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]*)|([+-]?)$" />
+										<p:ajax event="keyup" update="calleMessage"/>
+										<pe:keyFilter
+											regEx="/[a-zA-Z0-9\u00E1\u00E9\u00ED\u00F3\u00FA\u00C1\u00C9\u00CD\u00D3\u00DA\u00D1\u00F1\u00DC\u00FC   ]/"
+											preventPaste="false" />
+								</p:inputText>
+								<p:message for="calle" id="calleMessage"/>
+							</div>
+							<p:outputPanel id="numeroIntExtPanel">
+								<p:outputPanel>
+								<div class="ui-g-2">
+									<p:outputLabel value="#{messageSource['etiqueta_generales_numero_exterior']}:" for="numeroExt"/>
+									<p:inputText id="numeroExt"
+												 onblur="this.value=this.value.trim();"
+												 value="#{mbCursos.dto.numeroExterior}"
+												 disabled="#{mbCursos.sinNumero or mbCursos.deshabilitaDomicilio}"
+												 onkeypress="if (event.keyCode == 13) { return false; }"
+												 maxlength="15">
+										<!-- <f:validateRegex pattern="^([a-zA-Z0-9]*) /|([+-]?)$" /> -->
+										<p:ajax resetValues="true" event="keyup" update="numeroExtMessage" />
+										<pe:keyFilter regEx="/[0-9 A-Z a-z \/\-\.]/" preventPaste="false" />
+									</p:inputText>
+									<p:message for="numeroExt" id="numeroExtMessage"/>
+								</div>
+								<div class="ui-g-2">
+									<p:outputLabel value="#{messageSource['etiqueta_generales_numero_interior']}:" for="numeroInt"/>
+									<p:inputText id="numeroInt"
+												 onblur="this.value=this.value.trim();"
+												 disabled="#{mbCursos.sinNumero or mbCursos.deshabilitaDomicilio}"
+												 value="#{mbCursos.dto.numeroInterior}"
+												 onkeypress="if (event.keyCode == 13) { return false; }"
+												 maxlength="15">
+										<!-- <f:validateRegex pattern="^([a-zA-Z0-9]*)|([+-]?)$" />  -->
+										<p:ajax resetValues="true" event="keyup" update="numeroIntMessage" />
+										<pe:keyFilter regEx="/[0-9 A-Z a-z \/\-\.]/" preventPaste="false" />
+									</p:inputText>
+									<p:message for="numeroInt" id="numeroIntMessage"/>
+								</div>
+								</p:outputPanel>
+							</p:outputPanel>
+							<div class="ui-g-2">
+								<p:outputLabel value="#{messageSource['etiqueta_cursos_sin_numero_domicilio']}" for="sinNumero"/>
+								<p:selectBooleanCheckbox id="sinNumero"
+														 disabled="#{mbCursos.deshabilitaDomicilio}"
+											 			 value="#{mbCursos.sinNumero}">
+									<p:ajax resetValues="true" listener="#{mbCursos.seleccionaSinNumero()}" process="@this" update="numeroIntExtPanel"/>
+								</p:selectBooleanCheckbox>
+							</div>
+						</div>
+						<div class="ui-g-12 ui-sm-12">
+							<div class="ui-g-6">
+								<p:outputLabel value="#{messageSource['etiqueta_generales_entidad_federativa']}"
+									for="entidadFederativa" />
+								<p:selectOneMenu id="entidadFederativa"
+												 required ="false"
+												 disabled="#{mbCursos.deshabilitaDomicilio}"
+											 	 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+												 value="#{mbCursos.dto.idEstadoDomicilio}">
+									<f:selectItem itemLabel="Selecciona" itemValue="${null}"/>
+									<f:selectItems value="#{mbCursos.entidades}"
+										var="entidad"
+										itemLabel="#{entidad.idEstado}.- #{entidad.nombreEstado}"
+										itemValue="#{entidad.idEstado}" />
+				
+									<p:ajax event="change" update="entidadFederativaMessage" />
+									<p:ajax event="change" onstart="PF('progress').block()"
+										onsuccess="PF('progress').unblock()"
+										listener="#{mbCursos.cargaMunicipios()}"
+										update="municipios" process="@this" />
+								</p:selectOneMenu>
+								<p:messages id="entidadFederativaMessage" for="entidadFederativa"></p:messages>
+							</div>
+							<div class="ui-g-6">
+								<p:outputLabel value="#{messageSource['etiqueta_generales_delegacion_municipio']}"
+											   for="municipios" />
+								<p:selectOneMenu id="municipios" 
+											     value="#{mbCursos.dto.idMunicipioDomicilio}"
+											     disabled="#{mbCursos.deshabilitaDomicilio}"
+											     required ="false"
+											   	 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+									<f:selectItem itemLabel="Selecciona" itemValue="${null}" />
+									<f:selectItems value="#{mbCursos.municipios}" var="municipio"
+										itemLabel="#{municipio.idMunicipio}.- #{municipio.nombreMunicipio}"
+										itemValue="#{municipio.idMunicipio}" />
+									<p:ajax event="change" update="municipiosMessage" />
+								</p:selectOneMenu>
+								<p:messages id="municipiosMessage" for="municipios"></p:messages>
+							</div>
+						</div>
+						<div class="ui-g-12 ui-sm-12">
+							<div class="ui-g-8">
+										<p:outputLabel value="#{messageSource['etiqueta_generales_colonia_localidad']}:" for="colonia"/>
+										<p:inputText id="colonia"
+													 required ="false"
+													 disabled="#{mbCursos.deshabilitaDomicilio}"
+											 		 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+													 onblur="this.value=this.value.trim();"
+													 onkeypress="if (event.keyCode == 13) { return false; }"
+													 maxlength="50" value="#{mbCursos.dto.colonia}">
+											<p:ajax event="keyup" update="coloniaMessage" />
+										</p:inputText>
+										<p:message for="colonia" id="coloniaMessage"/>
+							</div>
+							<div class="ui-g-4">
+									<p:outputLabel value="#{messageSource['etiqueta_generales_codigo_postal']}:" for="codigoPostal"/>
+									<p:inputText id="codigoPostal"
+												 required ="false"
+												 disabled="#{mbCursos.deshabilitaDomicilio}"
+											 	 requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+												 onblur="this.value=this.value.trim();"
+												 value="#{mbCursos.dto.codigoPostal}"
+												 onkeypress="if (event.keyCode == 13) { return false; }"
+												 maxlength="5">
+										<f:validateRegex pattern="[0-9]*$" />
+										<p:ajax event="keyup" update="codigoPostalMessage" />
+										<pe:keyFilter regEx="/[0-9]/" preventPaste="false" />
+									</p:inputText>
+									<p:message for="codigoPostal" id="codigoPostalMessage"/>
+							</div>
+						</div>
+					</p:outputPanel>
+					<div class="ui-g-12 ui-sm-12">
+						<p:outputLabel value="#{messageSource['etiqueta_cursos_comentarios_observaciones']}:"
+									   for="observaciones"/>
+						<p:inputTextarea id="observaciones"
+										 maxlength="380"
+										 value="#{mbCursos.dto.observaciones}"
+										 counter="display"
+										 counterTemplate="Restan {0} caracteres."/>
+						<h:outputText id="display"/>
+					</div>
+				</div>
+			</div>
+			<!-- FIN DOMICILIO -->
+			
+</ui:composition>

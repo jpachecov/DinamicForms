@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+	<div class="ui-g">
+		<h2>#{messageSource['etiqueta_solicitudes_titulo_info']}</h2>
+	</div>
+	<div class="ui-g">
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-8 ui-md-8 ui-sm-12">
+				<p:outputLabel for="radioAgrupacion" style="font-weight: bold;"
+					value="#{messageSource['etiqueta_origen']}" />
+				<p:selectOneRadio layout="responsive" columns="2"
+					id="radioOrigen" value="#{mbObservadores.observadorCaptura.origenSolicitud}" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" >
+					<f:selectItem itemLabel="#{messageSource['etiqueta_INE']}" itemValue="0" />
+					
+<!-- 					<f:selectItem itemLabel="#{messageSource['etiqueta_junta_local']}" itemValue="0" /> -->
+<!-- 					<f:selectItem itemLabel="#{messageSource['etiqueta_junta_distrital']}" itemValue="1" /> -->
+<!-- 					<f:selectItem itemLabel="#{messageSource['etiqueta_consejo_local']}" itemValue="2" /> -->
+					<f:selectItem itemLabel="#{messageSource['etiqueta_OPLE']}" itemValue="1" />
+<!-- 					<f:selectItem itemLabel="#{messageSource['etiqueta_consejo_distrital']}" itemValue="3" /> -->
+				</p:selectOneRadio>
+				<p:message for="radioOrigen" display="text" id="msgOrigen" />
+			</div>
+		</div>		
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-6 ui-md-6 ui-sm-12">
+				<p:outputLabel for="radioAgrupacion" style="font-weight: bold;"
+					value="#{messageSource['etiqueta_agrupacion_individual']}" />
+				<p:selectOneRadio layout="responsive" columns="2" id="radioAgrupacion" value="#{mbObservadores.tipoSolicitud}" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" >
+					<f:selectItem itemLabel="#{messageSource['etiqueta_individual']}" itemValue="0" />
+					<f:selectItem itemLabel="#{messageSource['etiqueta_agrupacion']}" itemValue="1" />
+					<p:ajax event="change"  update="escondeAgrupacion1" listener="#{mbObservadores.escondeNombreAgrupacion()}" />
+				</p:selectOneRadio>
+				<p:message for="radioAgrupacion" display="text" id="msgAgrupacion" />
+			</div>
+		</div>
+		
+		<p:panel id="escondeAgrupacion1"  styleClass="ui-g-12 ui-md-12 ui-sm-12" style="border-color: white;" >		
+		 
+		<p:outputPanel id="escondeAgrupacion" rendered="#{mbObservadores.habilitaAgrupacion}"  styleClass="ui-g-10 ui-md-10 ui-sm-12">
+		<div class="md-inputfield ui-g-12 ui-md-12 ui-sm-12">
+				<p:autoComplete id="nombreAgrupacion" dropdown="true"
+					value="#{mbObservadores.busqueda}"
+					completeMethod="#{mbObservadores.filtraAgrupaciones}"
+					style="width:100%" scrollHeight="250"
+					onkeypress="if (event.keyCode == 13) { return false; }" placeholder="Nombre de la agrupación">
+					<p:ajax event="itemSelect"  listener="#{mbObservadores.muestraAgrupacion()}"  />
+				</p:autoComplete>
+			
+		
+		</div>
+		</p:outputPanel> 
+		
+		</p:panel>
+		
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="md-inputfield ui-g-4 ui-md-4 ui-sm-12">
+				<br/>
+				<p:inputText id="seccion" maxlength="4" 
+				value="#{mbObservadores.observadorCaptura.seccion}"
+				onblur="this.value=this.value.trim();"
+				onkeypress="if (event.keyCode == 13) { return false; }" 
+				placeholder="# Secc.">
+				<pe:keyFilter regEx="/[0-9]/" preventPaste="false" />
+				</p:inputText>
+				<p:outputLabel value="#{messageSource['etiqueta_seccion']}" for="seccion" />
+			</div>
+ 
+		</div>
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-4 ui-md-4 ui-sm-12">
+				<p:outputLabel for="fechaSolicitud" style="font-weight: bold;" value="#{messageSource['etiqueta_fecha_solicitud']}" />
+				&nbsp;
+				<p:calendar id="fechaSolicitud" value="#{mbObservadores.observadorCaptura.fechaSolicitudes}" required="true"
+					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" 
+					pattern="dd/MM/yyyy" locale="es" mask="true" navigator="true"
+							converterMessage="#{messageSource['validacion_mensajes_generales_dato_requerido_fecha_invalida']}"
+					placeholder="dd/mm/yyyy">
+					<p:ajax event="keyup" update="msgfechaSolicitud" />
+				</p:calendar>
+				<p:message for="fechaSolicitud" id="msgfechaSolicitud" />
+			</div>
+			<div class="ui-g-8 ui-md-8 ui-sm-12">
+				<p:outputLabel style="font-weight: bold;"
+					value="#{messageSource['etiqueta_fotografia']}" />
+				&nbsp; <br /> <span> #{messageSource['etiqueta_formatos']} </span>
+				<br /> <span>
+					#{messageSource['etiqueta_fotografia_restriccion']} </span>
+			</div>
+		</div>
+		<div class="ui-g ui-g-12 ui-md-12">
+			<div class="ui-g-12 ui-md-12 ui-sm-12">
+				  
+                <div class="md-selectfield">
+<!--                     <p:outputLabel id = "nombreFoto" for="fileFoto" value="#{mbObservadores.observadorCaptura.rutaFoto}"/> -->
+                    <p:panel  id = "message" styleClass="ui-g-12 ui-md-12 ui-sm-12" style="border-color: white;">
+                    <p:outputPanel  rendered="#{mbObservadores.pintaMensajeFoto}"  styleClass="ui-g-8 ui-md-8 ui-sm-12">
+                     <p:outputLabel  style="color: black; font-size: 15px; font-weight: 800;" for="fileFoto" value="#{mbObservadores.mensajeFoto}" />
+                    </p:outputPanel>
+                    </p:panel>
+                    <p:fileUpload id="fileFoto"  label="#{messageSource['etiqueta_boton_examinar']}"
+                                  mode="advanced" allowTypes="/(\.|\/)(jpg|jpeg|png|gif)$/"
+                                  invalidFileMessage="#{messageSource['mensaje_etiqueta_boton_examinar_formatoInvalido']}"
+                                  sizeLimit="1000000" skinSimple="true" process="@this claveElector1 claveElector2 claveElector3" cancelLabel="Cancelar" uploadLabel="Subir archivo"
+                                  invalidSizeMessage="#{messageSource['mensaje_archivos_tamano_incorrecto']}" update="fileFoto  message"
+                                  auto="false" fileUploadListener="#{mbObservadores.subirArchivoListado}" fileLimit="1"  />
+                      
+                </div>
+             
+		</div>
+	</div>
+	</div>
+</ui:composition>

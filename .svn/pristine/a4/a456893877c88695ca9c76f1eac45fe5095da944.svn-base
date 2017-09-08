@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	  start-state="consulta" parent="parent-flow">
+
+	  <secured
+		attributes="
+		ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+		ROLE_OBSERVADORES.ADMIN.CAPTURA.OC,
+		ROLE_OBSERVADORES.CONSEJERO.OC,
+		ROLE_OBSERVADORES.CONSULTA.OC,
+		ROLE_OBSERVADORES.CAU.OC,
+		ROLE_OBSERVADORES.CONSULTA.JL,
+		ROLE_OBSERVADORES.CONSULTA.JD,
+		ROLE_OBSERVADORES.CAPTURA.JL,
+		ROLE_OBSERVADORES.CAPTURA.JD"
+		match="any" />
+	  <!-- MB -->
+	  <var name="mbCursos" class="mx.ine.observadoresINE.mb.MBCursos"/>
+	  
+	  <view-state id="consulta" view="consulta.xhtml">
+	  	<on-entry>
+	  		<evaluate expression="mbCursos.setAccion('CO')"/>
+	  		<evaluate expression="mbCursos.initConsulta()"/>
+	  		<evaluate expression="mbAdmin.dto.setIdModulo(5)"/>
+			<evaluate expression="mbAdmin.dto.setIdAccion(2)"/>
+			<evaluate expression="mbAdmin.obtenTituloModulo()"/>
+	  	</on-entry>
+	  		<transition on="eliminar" to="consulta"/>
+	  		<transition on="captura" to="capturar" />
+			<transition on="modifica" to="modificar" />
+	  </view-state>
+	  
+	  <view-state id="capturar"
+		view="externalRedirect:servletRelative:/modulos/Cursos/capturar" />
+	  <view-state id="modificar"
+		view="externalRedirect:servletRelative:/modulos/Cursos/modificar" />
+</flow>

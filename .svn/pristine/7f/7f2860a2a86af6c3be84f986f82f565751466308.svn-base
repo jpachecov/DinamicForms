@@ -1,0 +1,49 @@
+/**
+ * @(#)DAOReportesInterface.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+
+package mx.ine.observadoresINE.dao;
+
+import java.util.List;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+
+/**
+ * <code>DAOReportesInterface.java</code> 
+ * 
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public interface DAOReportesInterface {
+    /**
+     * Método encargado de obtener los valores de una tabla de la BD
+     * @param numeroTabla
+     * @return registros de la tabla
+     * 
+     * @author Helaine Flores Cervantes
+     * @since 05/07/2017
+     */
+    List<String> obtenerTabla(int numeroTabla);
+    /**
+     * Método ecargado de obtener los datos del reporte "Control de Observadores"
+     * @param form
+     * @return reporte
+     * @author Helaine Flores Cervantes
+     * @since 16/08/2017
+     */
+    List<Object[]> consultarReporteControlObs(FormRepControlObs form);
+    
+    /**
+	 * Método que consulta datos de agrupaciones para generar reporte.
+	 * @param idFiltroAgrupacion 
+	 * 
+	 * @return
+	 * @throws Exception
+	 */
+	List<Object[]> consultaDatosReporteAgrupaciones(Integer idFiltroAgrupacion) throws Exception;
+    
+}

@@ -1,0 +1,302 @@
+/**
+ * @(#)MBReportesMenu.java 10/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import javax.faces.context.FacesContext;
+
+import mx.ine.common.enums.EnumAmbitoSistema;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleProcesoWS;
+import mx.ine.observadoresINE.bsd.BSDAgrupacionesInterface;
+import mx.ine.observadoresINE.bsd.BSDReportesInterface;
+import mx.ine.observadoresINE.bsd.BSDServiciosGeneralesInterface;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+import mx.ine.observadoresINE.helper.HLPPDFExporter;
+import mx.ine.observadoresINE.util.ApplicationContextUtils;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+import mx.org.ine.servicios.dto.db.DTODistrito;
+import mx.org.ine.servicios.dto.db.DTOEstado;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.primefaces.component.datatable.DataTable;
+import org.primefaces.component.export.Exporter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+/**
+ * Clase para el manejo del menu de los reportes en el sistema de SIJEINE
+ *
+ * @author Carlos Augusto Escalona Navarro
+ * @since 16/03/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class MBReportesMenu extends MBGeneric implements Serializable {
+
+    private static final Log log = LogFactory.getLog(MBReportesMenu.class);
+
+    private static final long serialVersionUID = -3133864829547474819L;
+
+    @Autowired
+    @Qualifier("bsdReportes")
+    protected transient BSDReportesInterface bsdReportes;
+    
+    /**
+     * Data table ligada a la tabla de reporte
+     */
+    private transient DataTable dataTable;
+    
+    /**
+     * Parámetros para manipular excel y pdf
+     */
+    private Map<String, Serializable> parametros;
+    
+    /**
+	 * Objeto BSD para los servicios exclusivos del módulo
+	 */
+	@Autowired
+	@Qualifier("bsdAgrupaciones")
+	protected transient BSDAgrupacionesInterface bsdAgrupaciones;
+    
+	@Autowired
+	@Qualifier("bsdServiciosGenerales")
+	private transient BSDServiciosGeneralesInterface bsdServicios;
+	
+	private List<DTOEstado> entidadesFederativas;
+	private List<DTODistrito> distritos;
+	
+	
+    protected List<Integer> procesos;
+
+	protected String procesosString;
+    protected DTOReportesParametros dtoParametros;
+    protected String nombreReporte;
+    private static Locale MEX = new Locale("es", "MX");
+
+    //Filtros agrupaciones
+	protected DTOUsuarioLogin usuario;
+    
+    
+	/**
+     * Metodo para inicializar los valores de los combos del menu de reportes
+     * segun el nivel del rol de usuario logeado
+     *
+     */
+    public void init() {
+    	try {
+            MBAdministradorSistema mbAdmin = (MBAdministradorSistema) ApplicationContextUtils.getApplicationContext().getBean(Constantes.MB_ADMIN);
+            setUsuario(mbAdmin.obtenUsuario());
+            setEntidadesFederativas(bsdServicios.obtenEstados());
+            if (getUsuario().getVersion().equalsIgnoreCase(Utilidades.mensajeProperties("constante_version_rol_oc"))) {
+                obtenProceso();
+            }     		
+    	} catch (Exception e){
+    		log.error("Error en MBReportesMenu - init()");
+    		log.error(e);
+    		e.printStackTrace();
+    	}
+
+    }
+    
+    protected void obtenProceso() {
+        String idProcesos = "";
+        if (getUsuario().getListaDetalles() != null) {
+            procesos = new ArrayList<>();
+            Integer proceso = 0;
+            for (DTODetalleProcesoWS detalle : getUsuario().getListaDetalles()) {
+                if (detalle.getIdProcesoElectoral() != proceso) {
+                    if (idProcesos != null && !idProcesos.isEmpty()) {
+                        idProcesos += ", ";
+                    }
+                    idProcesos += detalle.getIdProcesoElectoral();
+                    procesos.add(detalle.getIdProcesoElectoral());
+                }
+                proceso = detalle.getIdProcesoElectoral();
+            }
+            if (idProcesos != null && !idProcesos.isEmpty()) {
+                setProcesosString(idProcesos);
+            }
+        }
+    }
+
+    protected String regresaRol() {
+        String rolUsuario = getUsuario().getRolUsuario();
+        if (rolUsuario.matches(".*OC.*")) {
+            return "OC";
+        } else if (rolUsuario.matches(".*JL.*")) {
+            return "JL";
+        } else if (rolUsuario.matches(".*JD.*")) {
+            return "JD";
+        }
+        return null;
+    }
+
+    protected void inicializaParametrosEncabezado() {
+        dtoParametros = new DTOReportesParametros();
+        Date fecha = new Date();
+        SimpleDateFormat formateador = new SimpleDateFormat("dd/MMMM/yyyy HH:mm", MEX);
+        Integer idEstado = getUsuario().getIdEstadoSeleccionado();
+        Integer idDistrito = getUsuario().getIdDistritoSeleccionado();
+        if (idEstado != null && idEstado > 0) {
+            localizaEstado(idEstado);
+        } else {
+            dtoParametros.setDescEntidad("OFICINAS CENTRALES");
+        }
+        if (idDistrito != null && idDistrito > 0) {
+            dtoParametros.setIdDistrito(getUsuario().getIdDistritoSeleccionado());            
+            localizaDistrito(idDistrito);
+        }
+        dtoParametros.setFechaHora(formateador.format(fecha));
+    }
+
+    /**
+     * Método encargado de localizar el estado seleccionado de una lista
+     * @param idEstado 
+     */
+    private void localizaEstado(Integer idEstado) {
+        for (DTOEstado estado : entidadesFederativas) {
+            if (estado.getIdEstado().equals(idEstado)) {
+                dtoParametros.setDescEntidad(estado.getNombreEstado());
+                break;
+            }
+        }
+    }
+
+    /**
+     * Método encargado de localizar el distrito seleccionado de una lista
+     * @param idDistrito 
+     */
+    private void localizaDistrito(Integer idDistrito) {
+    	try {
+        	setDistritos(bsdServicios.obtenDistritos(usuario.getIdEstadoSeleccionado(), EnumAmbitoSistema.F));
+            for (DTODistrito distrito : distritos) {
+                if (distrito.getIdDistrito().equals(idDistrito)) {
+                    dtoParametros.setDescDistrito(distrito.getCabeceraDistrital());
+                    break;
+                }
+            }
+    		
+    	} catch(Exception e){
+    		log.error("Error en localizaDistrito para idDistrito: " + idDistrito);
+    		log.error(e);
+    		e.printStackTrace();
+    	}
+    }
+    
+    /**
+     * Método encargado de exportar la tabla a formato PDF
+     *
+     */
+    protected void exportPDF(String titulo) throws IOException {
+    	FacesContext context = FacesContext.getCurrentInstance();
+        Exporter exporter = new HLPPDFExporter(parametros);
+        exporter.export(context, dataTable, titulo,
+                    false, false, "ISO-8859-1", null, null);
+        context.responseComplete();
+    }
+    
+    /**
+     * Método encargado de obtener la versión del sistema al entrar al reporte
+     * 
+     */
+    protected void obtenVersion(){
+    	DTOUsuarioLogin usuario = getUsuario();
+        Integer idEstado = usuario.getIdEstadoSeleccionado() == null ? 0 : 
+        	usuario.getIdEstadoSeleccionado();
+        Integer idDistrito = usuario.getIdDistritoSeleccionado() == null ? 0 : 
+        	usuario.getIdDistritoSeleccionado();
+        //Version OC y JL
+        if(idEstado.intValue() >= 0 && idDistrito.intValue() == 0){
+        	parametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, 
+        			usuario.getEstadoSeleccionado());
+//            dto.setVersion(Constantes.OC);
+        }
+        /*else if(idEstado.intValue() > 0 && idDistrito.intValue() == 0){
+//            dto.setVersion(Constantes.JL);
+            parametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, 
+            		usuario.getEstadoSeleccionado());
+        }*/
+        //Version JD
+        else if(idEstado.intValue() > 0 & idDistrito.intValue() > 0){
+//        	dto.setVersion(Constantes.JD);
+            parametros.put(Constantes.PARAMETRO_OBJECT_ESTADO, 
+            		usuario.getEstadoSeleccionado());
+            parametros.put(Constantes.PARAMETRO_OBJECT_DISTRITO, 
+            		usuario.getDistritoSeleccionado());
+        }
+    }
+
+    protected void postProcessXLS(Object document) {
+        dtoParametros.setRutaImgEstado("");
+       dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+   }
+
+    
+    /*****************************GETTERS AND SETTERS**************************************/
+
+    public DTOUsuarioLogin getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(DTOUsuarioLogin usuario) {
+		this.usuario = usuario;
+	}
+
+    public DTOReportesParametros getDtoParametros() {
+        return dtoParametros;
+    }
+
+    public void setDtoParametros(DTOReportesParametros dtoParametros) {
+        this.dtoParametros = dtoParametros;
+    }
+    
+	public DataTable getDataTable() {
+		return dataTable;
+	}
+
+	public void setDataTable(DataTable dataTable) {
+		this.dataTable = dataTable;
+	}
+	
+    public String getProcesosString() {
+		return procesosString;
+	}
+	public void setProcesosString(String procesosString) {
+		this.procesosString = procesosString;
+	}
+	public void setParametros(Map<String, Serializable> parametros) {
+		this.parametros = parametros;
+	}
+
+	public List<DTOEstado> getEntidadesFederativas() {
+		return entidadesFederativas;
+	}
+
+	public void setEntidadesFederativas(List<DTOEstado> entidadesFederativas) {
+		this.entidadesFederativas = entidadesFederativas;
+	}
+
+	public List<DTODistrito> getDistritos() {
+		return distritos;
+	}
+
+	public void setDistritos(List<DTODistrito> distritos) {
+		this.distritos = distritos;
+	}
+	
+}

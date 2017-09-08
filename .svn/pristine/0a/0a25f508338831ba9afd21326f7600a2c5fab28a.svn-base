@@ -1,0 +1,60 @@
+/**
+ * @(#)BSDReportesInterface.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.bsd;
+
+import java.util.List;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleDistritoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleEstadoProcesoWS;
+import mx.ine.common.ws.api.exception.ClienteWebServiceException;
+import mx.ine.observadoresINE.dto.DTOFiltrosReporte;
+import mx.org.ine.servicios.exception.ApplicationException;
+
+/**
+ * <code>BSDReportesInterface.java</code>
+ *
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public interface BSDReportesInterface {
+
+    /**
+     *
+     * @author Carlos Augusto Escalona Navarro 13/03/2017
+     * @param filtros
+     * @return
+     * @throws mx.ine.common.ws.api.exception.ClienteWebServiceException
+     */
+    public List<DTODetalleDistritoProcesoWS> getDistritos(DTOFiltrosReporte filtros) throws ClienteWebServiceException;
+
+    /**
+     *
+     * @author Carlos Augusto Escalona Navarro 13/03/2017
+     * @param idSistema
+     * @param idProceso
+     * @param idDetalle
+     * @return
+     * @throws mx.ine.common.ws.api.exception.ClienteWebServiceException
+     */
+    public List<DTODetalleEstadoProcesoWS> obtenEstadosPorProcesoDetalle(Integer idSistema, Integer idProceso,
+            Integer idDetalle) throws ClienteWebServiceException;
+
+    /**
+     * Método encargado de obtener los valores de una tabla de la BD
+     *
+     * @param numeroTabla
+     * @return registros de la tabla
+     *
+     * @author Helaine Flores Cervantes
+     * @throws mx.org.ine.servicios.exception.ApplicationException
+     * @since 05/07/2017
+     */
+    List<String> obtenerTabla(int numeroTabla) throws ApplicationException;
+;
+
+}

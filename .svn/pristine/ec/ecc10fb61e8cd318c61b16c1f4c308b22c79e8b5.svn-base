@@ -1,0 +1,65 @@
+/**
+ * @(#)ASGenericImpl.java 07/08/2017
+ * <p>
+ * Copyright (C) 2017 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.as.impl;
+
+import java.io.Serializable;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import mx.ine.observadoresINE.as.ASGenericInterface;
+import mx.ine.observadoresINE.dao.DAOCImagenesInterface;
+import mx.ine.observadoresINE.dao.DAOCTextosInterface;
+import mx.ine.observadoresINE.dto.db.DTOCImagenes;
+import mx.ine.observadoresINE.dto.db.DTOCTextos;
+
+/**
+ * <code>ASGenericImpl.java</code> 
+ *
+ * @author Pablo Zuñiga Mata
+ * @since 07/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Component("asGeneric")
+@Scope("prototype")
+public class ASGenericImpl implements ASGenericInterface{
+
+	@Autowired
+	@Qualifier("daoCTextos")
+	private DAOCTextosInterface daoCTextos;
+	
+	@Autowired
+	@Qualifier("daoCImagenes")
+	private DAOCImagenesInterface daoCImagenes;
+
+	/* (non-Javadoc)
+	 * @see mx.ine.observadoresINE.as.ASGenericInterface#obtenTextos(java.lang.Integer, java.lang.Integer, java.lang.Integer)
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCTextos> obtenTextos(Integer idProceso, Integer idDetalle,
+			Integer idParrafo, Integer idTexto) throws Exception {
+		return daoCTextos.obtenTextos(idProceso, idDetalle, idParrafo, idTexto);
+	}
+
+	/* (non-Javadoc)
+	 * @see mx.ine.observadoresINE.as.ASGenericInterface#obtenRutasIMG(java.lang.Integer, java.lang.Integer, java.lang.Integer)
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCImagenes> obtenRutasIMG(Integer idProceso,
+			Integer idDetalle, List<Integer> listIdImagen) throws Exception {
+		return daoCImagenes.obtenRutas(idProceso, idDetalle, listIdImagen);
+	}
+
+}

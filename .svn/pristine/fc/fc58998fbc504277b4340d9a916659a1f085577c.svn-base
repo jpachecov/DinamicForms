@@ -1,0 +1,691 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+
+	<div class="ui-g card">
+
+		<h1>#{messageSource['etiqueta_titulo_catalogo_evaluaciones']}</h1>
+
+
+		<!--- Mensaje de información para captura inicial de catálogos-->
+		<!-- 		<p:outputPanel styleClass="ui-g-12" -->
+		<!-- 			rendered="#{mbConfigCat.existenRegistros}"> -->
+		<!-- 			<div class="ui-messages ui-widget" aria-live="polite"> -->
+		<!-- 				<div class="ui-messages-info ui-corner-all"> -->
+		<!-- 					<a href="#" class="ui-messages-close" -->
+		<!-- 						onclick="$(this).parent().slideUp();return false;"> </a> <span -->
+		<!-- 						class="ui-messages-info-icon"></span> -->
+		<!-- 					<ul> -->
+		<!-- 						<li><span class="ui-messages-info-detail">#{messageSource['mensaje_instrucciones_registros_encontrados_otros_modulos']}</span></li> -->
+		<!-- 					</ul> -->
+		<!-- 				</div> -->
+		<!-- 			</div> -->
+		<!-- 		</p:outputPanel> -->
+
+		<!-- 		<p:outputPanel styleClass="ui-g-12" -->
+		<!-- 			rendered="#{!mbConfigCat.existenRegistros}"> -->
+
+		<p:outputPanel id="panelCapturaPrincipal" styleClass="ui-g-12">
+
+			<ui:include src="mensajesBloqueo.xhtml" />
+
+			<ui:include src="requerido.xhtml" />
+
+			<ui:include src="procesoDetalle.xhtml" />
+
+			<!-- División -->
+			<div class="divider" />
+
+			<!-- **************************************************************************** -->
+			<!-- *************************   VISTA DE CAPTURAR   **************************** -->
+			<!-- **************************************************************************** -->
+			<p:outputPanel id="panelCaptura" styleClass="ui-g-12"
+				rendered="#{mbConfigCat.isRendered(mbConfigCat.accionCapturar) and mbConfigCat.muestraForm}"
+				style="margin-top: 0px;">
+
+
+				<!--- Mensaje de información para captura inicial de catálogos-->
+				<p:outputPanel rendered="#{mbConfigCat.cargaSeleccionada eq false}">
+					<div class="ui-messages ui-widget" aria-live="polite">
+						<div class="ui-messages-info ui-corner-all">
+							<a href="#" class="ui-messages-close"
+								onclick="$(this).parent().slideUp();return false;"> </a> <span
+								class="ui-messages-info-icon"></span>
+							<ul>
+								<li><span class="ui-messages-info-detail">#{messageSource['mensaje_instrucciones_catalogo_evaluaciones_captura']}</span></li>
+							</ul>
+						</div>
+					</div>
+				</p:outputPanel>
+
+
+				<!-- Tabla de evaluaciones -->
+				<div class="ui-g-12">
+
+					<!-- Tabla de carga incial -->
+					<p:dataTable id="listaEvaluaciones"
+						value="#{mbConfigCat.evaluacionesPredefinidas}" var="evaluacion"
+						selection="#{mbConfigCat.evaluacionesSeleccionadas}"
+						rowKey="#{evaluacion.descripcion}">
+
+						<f:facet name="header">
+         				   #{messageSource['etiqueta_titulo_catalogo_evaluaciones']}
+        				</f:facet>
+
+						<p:column selectionMode="multiple"
+							style="width:25px;text-align:center" />
+
+
+						<p:column
+							headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">
+							#{evaluacion.descripcion}	
+        				</p:column>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_evaluaciones_tipo']}">
+							<center>#{evaluacion.tipo}</center>
+						</p:column>
+
+						<!-- Columna para observar detalle de las reglas asociadas a esta evaluacion -->
+						<p:column style="width:32px;text-align: center">
+							<p:commandButton
+								update=":formConfigCat:dialogoFormEvaluacionesReglas"
+								oncomplete="PF('evaluacionDialog').show()" icon="ui-icon-search"
+								title="#{messageSource['etiqueta_reglas_descripcion_evaluacion_ver_reglas_asociadas']}"
+								actionListener="#{mbConfigCat.obtenReglasPorEvaluacionInicial(evaluacion)}">
+
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+				</div>
+
+				<div class="divider" />
+
+				<!--- Mensaje de información para captura inicial de catálogos-->
+				<p:outputPanel rendered="#{mbConfigCat.cargaSeleccionada eq false}">
+					<div class="ui-messages ui-widget" aria-live="polite">
+						<div class="ui-messages-info ui-corner-all">
+							<a href="#" class="ui-messages-close"
+								onclick="$(this).parent().slideUp();return false;"> </a> <span
+								class="ui-messages-info-icon"></span>
+							<ul>
+								<li><span class="ui-messages-info-detail">#{messageSource['mensaje_configuracion_por_defecto']}</span></li>
+							</ul>
+						</div>
+					</div>
+				</p:outputPanel>
+
+				<div class="ui-g-12">
+					<p:dataTable id="evaluacionesPorDefecto"
+						value="#{mbConfigCat.evaluacionesXDefault}" var="evaluacion">
+
+						<f:facet name="header">
+         				   #{messageSource['etiqueta_titulo_evaluaciones_por_defecto']}
+        				</f:facet>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">
+							#{evaluacion.descripcion}	
+        				</p:column>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_evaluaciones_tipo']}">
+							<center>#{evaluacion.tipo}</center>
+						</p:column>
+
+						<!-- Columna para observar detalle de las reglas asociadas a esta evaluacion -->
+						<p:column style="width:32px;text-align: center">
+							<p:commandButton
+								update=":formConfigCat:dialogoFormEvaluacionesReglas"
+								oncomplete="PF('evaluacionDialog').show()" icon="ui-icon-search"
+								title="#{messageSource['etiqueta_reglas_descripcion_evaluacion_ver_reglas_asociadas']}"
+								actionListener="#{mbConfigCat.obtenReglasPorEvaluacionInicial(evaluacion)}">
+
+							</p:commandButton>
+						</p:column>
+
+					</p:dataTable>
+				</div>
+
+
+				<!-- Dialogo de las reglas asociadas a la evaluacion -->
+				<p:dialog id="dialogoFormEvaluacionesReglas"
+					widgetVar="evaluacionDialog" closable="true" styleClass="ui-g-12"
+					header="#{messageSource['etiqueta_titulo_reglas_aosciadas_evaluacion']}">
+					<p:outputPanel id="panelDialogReglas">
+						<p:dataTable id="listaReglasAsociadas"
+							value="#{mbConfigCat.reglasAsociadasEva}" var="rule"
+							selection="#{mbConfigCat.nuevasReglasSeleccionadas}"
+							rowKey="#{rule.descripcionRegla}"
+							emptyMessage="#{messageSource['mensaje_tabla_vacia_reglas']}"
+							sortOrder="ascending" sortBy="#{rule.idRegla}">
+
+							<f:facet name="header">
+         				   #{messageSource['etiqueta_titulo_reglas_aosciadas_evaluacion']}
+        				</f:facet>
+
+							<p:column selectionMode="multiple"
+								style="width:25px;text-align:center" />
+
+							<p:column
+								headerText="#{messageSource['etiqueta_reglas_numero_regla']}">			
+        							#{rule.idRegla}
+        					</p:column>
+
+							<p:column
+								headerText="#{messageSource['etiqueta_reglas_descripcion_regla']}">
+        					#{rule.descripcionRegla}
+        				</p:column>
+
+						</p:dataTable>
+					</p:outputPanel>
+
+					<div class="ui-g-12">
+						<center>
+							<p:commandButton id="cancelaReglasEvaluacion"
+								style="background-color: #ffffff; color: #2e333f;"
+								value="#{messageSource['etiqueta_boton_cancelar']}"
+								actionListener="#{mbConfigCat.limpiaTablaReglas()}"
+								onclick="PF('evaluacionDialog').hide()">
+
+								<p:ajax update="dialogoForm" resetValues="true" />
+
+							</p:commandButton>
+						</center>
+					</div>
+
+				</p:dialog>
+
+
+				<!-- Botón de agregar evaluacion -->
+				<div class="ui-g-2">
+					<p:commandButton id="agregarSeleccionadas"
+						onclick="PF('formularioNuevaEvaluacion').show()"
+						value="#{messageSource['etiqueta_boton_agregar_evaluacion']}"
+						style="background-color: #2e333f;" icon="ui-icon-add" />
+				</div>
+
+				<!-- Dialogo -->
+				<p:dialog id="dialogoForm" widgetVar="formularioNuevaEvaluacion"
+					closable="false" styleClass="ui-g-12"
+					header="#{messageSource['etiqueta_titulo_agrega_nueva_evaluacion']}">
+
+					<div class="ui-g-12">
+						<p:outputPanel id="formNewEvaluacion" styleClass="ui-g-12">
+
+							<!-- Input para descripcion del cargo -->
+							<div class=" ui-g-12">
+								<div class="ui-g-2">
+									<p:outputLabel value="ACREDITÓ..."
+										style="color:#db46a3; font-weight: bold;" />
+								</div>
+								<div class="ui-g-10">
+									<div class=" md-inputfield">
+										<p:inputText id="newEvaluacionDescripcion"
+											value="#{mbConfigCat.descripcionEvaluacion}"
+											onblur="this.value=this.value.toUpperCase().trim();"
+											onkeypress="if (event.keyCode == 13) { return false; }"
+											maxlength="200">
+											<f:validateRegex
+												pattern="#{messageSource['validacion_expresion_generales_caracteresValidos_cadenas_texto']}" />
+											<pe:keyFilter
+												regEx="#{messageSource['validacion_expresion_generales_caracteresValidos_cadenas_texto_filtro']}"
+												preventPaste="false" />
+										</p:inputText>
+
+										<p:outputLabel id="textEvaluacionDescripcion"
+											for="newEvaluacionDescripcion"
+											value="#{messageSource['etiqueta_texto_nueva_evaluacion_introducir_descripcion']}" />
+									</div>
+								</div>
+							</div>
+
+							<!-- Input para Tipo -->
+							<div class=" ui-g-12">
+								<div class=" md-selectfield">
+
+									<p:outputLabel id="textEvaluacionTipo" for="newEvaluacionTipo"
+										value="#{messageSource['etiqueta_texto_nueva_evaluacion_introducir_tipo']}" />
+
+									<p:selectOneMenu id="newEvaluacionTipo"
+										value="#{mbConfigCat.tipoEvaluacion}">
+										<f:selectItem itemLabel="Selecciona" itemValue="#{null}" />
+										<f:selectItem itemLabel="A - Acreditó" itemValue="A" />
+										<f:selectItem itemLabel="N - No acreditó" itemValue="N"
+											itemDisabled="true" />
+										<f:selectItem itemLabel="P - Pendiente" itemValue="P"
+											itemDisabled="true" />
+									</p:selectOneMenu>
+
+								</div>
+
+							</div>
+						</p:outputPanel>
+					</div>
+
+					<div class="ui-g-12">
+						<p:outputPanel id="panelReglasCaptura">
+
+
+							<div class="ui-g-12">
+								<p:dataTable id="listaReglasEvaluacion"
+									value="#{mbConfigCat.reglasEvaluacion}" var="regla"
+									selection="#{mbConfigCat.reglasSeleccionadas}"
+									rowKey="#{regla.descripcionRegla}"
+									emptyMessage="#{messageSource['mensaje_tabla_vacia_reglas']}"
+									sortOrder="ascending" sortBy="#{regla.idRegla}">
+
+									<f:facet name="header">
+         				   #{messageSource['etiqueta_tabla_reglas_evaluacion']}
+        				</f:facet>
+
+									<p:column selectionMode="multiple"
+										style="width:25px;text-align:center" />
+
+									<p:column
+										headerText="#{messageSource['etiqueta_reglas_numero_regla']}">			
+        							#{regla.idRegla}
+        					</p:column>
+
+									<p:column
+										headerText="#{messageSource['etiqueta_reglas_descripcion_regla']}">
+        					#{regla.descripcionRegla}
+        				</p:column>
+
+								</p:dataTable>
+
+
+							</div>
+
+							<div class="ui-g-12">
+								<center>
+									<p:commandButton id="addEvaluacion"
+										value="#{messageSource['etiqueta_boton_agregar']}"
+										onclick="PF('formularioNuevaEvaluacion').hide()"
+										update="panelEvaluacionesNuevas mensajesCatalogos dialogoForm"
+										actionListener="#{mbConfigCat.agregaRegistro()}" />
+
+									<!-- 																update="panelJustificacionesNuevas mensajesCatalogos" -->
+
+									<p:commandButton id="cancelaAddEvaluacion"
+										style="background-color: #ffffff; color: #2e333f;"
+										value="#{messageSource['etiqueta_boton_cancelar']}"
+										onclick="PF('formularioNuevaEvaluacion').hide()">
+
+										<p:ajax update="dialogoForm" resetValues="true" />
+
+									</p:commandButton>
+								</center>
+							</div>
+
+
+						</p:outputPanel>
+
+					</div>
+				</p:dialog>
+
+				<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+				<div class="ui-g-12">
+					<p:outputPanel id="panelEvaluacionesNuevas">
+						<p:dataTable id="listaNewEvaluaciones"
+							value="#{mbConfigCat.nuevasEvaluaciones}" var="evaluacion"
+							selection="#{mbConfigCat.nuevasEvaluacionesSeleccionadas}"
+							rowKey="#{evaluacion.descripcion}"
+							rendered="#{mbConfigCat.cargaSeleccionada}"
+							emptyMessage="#{messageSource['mensaje_tabla_vacia_evaluaciones']}">
+
+							<f:facet name="header">
+         				   #{messageSource['etiqueta_tabla_justificaciones_adicionales']}
+        				</f:facet>
+
+							<p:column selectionMode="multiple"
+								style="width:25px;text-align:center" />
+
+							<p:column
+								headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">			
+        					#{evaluacion.descripcion}
+        				</p:column>
+
+							<p:column
+								headerText="#{messageSource['etiqueta_evaluaciones_tipo']}">
+        					#{evaluacion.tipo}
+        				</p:column>
+
+
+							<!-- Columna para observar detalle de las reglas asociadas a esta evaluacion -->
+							<p:column style="width:32px;text-align: center">
+								<p:commandButton
+									update=":formConfigCat:dialogoFormEvaluacionesReglas"
+									oncomplete="PF('evaluacionDialog').show()"
+									icon="ui-icon-search"
+									title="#{messageSource['etiqueta_reglas_descripcion_evaluacion_ver_reglas_asociadas']}"
+									actionListener="#{mbConfigCat.obtenReglasPorEvaluacionUsuario(evaluacion, mbConfigCat.accionCapturar)}">
+								</p:commandButton>
+							</p:column>
+
+
+
+							<p:column style="width:75px;text-align:center"
+								headerText="#{messageSource['etiqueta_boton_eliminar']}">
+								<p:commandButton id="eliminaEvaluacionTabla"
+									icon="ui ui-icon-delete"
+									actionListener="#{mbConfigCat.eliminaModifica(evaluacion)}"
+									onsuccess="rcC();" />
+							</p:column>
+						</p:dataTable>
+					</p:outputPanel>
+				</div>
+
+				<!-- remoteCommand para actualizar tabla al borrar un elemento -->
+				<p:remoteCommand name="rcC"
+					update="panelEvaluacionesNuevas listaNewEvaluaciones" />
+
+				<!-- Botones para guardar catálogo -->
+				<div class="ui-g-12">
+					<center>
+						<p:commandButton id="guardaEvaluaciones"
+							actionListener="#{mbConfigCat.guardaCatalogos()}"
+							value="#{messageSource['etiqueta_boton_guardar']}"
+							update="panelCapturaPrincipal" onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" />
+					</center>
+				</div>
+
+			</p:outputPanel>
+			<!-- Termina vista de captura -->
+
+
+			<!-- **************************************************************************** -->
+			<!-- *************************   VISTA DE CONSULTAR   **************************** -->
+			<!-- **************************************************************************** -->
+			<p:outputPanel id="panelConsulta" styleClass="ui-g-12"
+				rendered="#{mbConfigCat.isRendered(mbConfigCat.accionConsultar) and mbConfigCat.muestraForm}">
+
+				<!-- Tabla de acciones -->
+				<div class="ui-g-12">
+					<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+					<p:dataTable id="listaEvaluacionesConsulta"
+						value="#{mbConfigCat.evaluacionesPredefinidas}" var="evaluacion"
+						emptyMessage="#{messageSource['validacion_mensaje_generales_no_datos']}">
+
+						<f:facet name="header">
+         				   #{messageSource['etiqueta_tabla_evaluaciones_adicionales']}
+        				</f:facet>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">			
+        					#{evaluacion.descripcion}
+        				</p:column>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_evaluaciones_tipo']}">
+        					#{evaluacion.tipo}
+        				</p:column>
+
+					</p:dataTable>
+				</div>
+			</p:outputPanel>
+			<!-- Termina vista de consulta -->
+
+
+			<!-- **************************************************************************** -->
+			<!-- *************************   VISTA DE MODIFICAR   **************************** -->
+			<!-- **************************************************************************** -->
+			<p:outputPanel id="panelModifica" styleClass="ui-g-12"
+				rendered="#{mbConfigCat.isRendered(mbConfigCat.accionModificar) and mbConfigCat.muestraForm}">
+
+				<!-- Tabla de acciones -->
+				<div class="ui-g-12">
+					<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+					<p:dataTable id="listaEvaluacionesModifica"
+						value="#{mbConfigCat.evaluacionesPredefinidas}" var="evaluacion"
+						selection="#{mbConfigCat.evaluacionesSeleccionadas}"
+						emptyMessage="#{messageSource['validacion_mensaje_generales_no_datos']}"
+						rowKey="#{evaluacion.descripcion}">
+
+						<f:facet name="header">
+         				   #{messageSource['etiqueta_titulo_catalogo_evaluaciones']}
+        				</f:facet>
+
+						<p:column selectionMode="multiple"
+							style="width:25px;text-align:center" />
+
+						<p:column
+							headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">			
+        					#{evaluacion.descripcion}
+        				</p:column>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_evaluaciones_tipo']}">
+        					#{evaluacion.tipo}
+        				</p:column>
+
+					</p:dataTable>
+				</div>
+
+				<div class="divider" />
+
+				<!--- Mensaje de información para captura inicial de catálogos-->
+				<p:outputPanel rendered="#{mbConfigCat.cargaSeleccionada eq false}">
+					<div class="ui-messages ui-widget" aria-live="polite">
+						<div class="ui-messages-info ui-corner-all">
+							<a href="#" class="ui-messages-close"
+								onclick="$(this).parent().slideUp();return false;"> </a> <span
+								class="ui-messages-info-icon"></span>
+							<ul>
+								<li><span class="ui-messages-info-detail">#{messageSource['mensaje_configuracion_por_defecto']}</span></li>
+							</ul>
+						</div>
+					</div>
+				</p:outputPanel>
+
+				<div class="ui-g-12">
+					<p:dataTable id="evaluacionesPorDefectoModifica"
+						value="#{mbConfigCat.evaluacionesXDefault}" var="evaluacion">
+
+						<f:facet name="header">
+         				   #{messageSource['etiqueta_titulo_evaluaciones_por_defecto']}
+        				</f:facet>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">
+							#{evaluacion.descripcion}	
+        				</p:column>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_evaluaciones_tipo']}">
+        					#{evaluacion.tipo}
+        				</p:column>
+
+					</p:dataTable>
+				</div>
+
+				<!-- Botón de agregar evaluación -->
+				<div class="ui-g-2">
+					<p:commandButton id="agregarSeleccionadasModifica"
+						onclick="PF('formularioNuevaEvaluacionModifica').show()"
+						value="#{messageSource['etiqueta_boton_agregar_evaluacion']}"
+						style="background-color: #2e333f;" icon="ui-icon-add" />
+				</div>
+
+
+				<!-- Dialogo -->
+				<p:dialog id="dialogoFormModifica"
+					widgetVar="formularioNuevaEvaluacionModifica" closable="true"
+					styleClass="ui-g-12"
+					header="#{messageSource['etiqueta_titulo_agrega_nueva_evaluacion']}">
+
+					<p:outputPanel id="formNewEvaluacionModifica" styleClass="ui-g-12">
+
+						<!-- Input para descripcion del cargo -->
+						<div class=" ui-g-12">
+							<div class=" md-inputfield">
+								<p:inputText id="newEvaluacionDescripcionModifica"
+									value="#{mbConfigCat.descripcionEvaluacion}"
+									onblur="this.value=this.value.toUpperCase().trim();"
+									onkeypress="if (event.keyCode == 13) { return false; }"
+									maxlength="200">
+									<f:validateRegex
+										pattern="#{messageSource['validacion_expresion_generales_caracteresValidos_cadenas_texto']}" />
+									<pe:keyFilter
+										regEx="#{messageSource['validacion_expresion_generales_caracteresValidos_cadenas_texto_filtro']}"
+										preventPaste="false" />
+								</p:inputText>
+								<p:outputLabel id="textEvaluacionDescripcionModifica"
+									for="newEvaluacionDescripcionModifica"
+									value="#{messageSource['etiqueta_texto_nueva_evaluacion_introducir_descripcion']}" />
+							</div>
+
+						</div>
+
+						<!-- Input para tipo -->
+						<div class=" ui-g-12">
+							<div class=" md-selectfield">
+
+								<p:outputLabel id="textEvaluacionTipoModifica"
+									for="newEvaluacionTipoModifica"
+									value="#{messageSource['etiqueta_texto_nueva_evaluacion_introducir_tipo']}" />
+
+								<p:selectOneMenu id="newEvaluacionTipoModifica"
+									value="#{mbConfigCat.tipoEvaluacion}">
+									<f:selectItem itemLabel="Selecciona" itemValue="#{null}" />
+									<f:selectItem itemLabel="A - Acreditó" itemValue="A" />
+									<f:selectItem itemLabel="N - No acreditó" itemValue="N"
+										noSelectionOption="true" />
+									<f:selectItem itemLabel="P - Pendiente" itemValue="P"
+										noSelectionOption="true" />
+								</p:selectOneMenu>
+
+							</div>
+
+						</div>
+
+						<div class="ui-g-12">
+							<center>
+								<p:commandButton id="addEvaluacionModifica"
+									value="#{messageSource['etiqueta_boton_agregar']}"
+									onclick="PF('formularioNuevaEvaluacionModifica').hide()"
+									update="panelEvaluacionesNuevasModifica mensajesCatalogos dialogoFormModifica"
+									actionListener="#{mbConfigCat.agregaRegistro()}" />
+
+								<p:commandButton id="cancelaAddEvaluacionModifica"
+									style="background-color: #ffffff; color: #2e333f;"
+									value="#{messageSource['etiqueta_boton_cancelar']}"
+									onclick="PF('formularioNuevaEvaluacionModifica').hide()">
+
+									<p:ajax update="dialogoFormModifica" resetValues="true" />
+
+								</p:commandButton>
+							</center>
+						</div>
+
+					</p:outputPanel>
+
+				</p:dialog>
+
+				<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+				<div class="ui-g-12">
+					<p:outputPanel id="panelEvaluacionesNuevasModifica">
+						<p:dataTable id="listaNewEvaluacionesModifica"
+							value="#{mbConfigCat.nuevasEvaluaciones}" var="evaluacion"
+							selection="#{mbConfigCat.nuevasEvaluacionesSeleccionadas}"
+							rowKey="#{evaluacion.descripcion}"
+							rendered="#{mbConfigCat.cargaSeleccionada}"
+							emptyMessage="#{messageSource['mensaje_tabla_vacia_evaluaciones']}"
+							sortOrder="ascending" sortBy="#{evalucion.descripcion}">
+
+							<f:facet name="header">
+         				   #{messageSource['etiqueta_tabla_evaluaciones_adicionales']}
+        				</f:facet>
+
+							<p:column selectionMode="multiple"
+								style="width:25px;text-align:center" />
+
+							<p:column
+								headerText="#{messageSource['etiqueta_cargos_responsable_descripcion']}">			
+        					#{evaluacion.descripcion}
+        				</p:column>
+
+							<p:column
+								headerText="#{messageSource['etiqueta_evaluacion_tipo']}">
+        					#{evaluacion.tipo}
+        				</p:column>
+
+							<p:column style="width:75px;text-align:center"
+								headerText="#{messageSource['etiqueta_boton_eliminar']}">
+								<p:commandButton id="eliminaEvaluacionTabla"
+									icon="ui ui-icon-delete"
+									actionListener="#{mbConfigCat.eliminaModifica(justificacion)}"
+									onsuccess="rc();" />
+							</p:column>
+
+						</p:dataTable>
+					</p:outputPanel>
+				</div>
+
+				<!-- remoteCommand para actualizar tabla al borrar un elemento -->
+				<p:remoteCommand name="rc"
+					update="panelEvaluacionesNuevasModifica listaNewEvaluacionesModifica" />
+
+
+				<!-- Boton de guardar modificar -->
+				<div class="ui-g-12">
+					<center>
+						<p:commandButton id="btnGuardarModifca"
+							value="#{messageSource['etiqueta_boton_guardar']}"
+							actionListener="#{mbConfigCat.guardaCatalogos()}"
+							onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" update="@form" />
+
+						<p:commandButton id="btnEliminaEvaluaciones"
+							style="background-color: #ffffff; color: #2e333f;"
+							value="#{messageSource['etiqueta_boton_eliminar_configuracion']}"
+							onclick="PF('confirmaDialogoEliminar').show()" />
+
+						<p:commandButton id="cancelaActionModifica"
+							style="background-color: #ffffff; color: #2e333f;"
+							value="#{messageSource['etiqueta_boton_cancelar']}"
+							action="cancelar" update="@form" />
+
+					</center>
+				</div>
+
+
+				<!-- DIALOGO DE CONFIRMACION PARA ELIMINAR -->
+				<p:confirmDialog widgetVar="confirmaDialogoEliminar"
+					closable="false"
+					header="#{messageSource['etiqueta_titulo_dialogo_elimina']}"
+					severity="info">
+					<f:facet name="message">
+						<h:outputText
+							value="#{messageSource['validacion_mensaje_valida_elimina_configuracion']}"
+							escape="false" />
+					</f:facet>
+					<center>
+						<p:commandButton value="Sí" icon="ui-icon-check" process="@form"
+							update="@form" onclick="PF('confirmaDialogoEliminar').hide()"
+							actionListener="#{mbConfigCat.eliminarCatalogos()}"
+							onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" />
+
+						<p:commandButton value="No" icon="ui-icon-close"
+							onclick="PF('confirmaDialogoEliminar').hide()" />
+					</center>
+				</p:confirmDialog>
+
+			</p:outputPanel>
+			<!-- Termina vista de modificar -->
+
+		</p:outputPanel>
+	</div>
+
+</ui:composition>

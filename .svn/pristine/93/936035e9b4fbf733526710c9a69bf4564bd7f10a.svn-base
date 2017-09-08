@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+	start-state="solicitud_acreditacion">
+
+
+	<var name="mbSolAcreditacion"
+		class="mx.ine.observadoresINE.mb.MBReporteSolicitudAcreditacion" />
+
+	<on-start>
+		<evaluate expression="mbAdmin.dto.setIdModulo(10)"></evaluate>
+		<evaluate expression="mbAdmin.dto.setIdAccion(2)"></evaluate>
+		<evaluate expression="mbAdmin.obtenTituloModulo()"></evaluate>
+		<evaluate expression="mbSolAcreditacion.rutapdf()" />
+	</on-start>
+
+	<view-state id="solicitud_acreditacion" view="solAcreditacion.xhtml" />
+
+</flow>

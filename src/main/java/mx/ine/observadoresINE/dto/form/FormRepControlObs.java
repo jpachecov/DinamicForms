@@ -1,0 +1,320 @@
+/**
+ * @(#)FormRepControlObs.java 14/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dto.form;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import mx.ine.observadoresINE.dto.DTOList;
+import mx.ine.observadoresINE.dto.DTOUsuarioLogin;
+
+/**
+ * Clase de tipo pojo que permite obtener los filtros seleccionados del reporte "Control de Observadores"
+ * 
+ * @author Helaine Flores Cervantes
+ * @since 14/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class FormRepControlObs implements Serializable {
+
+    private static final long serialVersionUID = 7032586926628379272L;
+    /**
+     * Lista que contiene la lista del primer nivel de filtros
+     */
+    private List<DTOList> primerNivelFiltros;
+    /**
+     * Lista que contiene la lista del segundo nivel de filtros
+     */
+    private List<DTOList> segundoNivelFiltros;
+    /**
+     * Lista que contiene la lista del tercer nivel de filtros
+     */
+    private List<DTOList> tercerNivelFiltros;
+    /**
+     * Almacena el valor del primer filtro
+     */
+    private Integer valorPrimerFiltro;
+    /**
+     * Almacena el valor del segundo filtro Radio
+     */
+    private Integer valorSegundoFiltroRadio;
+    /**
+     * Almacena el valor del segundo CheckBox
+     */
+    private Integer[] valorSegundoFiltroCheck;
+    /**
+     * Almacena el valor del tercer filtro
+     */
+    private Integer[] valorTercerFiltro;
+    /**
+     * Opción de fechas para los filtros
+     */
+    private boolean opcionDeFechas;
+    /**
+     * Almacena el valor de selección de la fecha
+     */
+    Boolean mostrarFiltroFechas; 
+    
+    private List<int[]> encabezadoCanDenDecl;
+    
+    private List<Integer> justificaciones;
+    
+    private List<String> descripcionJust;
+    
+    /**
+     * Habilitar Fechas
+     */
+    private boolean habilitarFecha;
+    /**
+     * Valores de fechas
+     */
+    private Date fechaIncio, fechaFin;
+    /**
+     * Nivel de Oficina
+     */
+    private int nivelOficinas;
+    /**
+     * Usuario
+     */
+    private DTOUsuarioLogin usuario;
+    /**
+     * Formato en el que se presentará el reporte
+     */
+    private int formatoDeTabla;
+    /**
+     * Primera columna de la tabla
+     */
+    private String primerColumna;
+    /**
+     * Segunda columna de la tabla
+     */
+    private String segundaColumna;
+    /**
+     * Nombre de la consulta
+     */
+    private String nombreQuery;
+    /**
+     * Encabezado dinámico de abreviatura de estados
+     */
+    private List<DTOList> abreviaturaEstados;
+    
+    private List<Integer> totales;
+    
+    StringBuffer filtroReporte;
+    
+    private Integer[] opcionDeFecha;
+    
+    //***************************** GETTERS AND SETTERS *******************/
+    
+    public List<DTOList> getPrimerNivelFiltros() {
+        return primerNivelFiltros;
+    }
+
+    public void setPrimerNivelFiltros(List<DTOList> primerNivelFiltros) {
+        this.primerNivelFiltros = primerNivelFiltros;
+    }
+
+    public List<DTOList> getSegundoNivelFiltros() {
+        return segundoNivelFiltros;
+    }
+
+    public void setSegundoNivelFiltros(List<DTOList> segundoNivelFiltros) {
+        this.segundoNivelFiltros = segundoNivelFiltros;
+    }
+
+    public List<DTOList> getTercerNivelFiltros() {
+        return tercerNivelFiltros;
+    }
+
+    public void setTercerNivelFiltros(List<DTOList> tercerNivelFiltros) {
+        this.tercerNivelFiltros = tercerNivelFiltros;
+    }
+
+    public Integer getValorPrimerFiltro() {
+        return valorPrimerFiltro;
+    }
+
+    public void setValorPrimerFiltro(Integer valorPrimerFiltro) {
+        this.valorPrimerFiltro = valorPrimerFiltro;
+    }
+
+    public Integer getValorSegundoFiltroRadio() {
+        return valorSegundoFiltroRadio;
+    }
+
+    public void setValorSegundoFiltroRadio(Integer valorSegundoFiltroRadio) {
+        this.valorSegundoFiltroRadio = valorSegundoFiltroRadio;
+    }
+
+    public Integer[] getValorTercerFiltro() {
+        return valorTercerFiltro;
+    }
+
+    public void setValorTercerFiltro(Integer[] valorTercerFiltro) {
+        this.valorTercerFiltro = valorTercerFiltro;
+    }
+
+    public int getNivelOficinas() {
+        return nivelOficinas;
+    }
+
+    public void setNivelOficinas(int nivelOficinas) {
+        this.nivelOficinas = nivelOficinas;
+    }
+
+    public boolean isOpcionDeFechas() {
+        return opcionDeFechas;
+    }
+
+    public void setOpcionDeFechas(boolean opcionDeFechas) {
+        this.opcionDeFechas = opcionDeFechas;
+    }
+
+    public Boolean getMostrarFiltroFechas() {
+        return mostrarFiltroFechas;
+    }
+
+    public void setMostrarFiltroFechas(Boolean mostrarFiltroFechas) {
+        this.mostrarFiltroFechas = mostrarFiltroFechas;
+    }
+
+    public boolean isHabilitarFecha() {
+        return habilitarFecha;
+    }
+
+    public void setHabilitarFecha(boolean habilitarFecha) {
+        this.habilitarFecha = habilitarFecha;
+    }
+
+    public Date getFechaIncio() {
+        return fechaIncio;
+    }
+
+    public void setFechaIncio(Date fechaIncio) {
+        this.fechaIncio = fechaIncio;
+    }
+
+    public Date getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(Date fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+
+    public Integer[] getValorSegundoFiltroCheck() {
+        return valorSegundoFiltroCheck;
+    }
+
+    public void setValorSegundoFiltroCheck(Integer[] valorSegundoFiltroCheck) {
+        this.valorSegundoFiltroCheck = valorSegundoFiltroCheck;
+    }
+
+
+    public int getFormatoDeTabla() {
+        return formatoDeTabla;
+    }
+
+    public void setFormatoDeTabla(int formatoDeTabla) {
+        this.formatoDeTabla = formatoDeTabla;
+    }
+
+    public String getPrimerColumna() {
+        return primerColumna;
+    }
+
+    public void setPrimerColumna(String primerColumna) {
+        this.primerColumna = primerColumna;
+    }
+
+    public String getNombreQuery() {
+        return nombreQuery;
+    }
+
+    public void setNombreQuery(String nombreQuery) {
+        this.nombreQuery = nombreQuery;
+    }
+
+    public DTOUsuarioLogin getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(DTOUsuarioLogin usuario) {
+        this.usuario = usuario;
+    }
+
+    public String getSegundaColumna() {
+        return segundaColumna;
+    }
+
+    public void setSegundaColumna(String segundaColumna) {
+        this.segundaColumna = segundaColumna;
+    }
+
+    public List<DTOList> getAbreviaturaEstados() {
+        return abreviaturaEstados;
+    }
+
+    public void setAbreviaturaEstados(List<DTOList> abreviaturaEstados) {
+        this.abreviaturaEstados = abreviaturaEstados;
+    }
+
+    public List<Integer> getTotales() {
+        return totales;
+    }
+
+    public void setTotales(List<Integer> totales) {
+        this.totales = totales;
+    }
+
+    public StringBuffer getFiltroReporte() {
+        return filtroReporte;
+    }
+
+    public void setFiltroReporte(StringBuffer filtroReporte) {
+        this.filtroReporte = filtroReporte;
+    }
+
+    public Integer[] getOpcionDeFecha() {
+        return opcionDeFecha;
+    }
+
+    public void setOpcionDeFecha(Integer[] opcionDeFecha) {
+        this.opcionDeFecha = opcionDeFecha;
+    }
+
+    public List<int[]> getEncabezadoCanDenDecl() {
+        return encabezadoCanDenDecl;
+    }
+
+    public void setEncabezadoCanDenDecl(List<int[]> encabezadoCanDenDecl) {
+        this.encabezadoCanDenDecl = encabezadoCanDenDecl;
+    }
+
+    public List<Integer> getJustificaciones() {
+        return justificaciones;
+    }
+
+    public void setJustificaciones(List<Integer> justificaciones) {
+        this.justificaciones = justificaciones;
+    }
+
+    public List<String> getDescripcionJust() {
+        return descripcionJust;
+    }
+
+    public void setDescripcionJust(List<String> descripcionJust) {
+        this.descripcionJust = descripcionJust;
+    }
+  
+    
+    
+    
+    
+
+}

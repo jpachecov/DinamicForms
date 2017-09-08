@@ -1,0 +1,290 @@
+/**
+ * @(#)MBReporteControlObs.java 8/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import mx.ine.observadoresINE.bsd.BSDReporteControlObsInterface;
+import mx.ine.observadoresINE.dto.DTOList;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import mx.ine.observadoresINE.helper.HLPReporteControlObs;
+import mx.ine.observadoresINE.util.Utilidades;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+/**
+ * Clase que responde a las peticiones relacionadas con la generación del módulo
+ * "Control de Observadores"
+ *
+ * @author Helaine Flores Cervantes
+ * @since 8/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class MBReporteControlObs extends MBReportesMenu implements Serializable {
+
+    /**
+     * Elemento para la serialización de los objetos generados por esta clase
+     */
+    private static final long serialVersionUID = 3814202258121167928L;
+    /**
+     * Elemento para generar log
+     */
+    private static final Log LOGGER = LogFactory.getLog(MBReporteControlObs.class);
+
+    @Autowired
+    @Qualifier("bsdReporteControlObs")
+    private transient BSDReporteControlObsInterface bsdReporte;
+
+    private Boolean muestraTabla;
+    FormRepControlObs formFiltros;
+    StringBuffer tituloReporte;
+
+    @Override
+    public void init() {
+        super.init();
+        formFiltros = new FormRepControlObs();
+        formFiltros.setOpcionDeFechas(true);
+        formFiltros.setUsuario(obtenUsuario());
+        formFiltros.setNivelOficinas(nivelOficinas);
+        muestraTabla = false;
+        obtenerPrimerNivelFiltros();
+        LOGGER.info("IdProcesoElectoral: "+obtenUsuario().getIdProcesoElectoral());
+        LOGGER.info("IdDetalleProceso: "+obtenUsuario().getIdDetalleProceso());
+    }
+
+    /**
+     * Método que obtiene el primer nivel de filtros para ser mostrados en vista
+     */
+    public void obtenerPrimerNivelFiltros() {
+        formFiltros.setPrimerNivelFiltros(new ArrayList<DTOList>());
+        formFiltros.getPrimerNivelFiltros().add(new DTOList(1, Utilidades.mensajeProperties("etiqueta_reportes_solicitudesDeAcreditacion")));
+        formFiltros.getPrimerNivelFiltros().add(new DTOList(2, Utilidades.mensajeProperties("etiqueta_reportes_acreditacionesAprobadas")));
+        formFiltros.getPrimerNivelFiltros().add(new DTOList(3, Utilidades.mensajeProperties("etiqueta_reportes_acreditacionesNoAprobadas")));
+
+    }
+
+    /**
+     * Método que obtiene el segundo nivel de filtros, el cuál depende de lo
+     * seleccionado en el primer filtro.
+     */
+    public void obtenerSegundoNivelFiltros() {
+        formFiltros.setSegundoNivelFiltros(null);
+        formFiltros.setTercerNivelFiltros(null);
+        formFiltros.setValorSegundoFiltroRadio(null);
+        formFiltros.setOpcionDeFechas(false);
+        formFiltros.setSegundoNivelFiltros(new ArrayList<DTOList>());
+        switch (formFiltros.getValorPrimerFiltro()) {
+            case 1://Solicitudes de acreditación
+                switch (formFiltros.getNivelOficinas()) {
+                    case 1: //Opciones para Oficinas Centrales
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(0, Utilidades.mensajeProperties("etiqueta_reportes_filtro_nacional")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(1, Utilidades.mensajeProperties("etiqueta_reportes_filtro_entidad")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(2, Utilidades.mensajeProperties("etiqueta_reportes_filtro_agrupacion")));
+                        break;
+                    case 2: //Opciones para Junta Local
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(1, Utilidades.mensajeProperties("etiqueta_reportes_filtro_entidad")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(3, Utilidades.mensajeProperties("etiqueta_reportes_filtro_distrito")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(2, Utilidades.mensajeProperties("etiqueta_reportes_filtro_agrupacion")));
+                        break;
+                    case 3: //Opciones para Junta Distrital
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(1, Utilidades.mensajeProperties("etiqueta_reportes_filtro_distrito")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(2, Utilidades.mensajeProperties("etiqueta_reportes_filtro_agrupacion")));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 2://Acreditaciones Aprobadas
+                switch (formFiltros.getNivelOficinas()) {
+                    case 2: //Opciones para Junta Local
+                    case 3: //Opciones para Junta Distrital
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(4, Utilidades.mensajeProperties("etiqueta_reportes_filtro_concentrado")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(5, Utilidades.mensajeProperties("etiqueta_reportes_filtro_listadoObservadores")));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case 3://Acreditaciones No Aprobdas
+                switch (formFiltros.getNivelOficinas()) {
+                    case 1: //Opciones para Oficinas Centrales
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(4, Utilidades.mensajeProperties("etiqueta_reportes_filtro_concentrado")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(2, Utilidades.mensajeProperties("etiqueta_reportes_filtro_agrupacion")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(1, Utilidades.mensajeProperties("etiqueta_reportes_filtro_entidad")));
+                        break;
+                    case 2: //Opciones para Junta Local
+                    case 3: //Opciones para Junta Distrital
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(4, Utilidades.mensajeProperties("etiqueta_reportes_filtro_concentrado")));
+                        formFiltros.getSegundoNivelFiltros().add(new DTOList(5, Utilidades.mensajeProperties("etiqueta_reportes_filtro_listadoObservadores")));
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            default:
+                formFiltros.setSegundoNivelFiltros(null);
+                break;
+        }
+    }
+
+    /**
+     * Método que obtiene el Tercer nivel de filtros que serán presentados en la
+     * vista, dependiendo de lo seleccionado en el primer filtro
+     */
+    public void obtenerTercerNivelFiltros() {
+        formFiltros.setTercerNivelFiltros(null);
+        formFiltros.setValorTercerFiltro(null);
+        formFiltros.setOpcionDeFechas(false);
+        switch (formFiltros.getValorPrimerFiltro()) {
+            case 2://Acreditaciones Aprobadas
+                formFiltros.setTercerNivelFiltros(new ArrayList<DTOList>());
+                formFiltros.getTercerNivelFiltros().add(new DTOList(6, Utilidades.mensajeProperties("etiqueta_reportes_filtro_aprobadasPorConsejo")));
+                formFiltros.getTercerNivelFiltros().add(new DTOList(7, Utilidades.mensajeProperties("etiqueta_reportes_filtro_aprobadasPorConsejoLocal")));
+                formFiltros.getTercerNivelFiltros().add(new DTOList(8, Utilidades.mensajeProperties("etiqueta_reportes_filtro_aprobadasPorConsejoGeneral")));
+                formFiltros.getTercerNivelFiltros().add(new DTOList(9, Utilidades.mensajeProperties("etiqueta_reportes_filtro_aprobadasPorOPLE")));
+                formFiltros.setOpcionDeFechas(true);
+                break;
+            case 3://Acreditaciones No Aprobadas
+                formFiltros.setTercerNivelFiltros(new ArrayList<DTOList>());
+                formFiltros.getTercerNivelFiltros().add(new DTOList(11, Utilidades.mensajeProperties("etiqueta_reportes_filtro_denegadas")));
+                formFiltros.getTercerNivelFiltros().add(new DTOList(12, Utilidades.mensajeProperties("etiqueta_reportes_filtro_candeladas")));
+                //Si seleccionó el listado de observadores del segundo filtro
+                if (formFiltros.getValorSegundoFiltroRadio() == 5) {
+                    formFiltros.setOpcionDeFechas(true);
+                }
+                break;
+
+            default:
+                formFiltros.setTercerNivelFiltros(null);
+                break;
+        }
+    }
+    /**
+     * Se hace la consulta de Reporte
+     * @throws Exception 
+     */
+    public void consultaReporte() throws Exception {
+        Integer idEstado = obtenUsuario().getIdEstadoSeleccionado();
+        Integer idDistrito = obtenUsuario().getIdDistritoSeleccionado();
+        List<Object[]> listaDatos;
+
+        //Se inicializa el encabezado
+        super.inicializaParametrosEncabezado();
+
+        if (idEstado == null || idEstado.equals(0)) {
+            dtoParametros.setAnchoEntidad(2);
+            dtoParametros.setAnchoFechaHora(2);
+        } else if (!idEstado.equals(0) && idDistrito.equals(0)) {
+            dtoParametros.setAnchoEntidad(2);
+            dtoParametros.setAnchoFechaHora(2);
+        } else if (!idEstado.equals(0) && !idDistrito.equals(0)) {
+            dtoParametros.setAnchoEntidad(1);
+            dtoParametros.setAnchoDistrito(2);
+            dtoParametros.setAnchoFechaHora(1);
+        }
+        //Se obtiene el reporte seleccionado 
+        obtenerSubReporte();
+        //Se crean los encabezados
+        HLPReporteControlObs hlpControlObs;
+        hlpControlObs = new HLPReporteControlObs(formFiltros);
+        //Se consultan los datos del reporte seleccionado
+        listaDatos = bsdReporte.obtenerDatosReporte(formFiltros);
+
+        dtoParametros.setColumnas(hlpControlObs.getColumnas());
+        dtoParametros.setEncabezado(hlpControlObs.getListaEncabezados());
+        dtoParametros.setListaDatos(listaDatos);
+        dtoParametros.setTituloReporte(tituloReporte.toString());
+        nombreReporte = "ReporteControlObs";
+        muestraTabla = true;
+    }
+    /**
+     * Método encargado de obtener los datos del reporte a partir de los filtros seleccionados por el usuario
+     */
+    public void obtenerSubReporte() {
+
+        tituloReporte = new StringBuffer();
+        switch (formFiltros.getValorPrimerFiltro()) {
+            case 1://Solicitudes de Acreditación
+                tituloReporte.append("Solicitudes de acreditación");
+                if (formFiltros.getNivelOficinas() == 1 || formFiltros.getNivelOficinas() == 2) { //OC y JL se obtiene el valor del CheckBox
+                    switch (formFiltros.getValorSegundoFiltroCheck().length) {
+                        case 1://Seleccionó sólo una opción
+                            switch (formFiltros.getValorSegundoFiltroCheck()[0]) {
+                                case 0: //Nacional
+                                    tituloReporte.append("Solicitudes de acreditación").append("Nacional");
+                                    formFiltros.setFormatoDeTabla(1);
+                                    formFiltros.setPrimerColumna(" ");
+                                    formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesNacional_OC");
+                                    break;
+                                case 1://Entidad
+                                    tituloReporte.append("Solicitudes de acreditación").append(" Por Entidad");
+                                    formFiltros.setFormatoDeTabla(1);
+                                    formFiltros.setPrimerColumna(" ");
+                                    formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesNacional_OC");
+                                    break;
+                                case 2://Agrupación
+                                    break;
+                                default:
+                                    break;
+                            }
+                            break;
+                        case 2://Seleccionó dos opciones
+                            List<Integer> valoresSeleccionados;
+                            valoresSeleccionados = Arrays.asList(formFiltros.getValorSegundoFiltroCheck());
+                            if (valoresSeleccionados.contains(0)) {
+                                if (valoresSeleccionados.contains(2)) {//Se seleccionó Nacional y Entidad
+                                } else {//Seleccionó Nacional y Agrupación
+                                }
+                            } else {//Seleccionó Entidad y Agrupación
+                            }
+                            break;
+                        case 3://Selecciono tres opciones
+                            break;
+                    }
+                } else//JD Se obtiene el valor del Radio
+                {
+                }
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+        }
+
+    }
+
+    @Override
+    public void postProcessXLS(Object document) {
+        super.postProcessXLS(document);
+    }
+
+    //***************************** GETTERS AND SETTERS *******************/
+    public void obtenerCuartoNivelFiltros() {
+    }
+
+    public Boolean getMuestraTabla() {
+        return muestraTabla;
+    }
+
+    public void setMuestraTabla(Boolean muestraTabla) {
+        this.muestraTabla = muestraTabla;
+    }
+
+    public FormRepControlObs getFormFiltros() {
+        return formFiltros;
+    }
+
+    public void setFormFiltros(FormRepControlObs formFiltros) {
+        this.formFiltros = formFiltros;
+    }
+
+}

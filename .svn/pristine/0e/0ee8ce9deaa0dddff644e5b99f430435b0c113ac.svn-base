@@ -1,0 +1,541 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<!-- Datos del paquete -->
+	<groupId>mx.ine</groupId>
+	<artifactId>observadoresINE</artifactId>
+	<version>7.0</version>
+	<packaging>war</packaging>
+
+	<!-- Información del proyecto -->
+	<name>observadoresINE</name>
+	<description>Sistema de observadores Electorales</description>
+
+	<!-- Versionado de dependencias -->
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+		<java-version>1.7</java-version>
+		<jboss-eap-version>6.2.0-redhat-1</jboss-eap-version>
+		<servicios-ine-version>2.0</servicios-ine-version>
+		<simplecaptcha-version>1.2.1</simplecaptcha-version>
+
+		<jboss-logging-version>3.1.2.GA</jboss-logging-version>
+		<javaee-web-api-version>6.0</javaee-web-api-version>
+		<commons-fileupload-version>1.3.1</commons-fileupload-version>
+		<commons-collections-version>3.2.1</commons-collections-version>
+
+		<spring-framework-version>3.2.16.RELEASE</spring-framework-version>
+		<spring-webflow-version>2.3.2.RELEASE</spring-webflow-version>
+		<spring-security-version>3.2.9.RELEASE</spring-security-version>
+
+		<javax-el-version>1.0.5.Final</javax-el-version>
+		<javax-faces-version>2.1.29.1.Final</javax-faces-version>
+		<jsf-api-version>2.1.6</jsf-api-version>
+		<jsf-impl-version>2.1.6</jsf-impl-version>
+
+		<primefaces-version>5.3</primefaces-version>
+		<primefaces-extensions-version>4.0.0</primefaces-extensions-version>
+
+		<hibernate-core-version>4.2.7.SP1</hibernate-core-version>
+		<hibernate-entitymanager-version>4.2.7.SP1</hibernate-entitymanager-version>
+		<hibernate-validator-version>4.3.1.Final</hibernate-validator-version>
+		<hibernate-envers-version>4.2.7.SP1</hibernate-envers-version>
+		
+		<recursos-web-version>3.0</recursos-web-version> 
+		<apache-http-componentes>4.2.1</apache-http-componentes>
+		<funciones-comunes-version>0.0.1</funciones-comunes-version>
+		<servicio-ldap>0.0.1-SNAPSHOT</servicio-ldap>
+		
+		<pdfbox-version>1.8.10</pdfbox-version>
+		<tika-version>1.10</tika-version>
+		<poi-version>3.13</poi-version>
+		<itext-version>5.5.9</itext-version>
+
+		<plugin-sonar-version>3.0.2</plugin-sonar-version>
+		<plugin-pmd-version>3.7</plugin-pmd-version>
+		<plugin-findbugs-version>3.0.4</plugin-findbugs-version>
+		<plugin-checkstyle-version>2.16</plugin-checkstyle-version>
+	</properties>
+
+	<!-- Dependencias -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jboss.bom.eap</groupId>
+				<artifactId>jboss-bom-parent</artifactId>
+				<version>${jboss-eap-version}</version>
+				<type>pom</type>
+				<scope>import</scope>
+			</dependency>
+		</dependencies> 
+	</dependencyManagement>
+
+	<dependencies>  
+		<!-- Dependencia de servicios -->
+		<dependency>
+			<groupId>mx.org.ine</groupId>
+			<artifactId>servicios-ine</artifactId>
+			<version>${servicios-ine-version}</version>
+ 			<scope>provided</scope> 
+		</dependency>
+		
+		<dependency>
+			<groupId>mx.ine</groupId>
+			<artifactId>funciones-comunes</artifactId>
+			<version>${funciones-comunes-version}</version>
+<!-- 			<scope>provided</scope> -->
+		</dependency>
+		<dependency>
+               <groupId>mx.ine</groupId>
+               <artifactId>historicos-api</artifactId>
+               <version>1.0</version>
+               <scope>provided</scope>
+   		</dependency>
+		
+		<!-- servicio admin LDAP -->
+		<dependency>
+			<groupId>servicio_admin_ldap</groupId>
+			<artifactId>servicio_admin_ldap</artifactId>
+			<version>${servicio-ldap}</version>
+			<!--  <scope>provided</scope>-->
+		</dependency>
+		
+		<!-- Recursos web --> 
+		<dependency> 
+			<groupId>mx.ine</groupId>
+			<artifactId>recursosWeb</artifactId>  
+			<version>${recursos-web-version}</version>
+           <scope>provided</scope>
+		</dependency> 
+
+		<!-- Jar captcha -->
+		<dependency>
+			<groupId>nl.simplecaptcha</groupId>
+			<artifactId>simplecaptcha</artifactId>
+			<version>${simplecaptcha-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Logs de jboss, se usa para compilar solamente -->
+		<dependency>
+			<groupId>org.jboss.logging</groupId>
+			<artifactId>jboss-logging</artifactId>
+			<version>${jboss-logging-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+        <!-- Javax --> 
+		<dependency>
+			<groupId>javax</groupId>
+			<artifactId>javaee-web-api</artifactId>
+			<version>${javaee-web-api-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Commons -->
+		<dependency>
+			<groupId>commons-fileupload</groupId>
+			<artifactId>commons-fileupload</artifactId>
+			<version>${commons-fileupload-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-collections</groupId>
+			<artifactId>commons-collections</artifactId>
+			<version>${commons-collections-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+				<!-- Generacion de Reportes -->
+		<dependency>
+			<groupId>mx.ine</groupId>
+			<artifactId>historicos-api</artifactId>
+			<version>1.0</version>
+<!-- 			<scope>system</scope> -->
+<!-- 			<systemPath>${project.basedir}/src/main/webapp/WEB-INF/lib/historicos-api-1.0.jar</systemPath> -->
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Spring -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-jdbc</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring-framework-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Spring Framework WebFlow -->
+		<dependency>
+			<groupId>org.springframework.webflow</groupId>
+			<artifactId>spring-faces</artifactId>
+			<version>${spring-webflow-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.webflow</groupId>
+			<artifactId>spring-webflow</artifactId>
+			<version>${spring-webflow-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Spring Security -->
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-core</artifactId>
+			<version>${spring-security-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-web</artifactId>
+			<version>${spring-security-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-config</artifactId>
+			<version>${spring-security-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-ldap</artifactId>
+			<version>${spring-security-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Faces Config -->
+		<dependency>
+			<groupId>org.jboss.spec.javax.el</groupId>
+			<artifactId>jboss-el-api_2.2_spec</artifactId>
+			<version>${javax-el-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.jboss.spec.javax.faces</groupId>
+			<artifactId>jboss-jsf-api_2.1_spec</artifactId>
+			<version>${javax-faces-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-api</artifactId>
+			<version>${jsf-api-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>com.sun.faces</groupId>
+			<artifactId>jsf-impl</artifactId>
+			<version>${jsf-impl-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- PrimeFaces -->
+		<dependency>
+			<groupId>org.primefaces</groupId>
+			<artifactId>primefaces</artifactId>
+			<version>${primefaces-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.primefaces.extensions</groupId>
+			<artifactId>primefaces-extensions</artifactId>
+			<version>${primefaces-extensions-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Hibernate -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-entitymanager</artifactId>
+			<version>${hibernate-entitymanager-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate-core-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>${hibernate-validator-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Tika -->
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-core</artifactId>
+			<version>${tika-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.tika</groupId>
+			<artifactId>tika-parsers</artifactId>
+			<version>${tika-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>${pdfbox-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>fontbox</artifactId>
+			<version>${pdfbox-version}</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- Poi -->
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>${poi-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>${poi-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml-schemas</artifactId>
+			<version>${poi-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-scratchpad</artifactId>
+			<version>${poi-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+		<!-- Itext -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itextpdf</artifactId>
+			<version>${itext-version}</version>
+			<scope>provided</scope>
+		</dependency>
+		
+        <!-- lowagie -->
+        <dependency>
+			<groupId>com.lowagie</groupId>
+			<artifactId>itext</artifactId>
+			<version>2.1.7</version>
+		</dependency>
+		                             
+		<dependency>
+	        <groupId>org.apache.httpcomponents</groupId>
+	        <artifactId>httpclient</artifactId>
+	        <version>${apache-http-componentes}</version>
+	        <scope>provided</scope>
+	    </dependency>
+	</dependencies>
+
+	<!-- Repositorios de Spring, Primefaces y MaterialPrime -->
+	<repositories>
+		<repository>
+			<id>springsource-repo</id>
+			<name>SpringSource Repository</name>
+			<url>http://repo.springsource.org/release</url>
+		</repository>
+
+		<repository>
+			<id>prime-repo</id>
+			<name>PrimeFaces Maven Repository</name>
+			<url>http://repository.primefaces.org</url>
+			<layout>default</layout>
+		</repository>
+
+		<repository>
+			<id>jboss-ga-repository</id>
+			<name>jboss-ga-repository</name>
+			<url>http://maven.repository.redhat.com/techpreview/all</url>
+		</repository>    	
+	</repositories>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>sonar-maven-plugin</artifactId>
+					<version>${plugin-sonar-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-pmd-plugin</artifactId>
+					<version>${plugin-pmd-version}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.codehaus.mojo</groupId>
+					<artifactId>findbugs-maven-plugin</artifactId>
+					<version>${plugin-findbugs-version}</version>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+		
+		<finalName>observadoresINE</finalName>
+
+		<plugins>
+			<plugin>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.10</version>
+				<configuration>
+					<additionalProjectnatures>
+						<projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
+					</additionalProjectnatures>
+					<additionalBuildcommands>
+						<buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
+					</additionalBuildcommands>
+					<downloadSources>true</downloadSources>
+					<downloadJavadocs>true</downloadJavadocs>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+					<source>${java-version}</source>
+					<target>${java-version}</target>					
+					<compilerArgument>-Xlint:all</compilerArgument>
+					<showWarnings>true</showWarnings>
+					<showDeprecation>true</showDeprecation>
+				</configuration>
+			</plugin>
+			<!-- Skip Test -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12.4</version>
+				<configuration>
+					<skipTests>true</skipTests>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>2.6</version>				
+				<configuration>
+				   <filteringDeploymentDescriptors>true</filteringDeploymentDescriptors>
+				    <archive>
+						<manifestEntries>
+							<Logging-Profile>observadores-profile</Logging-Profile>
+						</manifestEntries>  
+					</archive>
+				</configuration>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-site-plugin</artifactId>
+				<configuration>
+					<reportPlugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>findbugs-maven-plugin</artifactId>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-pmd-plugin</artifactId>
+						</plugin>
+					</reportPlugins>
+				</configuration>
+			</plugin>
+			<!-- Sonar -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>sonar-maven-plugin</artifactId>
+			</plugin>
+                       
+		</plugins>
+	</build>
+</project>

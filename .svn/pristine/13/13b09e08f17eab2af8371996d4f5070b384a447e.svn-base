@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+				xmlns:c ="http://java.sun.com/jsp/jstl/core"
+				xmlns:ui="http://java.sun.com/jsf/facelets"
+				xmlns:h ="http://java.sun.com/jsf/html"
+				xmlns:f ="http://java.sun.com/jsf/core"
+				xmlns:p ="http://primefaces.org/ui"
+				xmlns:pe="http://primefaces.org/ui/extensions"
+				xmlns:sec="http://www.springframework.org/security/tags"
+				template="/templates/template.xhtml">
+	<ui:define name="CONTENT">
+		<!-- LAS ETIQUETAS SE ENCUENTRAN EN MODULOSRESOURCES.PROPERTIES -->
+		<!-- BLOCKUI-->
+		<pe:blockUI id="progress" target="formObservadores" content="blockUIContent" widgetVar="progress" />
+		<!-- BLOCKUICONTENT -->
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText value="#{messageSource['mensaje_generales_procesando']}" style="white-space: nowrap;" />
+		</h:panelGrid>
+		<h:form id="formObservadores" styleClass="container-fluid">
+			<!-- TITULO -->
+			<div class="card ui-g">
+				<h1>#{messageSource['etiqueta_solicitudes_titulo_solicitudes']}</h1>
+				<h:outputLabel id="msjCamposRequeridos" class="ui-g-12 ui-md-12"
+							value="#{messageSource['validacion_mensaje_generales_campos_requeridos']}"
+							escape="false" />
+	        </div>
+			<!-- FIN TITULO -->
+			<!-- MENSAJES -->
+			<p:messages id="mensajes" for="mensajesError" autoUpdate="false" closable="true" />
+			<p:messages for="mensajesAdvertencia" autoUpdate="true" closable="true"/>
+			<p:growl for="mensajesInfo" sticky="false"/>
+			
+			<div class="card">
+				<!-- seccion de Datos de el/la Observador/Observadora Electoral -->
+				<ui:include src="../componentes/datosObservador.xhtml" />
+			</div>
+
+			<div class="card">
+				<!-- seccion de Datos de el/la Observador/Observadora Electoral -->
+				<ui:include src="../componentes/datosObservadorDomicilio.xhtml" />
+			</div>
+			
+			<div class="card">
+				<ui:include src="../componentes/datosObservadorInfoSoli.xhtml" />
+			</div>
+			<div class="card">
+
+				<ui:include src="../componentes/datosObservadorEstatus.xhtml" /> 
+			</div>
+
+
+			<!-- botones  -->
+			<div class="ui-g">
+				<div class="center-block">
+					<p:commandButton id="guardar" 
+					                 value="#{messageSource['etiqueta_boton_aceptar']}"
+					                 style="margin-bottom:10px;" 
+									 update="formObservadores" 
+									 action="guardar"
+	                            	 onstart="PF('progress').block();" 
+	                            	 oncomplete="PF('progress').unblock();" 
+	                            	 disabled="#{false}" process="@form"
+	                            	 />
+	                            	 
+		      		<p:commandButton value="#{messageSource['etiqueta_boton_cancelar']}"
+			        			   	 style="margin-bottom:10px;" 
+			        			   	 update="formObservadores"
+									 action="cancelar"
+			        			   	 onstart="PF('progress').block()" 
+			        			   	 onsuccess="PF('progress').unblock()"
+			        			   	 disabled="#{false}"
+			        			   	 process="@this"/>
+				</div>
+			</div>
+
+			<!-- fin de contenido-->
+		</h:form>
+	</ui:define>
+</ui:composition>

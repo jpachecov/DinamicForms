@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns="http://www.springframework.org/schema/beans"			 
+	   xmlns:mvc="http://www.springframework.org/schema/mvc"
+	   xmlns:faces="http://www.springframework.org/schema/faces"
+	   xmlns:webflow="http://www.springframework.org/schema/webflow-config"
+	   xsi:schemaLocation="	   	
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/webflow-config http://www.springframework.org/schema/webflow-config/spring-webflow-config.xsd
+		http://www.springframework.org/schema/faces http://www.springframework.org/schema/faces/spring-faces.xsd">
+	
+	<!-- Configuracion de WebFlow para definir el número de pantallas en las que se mantendrá el flojo de datos  -->
+	<webflow:flow-executor id="flowExecutor" >
+		<webflow:flow-execution-repository max-executions="1" max-execution-snapshots="10"/>
+		<webflow:flow-execution-attributes>
+			<webflow:redirect-in-same-state value="false"/>
+		</webflow:flow-execution-attributes>
+		<webflow:flow-execution-listeners>
+			<webflow:listener ref="securityListener"/>
+			<webflow:listener ref="facesContextListener"/>
+		</webflow:flow-execution-listeners>
+	</webflow:flow-executor>
+
+    <!-- Define la ruta de la carpeta que contendrá los flow de cada módulo-->
+	<webflow:flow-registry id="flowRegistry" flow-builder-services="flowBuilderServices" base-path="/WEB-INF/flows">
+		<webflow:flow-location-pattern value="/**/flow.xml" />
+		<webflow:flow-location-pattern value="/**/**/flow.xml" />
+		<webflow:flow-location id="parent-flow" path="parent-flow.xml"/>
+	</webflow:flow-registry>
+
+	<faces:flow-builder-services id="flowBuilderServices" development="true" />
+
+	<bean id="facesContextListener" class="org.springframework.faces.webflow.FlowFacesContextLifecycleListener"/>
+	<bean id="securityListener" class="org.springframework.webflow.security.SecurityFlowExecutionListener" />
+	
+	
+	<!-- Define el manejador que mapeara los request al flow indicado -->
+	<bean class="org.springframework.webflow.mvc.servlet.FlowHandlerMapping">
+		<property name="flowRegistry" ref="flowRegistry" />
+	</bean>
+	
+	<!-- Manejador de flows en formato JSF -->
+	<bean class="org.springframework.faces.webflow.JsfFlowHandlerAdapter">
+		<property name="flowExecutor" ref="flowExecutor" />
+	</bean>
+	
+</beans>

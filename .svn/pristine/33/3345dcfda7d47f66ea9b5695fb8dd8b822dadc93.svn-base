@@ -1,0 +1,939 @@
+/**
+ * @(#)DTOReportesParametros.java 12/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dto;
+
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Image;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPTable;
+import java.awt.Color;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import javax.faces.context.FacesContext;
+import mx.ine.observadoresINE.helper.HLPReportesEncabezado;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.usermodel.HSSFFont;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.hssf.util.HSSFRegionUtil;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.ClientAnchor;
+import org.apache.poi.ss.usermodel.CreationHelper;
+import org.apache.poi.ss.usermodel.Drawing;
+import org.apache.poi.ss.usermodel.Picture;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.util.IOUtils;
+
+/**
+ * <code>DTOReportesParametros.java</code>
+ *
+ * @author Pablo Zuñiga Mata
+ * @since 07/02/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class DTOReportesParametros implements Serializable {
+
+    private static final long serialVersionUID = -2699321079617680125L;
+    private static final Log LOGGER = LogFactory.getLog(DTOReportesParametros.class);
+
+    /* Parametros para crear el encabezamiento del reporte */
+    private String tituloReporte;
+    private String rutaImgEstado;
+    private Integer idDistrito;
+    private String descEntidad;
+    private Integer anchoEntidad;
+    private String descDistrito;
+    private Integer anchoDistrito;
+    private String descDistritoLocal;
+    private Integer anchoDistritoLocal;
+    private String descMunicipioLocal;
+    private Integer anchoMunicipioLocal;
+    private String fechaHora;
+    private Integer anchoFechaHora;
+    private Integer columnas;
+    private List<Object[]> listaDatos = new ArrayList<>();
+
+    /* Parametros para crear el encabezado de la tabla del reporte*/
+    private List<HLPReportesEncabezado> encabezado;
+
+    public DTOReportesParametros() {
+        this.encabezado = new ArrayList<>();
+        this.tituloReporte = "";
+        this.descEntidad = "";
+        this.anchoEntidad = null;
+        this.descDistrito = "";
+        this.anchoDistrito = null;
+        this.descDistritoLocal = "";
+        this.anchoDistritoLocal = null;
+        this.descMunicipioLocal = "";
+        this.anchoMunicipioLocal = null;
+        this.fechaHora = "";
+        this.anchoFechaHora = null;
+        this.columnas = null;
+    }
+
+    /**
+     * Método que se encarga de crear el encabezado del Excel
+     * @param libro
+     * @return 
+     */
+    public HSSFWorkbook crearEncabezadoXLS(HSSFWorkbook libro) {
+
+        // Metodo abstracto que actualiza los valores del encabezado
+        HSSFWorkbook wb = libro;
+        HSSFSheet sheet = wb.getSheetAt(0);
+        HSSFSheet hoja = wb.createSheet();
+
+        /*..................................................imagen....................................................*/
+        try {
+            String rutaimg = FacesContext.getCurrentInstance().getExternalContext().getRealPath("/");
+            File file = new File(rutaimg + "resources/imgObs/logo-INE.png");
+            if (file.exists()) {
+                InputStream my_banner_image = new FileInputStream(file);
+                byte[] bytes = IOUtils.toByteArray(my_banner_image);
+                int my_picture_id = wb.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+                my_banner_image.close();
+                CreationHelper helper = wb.getCreationHelper();
+                Drawing drawing = hoja.createDrawingPatriarch();
+                ClientAnchor anchor = helper.createClientAnchor();
+                anchor.setAnchorType(3);
+                anchor.setCol1(0);
+                anchor.setRow1(1);
+                Picture pict = drawing.createPicture(anchor, my_picture_id);
+                pict.resize(2.0, 1.0);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Al incluir imagen en el xls." + e);
+        }
+        if (!this.rutaImgEstado.equalsIgnoreCase("")) {
+            try {
+                File file = new File(this.rutaImgEstado);
+                if (file.exists()) {
+                    InputStream my_banner_image = new FileInputStream(file);
+                    byte[] bytes = IOUtils.toByteArray(my_banner_image);
+                    int my_picture_id = wb.addPicture(bytes, Workbook.PICTURE_TYPE_PNG);
+                    my_banner_image.close();
+                    CreationHelper helper = wb.getCreationHelper();
+                    Drawing drawing = hoja.createDrawingPatriarch();
+                    ClientAnchor anchor = helper.createClientAnchor();
+                    anchor.setAnchorType(3);
+                    anchor.setCol1(this.getColumnas() - 2);
+                    anchor.setRow1(1);
+                    Picture pict = drawing.createPicture(anchor, my_picture_id);
+                    pict.resize(2.0, 1.0);
+                }
+            } catch (Exception e) {
+                LOGGER.error("Al incluir imagen en el xls." + e);
+            }
+        }
+
+        //agregamos el encabezado
+        HSSFFont fuenteEncabezadoCampos = wb.createFont();
+        fuenteEncabezadoCampos.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
+        /*............................................Estilos de las celdas...........................................*/
+        // Encabezado principal
+        HSSFCellStyle estiloEncabezado = wb.createCellStyle();
+        estiloEncabezado.setFont(fuenteEncabezadoCampos);
+        estiloEncabezado.setWrapText(true);
+        estiloEncabezado.setAlignment(HSSFCellStyle.ALIGN_LEFT);
+        //titulo
+        HSSFCellStyle estiloTitulo = wb.createCellStyle();
+        estiloTitulo.setFont(fuenteEncabezadoCampos);
+        estiloTitulo.setFillForegroundColor(HSSFColor.WHITE.index);
+        estiloTitulo.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        estiloTitulo.setWrapText(true);
+        estiloTitulo.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        estiloTitulo.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
+        //Informacion reporte
+        HSSFCellStyle estiloInfo = wb.createCellStyle();
+        estiloInfo.setFont(fuenteEncabezadoCampos);
+        estiloInfo.setFillForegroundColor(HSSFColor.WHITE.index);
+        estiloInfo.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        estiloInfo.setWrapText(true);
+        estiloInfo.setAlignment(HSSFCellStyle.ALIGN_RIGHT);
+        // Encabezado campos
+        HSSFCellStyle estiloEncabezadoCampos = wb.createCellStyle();
+        estiloEncabezadoCampos.setAlignment(HSSFCellStyle.ALIGN_CENTER);
+        estiloEncabezadoCampos.setWrapText(true);
+        estiloEncabezadoCampos.setFont(fuenteEncabezadoCampos);
+        estiloEncabezadoCampos.setFillForegroundColor(HSSFColor.GREY_25_PERCENT.index);
+        estiloEncabezadoCampos.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
+        estiloEncabezadoCampos.setVerticalAlignment(HSSFCellStyle.VERTICAL_CENTER);
+
+        /*..............................................Numero de columnas............................................*/
+        Integer numColumnas = getColumnas() - 1;
+        /*........................................Iniciamos en la fila 1 columna A....................................*/
+        Integer numRow = 0;
+
+        /*..............Colocalmos informacion basica del reporte(Titulo, nombre entidad y/o distritos, fecha)........*/
+        // en la primera fila colocamos el titulo
+        HSSFRow titulo = hoja.createRow(numRow);
+        titulo.setHeight((short) 350); // alto de fila
+        HSSFCell celdaTitulo = titulo.createCell(0);
+        celdaTitulo.setCellValue(getTituloReporte());
+        CellRangeAddress rangeTitulo = new CellRangeAddress(0, 0, 0, numColumnas);
+        hoja.addMergedRegion(rangeTitulo);
+        celdaTitulo.setCellStyle(estiloTitulo);
+
+        numRow++;
+        HSSFRow lineaBlanco = hoja.createRow(numRow);
+        lineaBlanco.setHeight((short) 850); // alto de fila
+        HSSFCell celdaBlanco = lineaBlanco.createCell(0);
+        celdaBlanco.setCellValue(" ");
+        CellRangeAddress rangeBlanco = new CellRangeAddress(numRow, numRow, 0, numColumnas);
+        hoja.addMergedRegion(rangeBlanco);
+        celdaBlanco.setCellStyle(estiloInfo);
+
+        // Entidad
+		if (getDescEntidad() != null) {
+			numRow++;
+	        HSSFRow infoFiltro = hoja.createRow(numRow);
+	        infoFiltro.setHeight((short) 350); // alto de fila
+	        HSSFCell celdaEntidad = infoFiltro.createCell(0);
+	        celdaEntidad.setCellValue("Entidad federativa: " + getDescEntidad());
+	        CellRangeAddress rangeEntidad = new CellRangeAddress(numRow, numRow, 0, numColumnas);
+	        hoja.addMergedRegion(rangeEntidad);
+	        celdaEntidad.setCellStyle(estiloInfo);
+		}
+
+        // Cabecera distrital
+        if (getAnchoDistrito() != null) {
+            numRow++;
+            HSSFRow infoFiltroReporte = hoja.createRow(numRow);
+            infoFiltroReporte.setHeight((short) 300); // alto de fila	
+            HSSFCell celdaCabecera = infoFiltroReporte.createCell(0);
+            celdaCabecera.setCellValue("Distrito electoral: " + idDistrito + " " + getDescDistrito());
+            CellRangeAddress rangeCabecera = new CellRangeAddress(numRow, numRow, 0, numColumnas);
+            hoja.addMergedRegion(rangeCabecera);
+            celdaCabecera.setCellStyle(estiloInfo);
+        }
+        // Cabecera distrital local
+        if (getAnchoDistritoLocal() != null) {
+            numRow++;
+            HSSFRow infoFiltroReporte = hoja.createRow(numRow);
+            infoFiltroReporte.setHeight((short) 300); // alto de fila	
+            HSSFCell celdaCabecera = infoFiltroReporte.createCell(0);
+            celdaCabecera.setCellValue("Distrito local: " + getDescDistritoLocal());
+            CellRangeAddress rangeCabecera = new CellRangeAddress(numRow, numRow, 0, numColumnas);
+            hoja.addMergedRegion(rangeCabecera);
+            celdaCabecera.setCellStyle(estiloInfo);
+        }
+        // Municipio
+        if (getAnchoMunicipioLocal() != null) {
+            numRow++;
+            HSSFRow infoFiltroReporte = hoja.createRow(numRow);
+            infoFiltroReporte.setHeight((short) 300); // alto de fila	
+            HSSFCell celdaCabecera = infoFiltroReporte.createCell(0);
+            celdaCabecera.setCellValue("Municipio: " + getDescMunicipioLocal());
+            CellRangeAddress rangeCabecera = new CellRangeAddress(numRow, numRow, 0, numColumnas);
+            hoja.addMergedRegion(rangeCabecera);
+            celdaCabecera.setCellStyle(estiloInfo);
+        }
+
+        // Fecha
+        numRow++;
+        HSSFRow infoFecha = hoja.createRow(numRow);
+        infoFecha.setHeight((short) 300); // alto de fila	
+        HSSFCell fecha = infoFecha.createCell(0);
+        fecha.setCellValue("Fecha de impresión: " + getFechaHora() + " hrs.");
+        CellRangeAddress rangefecha = new CellRangeAddress(numRow, numRow, 0, numColumnas);
+        hoja.addMergedRegion(rangefecha);
+        fecha.setCellStyle(estiloInfo);
+
+        Integer numIni = numRow;
+        /*.................................Pintamos los encabezados de la tabla antes del contenido...................*/
+        numRow++;
+        HSSFRow encabezadoTabla = hoja.createRow(numRow);
+        encabezadoTabla.setHeight((short) 500);
+        List<Integer> primerasColumnas = obtenerCeldaDePartida();// Se obtienen los numeros de cada columna donde se empieza a dibujar la celda
+        numRow = pintarEncabezado(hoja, encabezadoTabla, numRow, primerasColumnas,
+                estiloEncabezado, estiloEncabezadoCampos, 1);
+        bordesCeldas(wb, hoja, numIni + 1, numRow);//pintamos los bordes de las celdas de los encabezados antes del contenido
+
+        /*..................colocamos el contenido de la hoja en una nueva para recorrer las filas....................*/
+        Iterator<Row> rowIterator = sheet.iterator();
+        Row row;
+        Integer fila = numRow;
+        Integer contador = 0; // empezamos desde la segunda fila
+        while (rowIterator.hasNext()) {
+            row = rowIterator.next();
+            if (contador > 0) {
+                HSSFRow hssfRow = hoja.createRow(fila);
+                hssfRow.setHeight((short) 500);
+                // Obtenemos el iterator que permite recorres todas las celdas de una fila
+                Iterator<Cell> cellIterator = row.cellIterator();
+                Cell celda;
+                Integer columna = 0;
+                while (cellIterator.hasNext()) {
+                    celda = cellIterator.next();
+                    if (celda.getStringCellValue() != null) {
+                        HSSFCell hssfCell = hssfRow.createCell(columna);
+                        hssfCell.setCellValue(celda.getStringCellValue());
+                        CellRangeAddress range = new CellRangeAddress(fila, fila, columna, columna);
+                        hoja.addMergedRegion(range);
+                        hoja.setColumnWidth(columna, 4000);
+                        columna++;
+                    }
+                }
+                fila++;
+            }
+            contador++;
+        }
+        /*.................................Pintamos los encabezados de la tabla despues del contenido.................*/
+        Integer numFilas = fila;
+        Integer numFilasAux = fila;
+        numRow = pintarEncabezado(hoja, encabezadoTabla, fila, primerasColumnas,
+                estiloEncabezado, estiloEncabezadoCampos, 2);
+        for (HLPReportesEncabezado hlp : getEncabezado()) {
+            if (hlp.getTipoFila().get(0) > 1) {
+                numFilas++;
+            }
+        }
+        bordesCeldas(wb, hoja, numFilasAux, numFilas);//pintamos los bordes de las celdas de los encabezados despues del contenido
+
+        /*.........................................Removemos la hoja que iteramos.....................................*/
+        wb.removeSheetAt(0);
+        return wb;
+    }
+
+    /**
+     * Método encargado de obtener la columna de la fila donde se empezara a
+     * dibujar la celda del excel
+     *
+     * @return List<Integer>
+     */
+    private List<Integer> obtenerCeldaDePartida() {
+        List<Integer> primerasColumnas = new ArrayList<>();
+        List<Integer> cordenadaY = new ArrayList<>();
+        List<Integer> cordenadaX = new ArrayList<>();
+        Integer y = 0;
+        for (HLPReportesEncabezado hlp : getEncabezado()) {
+            int index = 0;
+            for (int x = 0; x < getColumnas(); x++) {
+                int contador = 0;
+                for (int cordenadas = 0; cordenadas < cordenadaY.size(); cordenadas++) {
+                    if (cordenadaY.get(cordenadas) == y && cordenadaX.get(cordenadas) == x) {
+                        contador++;
+                    }
+                }
+                if (contador == 0) {
+                    primerasColumnas.add(x);
+                    for (int ancho = 0; ancho < hlp.getAncho().get(index); ancho++) {
+                        if (ancho > 0) {
+                            cordenadaY.add(y);
+                            cordenadaX.add(x + ancho);
+                        }
+                    }
+                    for (int alto = 0; alto < hlp.getAlto().get(index); alto++) {
+                        if (alto > 0) {
+                            cordenadaY.add(y + alto);
+                            cordenadaX.add(x);
+                        }
+                    }
+                    index++;
+                }
+            }
+            y++;
+        }
+        return primerasColumnas;
+    }
+
+    /**
+     * Método encargado de pintar bordes ala celda
+     *
+     * @return List<Integer>
+     */
+    private void bordesCeldas(HSSFWorkbook wb, HSSFSheet hoja, Integer incio, Integer fin) {
+        for (int encabezado = incio; encabezado < fin; encabezado++) {
+            for (int x = 0; x < getColumnas(); x++) {
+                CellRangeAddress cellRangeAddress = new CellRangeAddress(encabezado, encabezado, x, x);
+                HSSFRegionUtil.setBorderTop(1, cellRangeAddress, hoja, wb);
+                HSSFRegionUtil.setBorderLeft(1, cellRangeAddress, hoja, wb);
+                HSSFRegionUtil.setBorderRight(1, cellRangeAddress, hoja, wb);
+                HSSFRegionUtil.setBorderBottom(1, cellRangeAddress, hoja, wb);
+            }
+        }
+    }
+
+    /**
+     * Método encargado de pintar el encabezado antes y depues
+     *
+     * @param hoja	: hoja(HSSFSheet) de la tabla donde se esta trabajando
+     * encabezadoTabla	: fila(HSSFRow) de la tabla donde se esta trabajando
+     * numRow	: fila en la que estamos colocados primerasColumnas	: Son la
+     * columna principal de cada celda de los encabezados donde se empezara a
+     * pintar estiloEncabezado	: estilo 1 estiloEncabezadoCampos : estilo 2
+     * tipoEncabezado	: 1 es para los encabezados antes del contenido y 2 para
+     * despues del contenido donde van totales
+     * @return Integer
+     */
+    private Integer pintarEncabezado(HSSFSheet hoja, HSSFRow encabezadoTabla, Integer numRow, List<Integer> primerasColumnas,
+            HSSFCellStyle estiloEncabezado, HSSFCellStyle estiloEncabezadoCampos, Integer tipoEncabezado) {
+        Integer row_aux = 0;
+        Integer primerColumna = 0;
+        for (HLPReportesEncabezado hlp : getEncabezado()) {
+            boolean aumenta = true;
+            if (row_aux != 0) {
+                encabezadoTabla = hoja.createRow(numRow);
+                encabezadoTabla.setHeight((short) 500);
+            }
+            for (Integer index : hlp.getIndex()) {
+                if (hlp.getTipoFila().get(index) != 3 && tipoEncabezado == 1) {
+                    HSSFCell celdaEncabezadoTabla = encabezadoTabla.createCell(primerasColumnas.get(primerColumna));
+                    celdaEncabezadoTabla.setCellStyle(estiloEncabezadoCampos);
+                    CellRangeAddress cellRangeAddress = new CellRangeAddress(
+                            numRow, numRow + (hlp.getAlto().get(index) - 1),
+                            primerasColumnas.get(primerColumna),
+                            primerasColumnas.get(primerColumna) + (hlp.getAncho().get(index) - 1));
+                    // agregar border a un  MergedRegion
+                    hoja.addMergedRegion(cellRangeAddress);
+                    celdaEncabezadoTabla.setCellValue(hlp.getDescEncabezado().get(index));
+                } else if (hlp.getTipoFila().get(index) > 1 && tipoEncabezado == 2) {
+                    HSSFCell celdaEncabezadoTabla = encabezadoTabla.createCell(primerasColumnas.get(primerColumna));
+                    if (hlp.getTipoFila().get(index) == 2) {
+                        celdaEncabezadoTabla.setCellStyle(estiloEncabezadoCampos);
+                    } else {
+                        celdaEncabezadoTabla.setCellStyle(estiloEncabezado);
+                    }
+                    CellRangeAddress cellRangeAddress = new CellRangeAddress(
+                            numRow, numRow + (hlp.getAlto().get(index) - 1),
+                            primerasColumnas.get(primerColumna),
+                            primerasColumnas.get(primerColumna) + (hlp.getAncho().get(index) - 1));
+                    // agregar border a un  MergedRegion
+                    hoja.addMergedRegion(cellRangeAddress);
+                    celdaEncabezadoTabla.setCellValue(hlp.getDescEncabezado().get(index));
+                } else {
+                    aumenta = false;
+                }
+                primerColumna++;
+            }
+            row_aux++;
+            if (aumenta) {
+                numRow++;
+            }
+        }
+        return numRow;
+    }
+
+    public PdfPTable crearEncabezadoPDF() throws Exception {
+        BaseFont bf_helv;
+        bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+        Font fuenteEncabezado = new Font(bf_helv, 7);
+        PdfPTable encabezado = new PdfPTable(3);
+        encabezado.setWidthPercentage(100);
+        encabezado.setWidths(new int[]{1, 2, 1});
+        encabezado.setSpacingBefore(15);
+        encabezado.setSpacingAfter(15);
+//            Crea logo
+        Image img = Image.getInstance(FacesContext.getCurrentInstance().getExternalContext().getRealPath("resources/imgSIJE/SIJE_ID.PNG"));
+        img.scalePercent(45);
+        PdfPCell cell = new PdfPCell(img);
+        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+        cell.setBorder(0);
+        encabezado.addCell(cell);
+//            Crea tabla del centro de encabezado
+        PdfPTable centro = new PdfPTable(1);
+        centro.setWidthPercentage(50);
+//            Texto
+        Phrase proceso = new Phrase(getTituloReporte(), fuenteEncabezado);
+        Phrase entidad = new Phrase(getDescEntidad());
+        if (getAnchoDistrito() != null) {
+            entidad = new Phrase(getDescEntidad() + ", Distrito electoral " + idDistrito + " " + getDescMunicipioLocal());
+        } else if (getAnchoDistritoLocal() != null) {
+            entidad = new Phrase(getDescEntidad() + ", Distrito local " + getDescMunicipioLocal());
+        } else if (getAnchoMunicipioLocal() != null) {
+            entidad = new Phrase(getDescEntidad() + ", Delegación " + getDescMunicipioLocal());
+        }
+//            Celdas centro
+        cell = new PdfPCell(proceso);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBorder(0);
+        centro.addCell(cell);
+        cell = new PdfPCell(entidad);
+        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+        cell.setBorder(0);
+        centro.addCell(cell);
+        cell = new PdfPCell(centro);
+        cell.setBorder(0);
+        encabezado.addCell(cell);
+//            Fecha
+        cell = new PdfPCell(new Phrase("Fecha de impresión: " + getFechaHora() + " hrs.", fuenteEncabezado));
+        cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        cell.setVerticalAlignment(Element.ALIGN_TOP);
+        cell.setBorder(0);
+        encabezado.addCell(cell);
+        return encabezado;
+    }
+
+    public PdfPTable crearEncabezadoTablaPDF() throws Exception {
+        BaseFont bf_helv;
+        bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+        Font fuenteEncabezado = new Font(bf_helv, 7);
+        PdfPTable encabezado = new PdfPTable(getColumnas());
+        PdfPCell cell = null;
+//        Encabezados de la tabla
+        for (HLPReportesEncabezado hlp : getEncabezado()) {
+            for (Integer index : hlp.getIndex()) {
+                if (hlp.getTipoFila().get(index) != 3) {
+                    cell = new PdfPCell(new Phrase(hlp.getDescEncabezado().get(index), fuenteEncabezado));
+                    cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                    cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                    cell.setBackgroundColor(Color.LIGHT_GRAY);
+                    if (hlp.getAlto().get(index) > 1) {
+                        cell.setRowspan(hlp.getAlto().get(index));
+                    }
+                    if (hlp.getAncho().get(index) > 1) {
+                        cell.setColspan(hlp.getAncho().get(index));
+                    }
+                    encabezado.addCell(cell);
+                }
+            }
+        }
+        return encabezado;
+    }
+
+    public PdfPTable crearFooterTablaPDF() throws Exception {
+        BaseFont bf_helv;
+        bf_helv = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+        Font fuenteEncabezado = new Font(bf_helv, 8);
+        PdfPTable encabezado = new PdfPTable(getColumnas());
+        PdfPCell cell = null;
+//        Encabezados de la tabla
+        for (HLPReportesEncabezado hlp : getEncabezado()) {
+            for (Integer index : hlp.getIndex()) {
+                if (hlp.getTipoFila().get(index) > 1) {
+                    cell = new PdfPCell(new Phrase(hlp.getDescEncabezado().get(index), fuenteEncabezado));
+                    if (hlp.getTipoFila().get(index) == 2) {
+                        cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                        cell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+                        cell.setBackgroundColor(Color.LIGHT_GRAY);
+                    } else {
+                        cell.setHorizontalAlignment(Element.ALIGN_LEFT);
+                        cell.setVerticalAlignment(Element.ALIGN_LEFT);
+                        cell.setBackgroundColor(Color.white);
+                    }
+                    if (hlp.getAlto().get(index) > 1) {
+                        cell.setRowspan(hlp.getAlto().get(index));
+                    }
+                    if (hlp.getAncho().get(index) > 1) {
+                        cell.setColspan(hlp.getAncho().get(index));
+                    }
+                    encabezado.addCell(cell);
+                }
+            }
+        }
+        return encabezado;
+    }
+
+    public void obtenMedidasEncabezado(DTOFiltrosReporte dtoFiltros) {
+        //if(getDescDistrito().equalsIgnoreCase("") && !getDescEntidad().equalsIgnoreCase("") && getColumnas() != null){
+        if (dtoFiltros.getNivelOficinas() == 1 || dtoFiltros.getNivelOficinas() == 2) {
+            Integer valor = getColumnas() / 2;
+            setAnchoEntidad(valor);
+            setAnchoFechaHora(getColumnas() - valor);
+            //}else if(!getDescEntidad().equalsIgnoreCase("") && getColumnas() != null){
+        } else if (dtoFiltros.getNivelOficinas() == 3) {
+            Integer valor = getColumnas() / 3;
+            setAnchoEntidad(valor);
+            setAnchoFechaHora(getColumnas() - (valor * 2));
+            //if(!getDescDistrito().equalsIgnoreCase("") && !getDescMunicipioLocal().equalsIgnoreCase("")){
+            if (dtoFiltros.getNivelGeografico() == 3) {
+                setAnchoMunicipioLocal(valor);
+                //}else if(!getDescDistritoLocal().equalsIgnoreCase("") && getDescMunicipioLocal().equalsIgnoreCase("")){
+            } else if (dtoFiltros.getNivelGeografico() == 2) {
+                setAnchoDistritoLocal(valor);
+                //}else if(!getDescDistrito().equalsIgnoreCase("") && getDescDistritoLocal().equalsIgnoreCase("") 
+                //		&& getDescMunicipioLocal().equalsIgnoreCase("")){
+            } else if (dtoFiltros.getNivelGeografico() == 1) {
+                setAnchoDistrito(valor);
+                setAnchoFechaHora(getColumnas());
+            }
+        }
+    }
+
+    /**
+     * Método que obtiene el valor del atributo encabezado
+     *
+     * @return encabezado: valor del atributo encabezado
+     * @author Pablo Zuñiga Mata.
+     * @since 07/02/2017
+     */
+    public List<HLPReportesEncabezado> getEncabezado() {
+        return encabezado;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo encabezado
+     *
+     * @param encabezado: valor del atributo encabezado
+     * @author Pablo Zuñiga Mata.
+     * @since 07/02/2017
+     */
+    public void setEncabezado(List<HLPReportesEncabezado> encabezado) {
+        this.encabezado = encabezado;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo tituloReporte
+     *
+     * @return tituloReporte: valor del atributo tituloReporte
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public String getTituloReporte() {
+        return tituloReporte;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo tituloReporte
+     *
+     * @param tituloReporte: valor del atributo tituloReporte
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setTituloReporte(String tituloReporte) {
+        this.tituloReporte = tituloReporte;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo fechaHora
+     *
+     * @return fechaHora: valor del atributo fechaHora
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public String getFechaHora() {
+        return fechaHora;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo fechaHora
+     *
+     * @param fechaHora: valor del atributo fechaHora
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setFechaHora(String fechaHora) {
+        this.fechaHora = fechaHora;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo descEntidad
+     *
+     * @return descEntidad: valor del atributo descEntidad
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public String getDescEntidad() {
+        return descEntidad;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo descEntidad
+     *
+     * @param descEntidad: valor del atributo descEntidad
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setDescEntidad(String descEntidad) {
+        this.descEntidad = descEntidad;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo anchoEntidad
+     *
+     * @return anchoEntidad: valor del atributo anchoEntidad
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public Integer getAnchoEntidad() {
+        return anchoEntidad;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo anchoEntidad
+     *
+     * @param anchoEntidad: valor del atributo anchoEntidad
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setAnchoEntidad(Integer anchoEntidad) {
+        this.anchoEntidad = anchoEntidad;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo descDistrito
+     *
+     * @return descDistrito: valor del atributo descDistrito
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public String getDescDistrito() {
+        return descDistrito;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo descDistrito
+     *
+     * @param descDistrito: valor del atributo descDistrito
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setDescDistrito(String descDistrito) {
+        this.descDistrito = descDistrito;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo anchoDistrito
+     *
+     * @return anchoDistrito: valor del atributo anchoDistrito
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public Integer getAnchoDistrito() {
+        return anchoDistrito;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo anchoDistrito
+     *
+     * @param anchoDistrito: valor del atributo anchoDistrito
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setAnchoDistrito(Integer anchoDistrito) {
+        this.anchoDistrito = anchoDistrito;
+    }
+
+    /**
+     * Método que obtiene el valor del atributo anchoFechaHora
+     *
+     * @return anchoFechaHora: valor del atributo anchoFechaHora
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public Integer getAnchoFechaHora() {
+        return anchoFechaHora;
+    }
+
+    /**
+     * Método que ingresa el valor del atributo anchoFechaHora
+     *
+     * @param anchoFechaHora: valor del atributo anchoFechaHora
+     * @author Pablo Zuñiga Mata.
+     * @since 08/02/2017
+     */
+    public void setAnchoFechaHora(Integer anchoFechaHora) {
+        this.anchoFechaHora = anchoFechaHora;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo columnas
+     *
+     * @return Date : valor que tiene el atributo columnas
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 10/03/2017
+     */
+    public Integer getColumnas() {
+        return columnas;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo columnas
+     *
+     * @param columnas
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 10/03/2017
+     */
+    public void setColumnas(Integer columnas) {
+        this.columnas = columnas;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo descDistritoLocal
+     *
+     * @return Date : valor que tiene el atributo descDistritoLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public String getDescDistritoLocal() {
+        return descDistritoLocal;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo descDistritoLocal
+     *
+     * @param descDistritoLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public void setDescDistritoLocal(String descDistritoLocal) {
+        this.descDistritoLocal = descDistritoLocal;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo anchoDistritoLocal
+     *
+     * @return Date : valor que tiene el atributo anchoDistritoLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public Integer getAnchoDistritoLocal() {
+        return anchoDistritoLocal;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo anchoDistritoLocal
+     *
+     * @param anchoDistritoLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public void setAnchoDistritoLocal(Integer anchoDistritoLocal) {
+        this.anchoDistritoLocal = anchoDistritoLocal;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo descMunicipioLocal
+     *
+     * @return Date : valor que tiene el atributo descMunicipioLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public String getDescMunicipioLocal() {
+        return descMunicipioLocal;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo descMunicipioLocal
+     *
+     * @param descMunicipioLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public void setDescMunicipioLocal(String descMunicipioLocal) {
+        this.descMunicipioLocal = descMunicipioLocal;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo anchoMunicipioLocal
+     *
+     * @return Date : valor que tiene el atributo anchoMunicipioLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 22/03/2017
+     */
+    public Integer getAnchoMunicipioLocal() {
+        return anchoMunicipioLocal;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo anchoMunicipioLocal
+     *
+     * @author Pablo Zuñiga Mata
+     * @param anchoMunicipioLocal
+     * @since 22/03/2017
+     */
+    public void setAnchoMunicipioLocal(Integer anchoMunicipioLocal) {
+        this.anchoMunicipioLocal = anchoMunicipioLocal;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo idDistrito
+     *
+     * @return Date : valor que tiene el atributo idDistrito
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 28/03/2017
+     */
+    public Integer getIdDistrito() {
+        return idDistrito;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo idDistrito
+     *
+     * @param idDistrito
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 28/03/2017
+     */
+    public void setIdDistrito(Integer idDistrito) {
+        this.idDistrito = idDistrito;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo listaDatos
+     *
+     * @return Date : valor que tiene el atributo listaDatos
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 11/05/2017
+     */
+    public List<Object[]> getListaDatos() {
+        return listaDatos;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo listaDatos
+     *
+     * @param listaDatos
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 11/05/2017
+     */
+    public void setListaDatos(List<Object[]> listaDatos) {
+        this.listaDatos = listaDatos;
+    }
+
+    /**
+     * Método que obtiene el valor de el atributo rutaImgEstado
+     *
+     * @return Date : valor que tiene el atributo rutaImgEstado
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 17/05/2017
+     */
+    public String getRutaImgEstado() {
+        return rutaImgEstado;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo rutaImgEstado
+     * @author Pablo Zuñiga Mata
+     * @param rutaImgEstado
+     * @since 17/05/2017
+     */
+    public void setRutaImgEstado(String rutaImgEstado) {
+        this.rutaImgEstado = rutaImgEstado;
+    }
+
+}

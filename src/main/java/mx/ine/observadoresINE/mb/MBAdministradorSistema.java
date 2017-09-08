@@ -1,0 +1,787 @@
+package mx.ine.observadoresINE.mb;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
+import mx.ine.common.enums.EnumAmbitoDetalleProceso;
+import mx.ine.common.enums.EnumEstatusModulo;
+import mx.ine.common.enums.EnumVigenciaProceso;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleDistritoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleEstadoProcesoWS;
+import mx.ine.common.ws.administracion.dto.response.DTODetalleProcesoWS;
+import mx.ine.common.ws.api.exception.ClienteWebServiceException;
+import mx.ine.observadoresINE.bsd.BSDAdministradorSistemaInterface;
+import mx.ine.observadoresINE.dto.db.DTOAccesosSistema;
+import mx.ine.observadoresINE.dto.form.FormAdministrador;
+import mx.ine.observadoresINE.helper.HLPTransformadorMenu;
+import mx.ine.observadoresINE.util.Utilidades;
+
+import org.jboss.logging.Logger;
+import org.primefaces.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+/**
+ * Clase que se genera en sesión encargada de manejar el menú del sistema
+ * 
+ * @author Robert S.
+ * @updatedBy José Antonio López Torres
+ * @since 25/10/2014
+ * @copyright INE
+ */
+@Component("mbAdmin")
+@Scope("prototype")
+public class MBAdministradorSistema extends MBGeneric implements Serializable {
+
+    /**
+     * Objeto par la serialización de esta clase.
+     */
+    private static final long serialVersionUID = -7362510999437643253L;
+
+    /**
+     * Objeto para el servicio de bitácora de mensajes de la aplicación.
+     */
+    private static final Logger LOGGER = Logger.getLogger(MBAdministradorSistema.class);
+    
+    @Autowired
+    @Qualifier("bsdAdmin")
+    private transient BSDAdministradorSistemaInterface bsdAdmin;    
+    /**
+     * DTO que contiene los datos necesarios para manipular el home
+     * y el menú
+     */
+    private FormAdministrador dto;
+    /**
+     * Helper para tranformar el menú
+     */
+    private HLPTransformadorMenu hlpTransfMenu;
+    
+    private boolean verMenu;
+    
+    /**
+     * SobreConstrucción de la clase para inicializar variables
+     * 
+     * @author Pablo Zuñiga Mata
+     * @since 21/02/2017
+     */
+    public MBAdministradorSistema() {
+        dto = new FormAdministrador();
+        hlpTransfMenu = new HLPTransformadorMenu();
+        this.verMenu = false;
+    }
+    
+    /**
+     * Método encargado de realizar validaciones una vez la
+     * clase ha sido inicializada
+     * 
+     * @author José Antonio López Torres 
+     * @since 20/02/2017
+     */
+    @PostConstruct
+    public void inicializa(){
+        //Usuario autenticado
+        dto.setUsuario(obtenUsuario());
+        //Valida usuario
+        validaUsuario();
+        accesoSistema();
+    }
+    
+    /**
+     * Método encargado de guardar un registro en la tabla ACCESOS_SISTEMA cada que un usario inicia sesión
+     * 
+     * @author Emmanuel García Ysamit
+     * @since 03/05/2017
+     */
+    private void accesoSistema() {
+        DTOAccesosSistema usuario = new DTOAccesosSistema();
+        usuario.setGrupo(dto.getUsuario().getRolUsuario());
+        usuario.setFechaHoraEntrada(Calendar.getInstance());
+        bsdAdmin.guardarRegistroAcceso(usuario);
+    }
+    
+    /**
+     * Método encargado de iniciar menú lateral
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void inicializaMenu() {
+    	if (dto.getTipoSistema() != null && !dto.getTipoSistema().isEmpty()) {
+    	    if(dto.getTipoSistema().equals(Utilidades.mensajeProperties("sistema.tipo"))){
+    	        //Procesos
+//    	        cargaProcesos();
+    	    }
+    	}
+      //Si solo es un detalle 
+    	if(dto.getUsuario().getIdProcesoElectoral() != null){
+            //Genera menus
+            generaMenus();
+        }
+    }
+    
+    /**
+     * Método encargado de validar que combos deshabilitar dependiendo
+     * de los datos del usuario
+     * 
+     * @author José Antonio López Torres 
+     * @since 13/02/2017
+     */
+    private void validaUsuario(){
+      //Si solo es un proceso 
+        if(dto.getUsuario().getDetalleSeleccionado() != null
+        		&& dto.getUsuario().getDetalleSeleccionado().getIdProcesoElectoral() != null){
+            dto.setIdProceso(dto.getUsuario().getIdProcesoElectoral());
+            dto.setIdDetalleProceso(dto.getUsuario().getIdDetalleProceso());
+            dto.setProceso(dto.getUsuario().getDetalleSeleccionado());
+        }
+        String version = dto.getUsuario().getVersion();
+        //Si solo es un proceso 
+        if(dto.getUsuario().getListaDetalles().size() == 1){
+            dto.setDisableDetalle(true);
+        }
+        if(dto.getIdDetalleProceso() != null){
+            //Si es OC
+            if(version.equals(Utilidades.mensajeProperties("constante_version_rol_oc"))){
+                dto.setDisableEstado(false);
+                dto.setDisableDistrito(false);
+            }
+            //Si es JL y se obtuvo el estado deshabilita combo estado
+            if(version.equals(Utilidades.mensajeProperties("constante_version_rol_jl")) &&
+                    dto.getUsuario().getIdEstadoSeleccionado() != null){
+                dto.setDisableEstado(true);
+                dto.setDisableDistrito(false);
+            }
+            //Si es JD y se obtuvo el distrito deshabilita combo distrito
+            if(version.equals(Utilidades.mensajeProperties("constante_version_rol_jd")) &&
+                    dto.getUsuario().getIdDistritoSeleccionado() != null){
+                dto.setDisableEstado(true);
+                dto.setDisableDistrito(true);
+            }
+        }
+    }
+    
+    /**
+     * Método llamado desde la vista (menu.xhtml) al seleccionar un proceso
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void cambiaDetalle(){
+        limpiaEstado();
+        limpiaDistrito();
+        //Obten info proceso
+        dto.setIdProceso(null);
+        dto.setProceso(null);
+        if(dto.getIdDetalleProceso() != null && dto.getIdDetalleProceso() > 0){
+            localizaDetalle();
+            cargaEstados();
+            generaMenus();
+            validaUsuario();
+        }else{
+            //Limpia menu lateral
+            dto.setJsonMenuLateral(null);
+            dto.setJsonMenuAcciones(null);
+            renderMenuLateral();
+        }
+        //Llamadas javascript
+        //limpiaMenuLateral();
+        redirectHome();
+    }
+    
+    /**
+     * Método llamado desde la vista (menu.xhtml) al seleccionar un estado
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void cambiaEstado(){
+        //Obten info estado
+        limpiaDistrito();
+        dto.getUsuario().setEstadoSeleccionado(null);
+        if(dto.getUsuario().getIdEstadoSeleccionado() != null){
+            localizaEstado();
+            cargaDistritos();
+        }
+        //Llamadas javascript
+        //limpiaMenuLateral();
+        redirectHome();
+        generaMenus();
+    }
+    
+    /**
+     * Método llamado desde la vista (menu.xhtml) al seleccionar un distrito
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void cambiaDistrito(){
+        //Obten info distrito
+        dto.getUsuario().setDistritoSeleccionado(null);
+        if(dto.getUsuario().getIdDistritoSeleccionado() != null){
+            localizaDistrito();
+        }
+        //Llamadas javascript
+        //limpiaMenuLateral();
+        redirectHome();
+        generaMenus();
+    }
+    
+    /**
+     * Método encargado de obtener los estados dependiendo del proceso electoral
+     * seleccionado
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void cargaEstados(){
+        limpiaEstado();
+        try{
+        	List<DTODetalleEstadoProcesoWS> lista = bsdAdmin.obtenerEstadosDetalle(
+        			dto.getUsuario().getIdSistema(), 
+        			dto.getUsuario().getDetalleSeleccionado().getIdProcesoElectoral(), 
+        			dto.getUsuario().getDetalleSeleccionado().getIdDetalleProceso()
+        			,dto.getUsuario().getIdEstado(), dto.getUsuario().getIdDistrito(), null
+        			, EnumVigenciaProceso.S.getValor(), null);
+//        	Si es OC
+            if(dto.getUsuario().getVersion().equals(
+                    Utilidades.mensajeProperties("constante_version_rol_oc")) && dto.getUsuario().getIdEstado() == 0
+                    && dto.getUsuario().getIdDistrito() == 0){
+                dto.getUsuario().setListaEstados(lista);
+//          Si es JL o JD
+            }else{
+            	dto.getUsuario().setListaEstados(localizaEstadoUsuario(lista));
+                dto.getUsuario().setIdEstadoSeleccionado(dto.getUsuario().getIdEstado());
+                cargaDistritos();
+            }
+        }catch(ClienteWebServiceException e){
+            LOGGER.error("Error MBAdministradorSistema - cargaEstados()", e);
+        }catch(Exception e){
+            LOGGER.error("Error MBAdministradorSistema - cargaEstados()", e);
+        }
+    }
+    
+    /**
+     * Método encargado de obtener los distritos dependiendo del estado
+     * seleccionado
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void cargaDistritos(){
+        limpiaDistrito();
+        try{
+        	List<DTODetalleDistritoProcesoWS> lista = bsdAdmin.obtenerDistritosDetalle(
+                    dto.getUsuario().getIdSistema(), 
+                    dto.getUsuario().getDetalleSeleccionado().getIdProcesoElectoral(), 
+                    dto.getUsuario().getDetalleSeleccionado().getIdDetalleProceso(),
+                    dto.getUsuario().getIdEstadoSeleccionado(), dto.getUsuario().getIdDistrito(), "F"
+        			, EnumVigenciaProceso.S.getValor(), null);
+          //Si es JD obten unico distrito
+            if(dto.getUsuario().getVersion().equals(
+                    Utilidades.mensajeProperties("constante_version_rol_jd")) && dto.getUsuario().getIdEstado() > 0
+                    && dto.getUsuario().getIdDistrito() > 0){
+                dto.getUsuario().setListaDistritos(localizaDistritoUsuario(lista));
+                dto.getUsuario().setIdDistritoSeleccionado(dto.getUsuario().getIdDistrito());
+            }else{
+                dto.getUsuario().setListaDistritos(lista);
+            }
+        }catch(ClienteWebServiceException e){
+            LOGGER.error("Error MBAdministradorSistema - cargaEstados()", e);
+        }catch(Exception e){
+            LOGGER.error("Error MBAdministradorSistema - cargaDistritos()", e);
+        }
+    }
+    
+    /**
+     * Método encargado de limpiar los valores del estado
+     * 
+     * @author José Antonio López Torres 
+     * @since 09/02/2017
+     */
+    private void limpiaEstado(){
+        dto.getUsuario().setListaEstados(null);
+        dto.getUsuario().setEstadoSeleccionado(null);
+        dto.getUsuario().setIdEstadoSeleccionado(null);
+        dto.setDisableEstado(false);
+    }
+    
+    /**
+     * Método encargado de limpiar los valores del distrito
+     * 
+     * @author José Antonio López Torres 
+     * @since 09/02/2017
+     */
+    private void limpiaDistrito(){
+        dto.getUsuario().setListaDistritos(null);
+        dto.getUsuario().setDistritoSeleccionado(null);
+        dto.getUsuario().setIdDistritoSeleccionado(null);
+        dto.setDisableDistrito(false);
+    }
+    
+    /**
+     * Método encargado de consultar el menú a través de un servicio web Para
+     * que funcione deben existir las siguientes variables
+     * <code>idProceso</code>; Proceso electoral, en sistemas institucionales
+     * este no aplica, quizás deba agregarse una variable de tipoSistema para
+     * determinar si se consulta o no <code>idSistema</code>; Identificador del
+     * sistema, debe estar definido en algún lado <code>idEstado</code>;
+     * Identificador del estado con que entró el usuario o ha sido cambiado del
+     * combo, nunca es nulo, 0 se toma para OC <code>idDistrito</code>;
+     * Identificador del distrito con que entró el usuario, o ha sido cambiado
+     * del combo, puede ser nulo, 0 se toma para cabecera distrital
+     * <code>grupo</code>
+     * **/
+    public void generaMenus() {
+    	this.verMenu = false;
+    	String version = dto.getUsuario().getVersion();
+    	if(version.equals(Utilidades.mensajeProperties("constante_version_rol_oc")) &&
+    			dto.getIdDetalleProceso() != null && dto.getIdDetalleProceso() > 0){
+            verMenu = true;
+        }
+        //Si es JL
+        if(version.equals(Utilidades.mensajeProperties("constante_version_rol_jl")) &&
+                dto.getUsuario().getIdEstadoSeleccionado() != null && dto.getUsuario().getIdEstadoSeleccionado() > 0){
+            verMenu = true;
+        }
+        //Si es JD
+        if(version.equals(Utilidades.mensajeProperties("constante_version_rol_jd")) &&
+                dto.getUsuario().getIdDistritoSeleccionado() != null && dto.getUsuario().getIdDistritoSeleccionado() > 0){
+            verMenu = true;
+        }
+    	if(verMenu){
+	        //Menu lateral
+	        generaMenuLateral();
+	        //Menu acciones
+	        generaMenuAcciones();
+    	}
+    }
+    
+    /**
+     * Genera menú lateral
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void generaMenuLateral() {
+        dto.setJsonMenuLateral(null);
+        dto.setJsonMenuAcciones(null);
+        try {
+            dto.setJsonMenuLateral(bsdAdmin.generaMenuLateral(dto.getIdProceso(),
+            		dto.getIdDetalleProceso(),
+                    dto.getUsuario().getIdSistema(), 
+                    obtenEstadoMenu(), 
+                    obtenDistritoMenu(), 
+                    dto.getUsuario().getRolUsuario()));
+            if (dto.getJsonMenuLateral() == null || dto.getJsonMenuLateral().trim().isEmpty()) {
+                LOGGER.error("No se obtuvieron datos del menú");
+            }
+            renderMenuLateral();
+        } catch (ClienteWebServiceException e) {
+            if(e.getCode().intValue() == 404){
+                LOGGER.info("No existe menú para los datos enviados");
+            }else{
+                LOGGER.error("Error MBAdministradorSistema - generaMenuLateral()", e);
+            }
+        }catch(Exception e){
+            LOGGER.error("Error MBAdministradorSistema - generaMenuLateral()", e);
+        }
+    }
+    
+    /**
+     * Método encargado de generar el menú de módulos cada que cambia el
+     * proceso, el estado o el distrito Para que funcione debe haberse asignado
+     * los datos del usuario y haber elegido el proceso electoral
+     * 
+     * @author Mayra Victoria
+     * @since 09/09/2016
+     */
+    public void generaMenuAcciones() {
+        dto.setJsonMenuAcciones(null);
+        try {
+            dto.setJsonMenuAcciones(bsdAdmin.generaMenuAcciones(
+                    dto.getIdProceso(), 
+                    dto.getIdDetalleProceso(),
+                    dto.getUsuario().getIdSistema(), 
+                    obtenEstadoMenu(), 
+                    obtenDistritoMenu(),
+                    dto.getUsuario().getRolUsuario()));
+            if (dto.getJsonMenuAcciones() == null || dto .getJsonMenuAcciones().trim().isEmpty()) {
+                LOGGER.error("No se obtuvieron datos del menú de acciones");
+            }
+            renderMenuAcciones();
+        } catch (ClienteWebServiceException e) {
+            if(e.getCode().intValue() == 404){
+                LOGGER.info("No existe menú para los datos enviados");
+            }else{
+                LOGGER.error("Error MBAdministradorSistema - generaMenuAcciones()", e);
+            }
+        } catch (Exception e) {
+            LOGGER.error("Error MBAdministradorSistema - generaMenuAcciones()", e);
+        }
+    }
+
+    
+    /**
+     * Obten id estado para enviar a menu
+     * 
+     * @return Integer : idEstado
+     *
+     * @author José Antonio López Torres 
+     * @since 13/02/2017
+     */
+    private Integer obtenEstadoMenu(){
+        Integer idEstado = dto.getUsuario().getIdEstadoSeleccionado() == null ? 0 : 
+            dto.getUsuario().getIdEstadoSeleccionado().intValue();
+        return idEstado;
+    }
+    
+    /**
+     * Obten id distrito para enviar a menu
+     * 
+     * @return Integer : idDistrito
+     *
+     * @author José Antonio López Torres 
+     * @since 13/02/2017
+     */
+    private Integer obtenDistritoMenu(){
+        Integer idDistrito = dto.getUsuario().getIdDistritoSeleccionado() == null ? 0 : 
+            dto.getUsuario().getIdDistritoSeleccionado().intValue();
+        return idDistrito;
+    }
+    /**
+     * Método encargado de renderizar el menú lateral desde el mbAdmin
+     * 
+     *
+     */
+    public void renderMenuLateral() {
+        LOGGER.info("generando menú lateral");
+        Integer code = 500;
+        if(this.verMenu){
+            code = Utilidades.validaDatosMenu(dto.getJsonMenuLateral());
+    	}
+        if(code.intValue()==200){
+            if(dto.getJsonMenuLateral()!=null && !dto.getJsonMenuLateral().trim().isEmpty()){
+                StringBuilder sb = new StringBuilder();
+                sb.append("generaMenuLateral('").append(dto.getJsonMenuLateral()).
+                   append("','").append(dto.getIdModulo()).append("')");
+                RequestContext.getCurrentInstance().execute(sb.toString());                   
+            }
+        }else if(code.intValue()==404 || code.intValue()==500){
+            Utilidades.enviaMensajeMenuLateral(Utilidades.mensajeProperties("mensaje_menu_no_datos"));
+        }
+    }
+    
+    /**
+     * Método encargado de setear el título del módulo de acuerdo a al identificados del módulo (idModulo) 
+     * 
+     * @author Pablo Zuñiga Mata
+     * @since 10/08/2017
+     */
+    public void obtenTituloModulo(){
+    	if(dto.getIdModulo() != null && dto.getIdModulo() > 0){
+	    	if(dto.getIdModulo() == 1){
+	    		dto.setTituloModulo("Catálogo de Acciones de Promoción");
+	    	}else if(dto.getIdModulo() == 2){
+	    		dto.setTituloModulo("Agrupaciones");
+	    	}else if(dto.getIdModulo() == 3){
+	    		dto.setTituloModulo("Solicitudes");
+	    	}else if(dto.getIdModulo() == 4){
+	    		dto.setTituloModulo("Acreditación(es) y/o Gafete(s)");
+	    	}else if(dto.getIdModulo() == 5){
+	    		dto.setTituloModulo("Cursos");
+	    	}else if(dto.getIdModulo() == 6){
+	    		dto.setTituloModulo("Promoción");
+	    	}else if(dto.getIdModulo() == 7){
+	    		dto.setTituloModulo("Control de Observadoras/es");
+	    	}else if(dto.getIdModulo() == 8){
+	    		dto.setTituloModulo("Cursos de Capacitación");
+	    	}else if(dto.getIdModulo() == 9){
+	    		dto.setTituloModulo("Acciones de promoción");
+	    	}else if(dto.getIdModulo() == 10){
+	    		dto.setTituloModulo("Solicitud de Acreditación de Observadoras/es");
+	    	}else if(dto.getIdModulo() == 11){
+	    		dto.setTituloModulo("Solicitud de Ratificación de Observadoras/es");
+	    	}else if(dto.getIdModulo() == 12){
+	    		dto.setTituloModulo("Catálogo de Cargos Responsables");
+	    	}else if(dto.getIdModulo() == 13){
+	    		dto.setTituloModulo("Catálogo de Escolaridades");
+	    	}else if(dto.getIdModulo() == 14){
+	    		dto.setTituloModulo("Catálogo de Justificaciones");
+	    	}else if(dto.getIdModulo() == 15){
+	    		dto.setTituloModulo("Catálogo de Evaluaciones");
+	    	}else{
+	    		dto.setTituloModulo("");
+	    	}
+    	}
+    }
+
+    /**
+     * Método encargado de renderizar el menú de acciones desde el mbAdmin Debe
+     * existir el idModulo para ser capaz de mostrar algo
+     * **/
+    public void renderMenuAcciones() {
+        LOGGER.info("generando menú de acciones");
+        dto.setListaAcciones(null);
+        /** Comenzando generación dinámica de componentes del menú **/
+        if (dto.getJsonMenuAcciones() != null
+                        && !dto.getJsonMenuAcciones().trim().isEmpty() 
+                        && dto.getIdModulo() != null) {
+                LOGGER.info("Menú Acciones : " + dto.getJsonMenuAcciones());
+                LOGGER.info(dto.getIdModulo());
+                // Construimos el menú de acciones
+                dto.setListaAcciones(hlpTransfMenu.construyeMenuAcciones(
+                                dto.getJsonMenuAcciones(), dto.getIdModulo()
+                                                .intValue()));
+        }
+    }
+    
+    /**
+     * Método encargado de localizar el detalle seleccionado 
+     * de una lista
+     * 
+     * @author José Antonio López Torres 
+     * @since 09/02/2017
+     */
+    private void localizaDetalle(){
+        for(DTODetalleProcesoWS detalle : dto.getUsuario().getListaDetalles()){
+            if(detalle.getIdDetalleProceso().intValue() == dto.getIdDetalleProceso().intValue()){
+            	dto.getUsuario().setDetalleSeleccionado(detalle);
+            	dto.getUsuario().setIdDetalleProceso(detalle.getIdDetalleProceso());
+            	dto.getUsuario().setIdProcesoElectoral(detalle.getIdProcesoElectoral());
+            	dto.setIdProceso(detalle.getIdProcesoElectoral());
+            	dto.setProceso(detalle);
+                if("F".equalsIgnoreCase(detalle.getAmbitoDetalle())){
+                	dto.getUsuario().setAmbitoDetalleProceso(EnumAmbitoDetalleProceso.F);
+                }else{
+                	dto.getUsuario().setAmbitoDetalleProceso(EnumAmbitoDetalleProceso.L);
+                }
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Método encargado de validar si los datos del menú lateral
+     * corresponden con la versión del sistema
+     * 
+     * @param version : OC,JL o JD
+     * @return true : corresponde, false : no corresponde
+     *
+     * @author José Antonio López Torres 
+     * @since 16/02/2017
+     */
+    public boolean validaVersion(String version){
+        boolean respuesta = false;
+        Integer idEstado = dto.getUsuario().getIdEstadoSeleccionado() == null ? 0 : 
+        	dto.getUsuario().getIdEstadoSeleccionado();
+        Integer idDistrito = dto.getUsuario().getIdDistritoSeleccionado() == null ? 0 : 
+        	dto.getUsuario().getIdDistritoSeleccionado();
+        if(dto.getUsuario().getIdDetalleProceso() != null){
+            if(version.equalsIgnoreCase(
+            		Utilidades.mensajeProperties("constante_version_rol_oc")) &&
+                    idEstado == 0 && idDistrito == 0){
+                respuesta = true;
+            }else if(version.equalsIgnoreCase(
+            		Utilidades.mensajeProperties("constante_version_rol_jl")) &&
+                    idEstado > 0 && idDistrito == 0){
+                respuesta = true;
+            }else if(version.equalsIgnoreCase(
+            		Utilidades.mensajeProperties("constante_version_rol_jd")) &&
+                    idEstado > 0 && idDistrito > 0){
+                respuesta = true;
+            }
+        }
+        return respuesta;
+    }
+    
+    /**
+     * Método encargado de validar si el módulo se encuentra abierto
+     * 
+     * @param idModulo :Id modulo
+     * 
+     * @return true : abierto, false : cerrado o deshabiltado
+     *
+     * @author Pablo Zuñiga Mata
+     * @since 16/03/2017
+     */
+    public boolean validaModuloAbierto(Integer idModulo){
+        boolean respuesta = false;
+        try{
+            EnumEstatusModulo estatus = bsdAdmin.obtenEstatusModulo(
+                    dto.getUsuario().getIdProcesoElectoral(), 
+                    dto.getUsuario().getIdDetalleProceso(), 
+                    dto.getUsuario().getIdSistema(), 
+                    obtenEstadoMenu(), 
+                    obtenDistritoMenu(), 
+                    dto.getUsuario().getRolUsuario(), 
+                    idModulo);
+            if(estatus.equals(EnumEstatusModulo.A)){
+                respuesta = true;
+            }
+        }catch(ClienteWebServiceException e){
+            LOGGER.error("Error MBAdministradorSistema - validaModuloAbierto()", e);
+        }
+        return respuesta;
+    }
+    
+    
+    /**
+     * Método encargado de localizar el estado seleccionado 
+     * de una lista
+     * 
+     * @author Pablo Zuñiga Mata
+     * @since 21/02/2017
+     */
+    private void localizaEstado(){
+        for(DTODetalleEstadoProcesoWS estado : dto.getUsuario().getListaEstados()){
+            if(estado.getIdEstado().intValue() == 
+                    dto.getUsuario().getIdEstadoSeleccionado().intValue()){
+                dto.getUsuario().setEstadoSeleccionado(estado);
+                break;
+            }
+        }
+    }
+    /**
+     * Método encargado de localizar el estado del usuario
+     * 
+     * @return List<DTODetalleEstadoProcesoWS> : Estado
+     * 
+     * @author Pablo Zuñiga Mata
+     * @since 21/02/2017
+     */
+    private List<DTODetalleEstadoProcesoWS> localizaEstadoUsuario(List<DTODetalleEstadoProcesoWS> lista){
+        List<DTODetalleEstadoProcesoWS> estados = new ArrayList<>();
+        for(DTODetalleEstadoProcesoWS a : lista){
+            if(a.getIdEstado().intValue() == 
+                    dto.getUsuario().getIdEstado().intValue()){
+                estados.add(a);
+                break;
+            }
+        }
+        return estados;
+    }
+    
+    /**
+     * Método encargado de localizar el distrito seleccionado 
+     * de una lista
+     * 
+     * @author Pablo Zuñiga Mata
+     * @since 21/02/2017
+     */
+    private void localizaDistrito(){
+        for(DTODetalleDistritoProcesoWS distrito : dto.getUsuario().getListaDistritos()){
+            if(distrito.getIdDistrito().intValue() == 
+                    dto.getUsuario().getIdDistritoSeleccionado().intValue()){
+                dto.getUsuario().setDistritoSeleccionado(distrito);
+                break;
+            }
+        }
+    }
+    
+    /**
+     * Método encargado de localizar el distrito del usuario
+     * 
+     * @return List<DTODetalleDistritoProcesoWS> : Distrito
+     * 
+     * @author Pablo Zuñiga Mata
+     * @since 21/02/2017
+     */
+    private List<DTODetalleDistritoProcesoWS> localizaDistritoUsuario(List<DTODetalleDistritoProcesoWS> lista){
+        List<DTODetalleDistritoProcesoWS> distritos = new ArrayList<>();
+        for(DTODetalleDistritoProcesoWS a : lista){
+            if(a.getIdDistrito().intValue() == 
+                    dto.getUsuario().getIdDistrito().intValue()){
+                distritos.add(a);
+                break;
+            }
+        }
+        return distritos;
+    }
+    
+    /**
+     * Método encargado de limpiar el menú lateral
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    //YA NO SE USA ESTE METODO EN RECURSOS WEB 3
+    //public void limpiaMenuLateral() {
+        //RequestContext.getCurrentInstance().execute("limpiaMenuLateral()");
+    //}
+    
+    /**
+     * Método encargado de mandar a home mediante una llama javascript
+     * 
+     * @author José Antonio López Torres 
+     * @since 15/02/2017
+     */
+    
+    
+    public void redirectHome(){
+       RequestContext.getCurrentInstance().execute("mandaHome()");
+    }
+//    public void redirectHome(){
+//    	try{
+//    		org.springframework.webflow.execution.RequestContext requestContext = RequestContextHolder.getRequestContext();
+//    		RequestControlContext rec = (RequestControlContext) requestContext;
+//    		rec.handleEvent(new Event(this, "home"));
+//		}catch(Exception e){
+//			LOGGER.error("Error al redirigir al home ",e);
+//		}
+//	}
+
+    /**
+     * Método que obtiene el valor de el atributo dto
+     *
+     * @return FormAdministrador : valor que tiene el atributo dto
+     * 
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public FormAdministrador getDto() {
+        return dto;
+    }
+
+    /**
+     * Método que ingresa el valor de el atributo dto
+     *
+     * @param dto : valor que ingresa a el atributo dto
+     *
+     * @author José Antonio López Torres
+     * @since 8/11/2016
+     */
+    public void setDto(FormAdministrador dto) {
+        this.dto = dto;
+    }
+
+	/**
+	 * Método que obtiene el valor de el atributo verMenu
+	 *
+	 * @return Date : valor que tiene el atributo verMenu
+	 * 
+	 * @author Pablo Zuñiga Mata
+	 * @since 17/03/2017
+	 */
+	public boolean isVerMenu() {
+		return verMenu;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo verMenu
+	 *
+	 * @param fechaAprobacionCasillaJunta : valor que ingresa a el atributo verMenu
+	 *
+	 * @author Pablo Zuñiga Mata
+	 * @since 17/03/2017
+	 */
+	public void setVerMenu(boolean verMenu) {
+		this.verMenu = verMenu;
+	}
+    
+}

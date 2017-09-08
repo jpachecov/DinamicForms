@@ -1,0 +1,153 @@
+ /**
+ * @(#)MBReportesDetalleObservadores.java 15/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.mb;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import mx.ine.observadoresINE.bsd.BSDReporteDetalleObservadoresInterface;
+import mx.ine.observadoresINE.helper.HLPReporteAgrupaciones;
+import mx.ine.observadoresINE.helper.HLPReporteDetalleObservadores;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+ /**
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 15/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class MBReporteDetalleObservadores extends MBReportesMenu implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -5156009370939601875L;
+	
+	private Map<String, Serializable> parametrosPDF;
+	private boolean muestraTabla;
+	private static final Log LOGGER = LogFactory.getLog(MBReporteDetalleObservadores.class);
+	@Autowired
+	@Qualifier("bsdReporteDetalleObservadores")
+	private transient BSDReporteDetalleObservadoresInterface bsdReporteDetalleObs;
+	
+	
+	@Override
+	public void init(){
+		super.init();
+		muestraTabla = false;
+                inicializaReporteDetalleObservadores();
+	}
+	
+	
+	private void inicializaReporteDetalleObservadores() {
+		parametrosPDF = new LinkedHashMap<>();
+//		inicializaParametrosGeografia();
+		parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS,
+				HLPReporteAgrupaciones.COLUMNAS);
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO,
+				Utilidades.mensajeProperties("etiqueta_reportes_titulo_detalle_observadores"));
+		// Se declara nombre para archivo excel
+		setNombreReporte(Utilidades.mensajeProperties("etiqueta_reportes_detalle_observadores"));
+		obtenTituloModulo();
+		setMuestraTotales(Boolean.FALSE);
+	}
+	
+	private void obtenTituloModulo() {
+		this.mbAdmin.getDto().setTituloModulo(
+				Utilidades.mensajeProperties("etiqueta_reportes_detalle_observadores"));
+	}
+	
+	public void consultaReporte(){
+		Integer idEstado = obtenUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = obtenUsuario().getIdDistritoSeleccionado();
+		Integer idDetalle = obtenUsuario().getIdDetalleProceso();
+		Integer idProceso = obtenUsuario().getIdProcesoElectoral();
+		Integer nivelOficinas = super.getNivelOficinas();
+		LinkedHashMap<String, Integer> filtros = new LinkedHashMap<String, Integer>();
+		filtros.put("nivelOficinas", nivelOficinas);
+		filtros.put("idProceso", idProceso);
+		filtros.put("idDetalle", idDetalle);		
+		if(nivelOficinas > 1){
+			filtros.put("idEstado", idEstado);
+			filtros.put("idDistrito",idDistrito);
+		}
+		super.inicializaParametrosEncabezado();
+		if (idEstado == null || idEstado.equals(0)) {
+          dtoParametros.setAnchoEntidad(5);
+          dtoParametros.setAnchoFechaHora(6);
+      } else if (!idEstado.equals(0) && idDistrito.equals(0)) {
+          dtoParametros.setAnchoEntidad(5);
+          dtoParametros.setAnchoFechaHora(6);
+      } else if (!idEstado.equals(0) && !idDistrito.equals(0)) {
+          dtoParametros.setAnchoEntidad(3);
+          dtoParametros.setAnchoDistrito(3);
+          dtoParametros.setAnchoFechaHora(5);
+      }
+		try{
+			HLPReporteDetalleObservadores hlpDetalleObs = bsdReporteDetalleObs.generaReporte(filtros);
+			dtoParametros.setColumnas(hlpDetalleObs.getColumnas());
+			dtoParametros.setTituloReporte(hlpDetalleObs.getTituloReporte());
+			dtoParametros.setEncabezado(hlpDetalleObs.getListaEncabezados());
+			dtoParametros.setListaDatos(hlpDetalleObs.getListaDatos());
+			nombreReporte = "reporteDetalleObservadores";
+			muestraTabla = true;
+		}catch(Exception e){
+			LOGGER.error("Error en el método consultaReporte():", e);
+		}
+	}
+	
+	@Override
+	public void exportPDF() throws IOException {
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_FILENAME,
+				Utilidades.mensajeProperties("etiqueta_reportes_detalle_observadores"));
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, dtoParametros
+				.getListaDatos().size());
+		setParametros(parametrosPDF);
+		super.exportPDF();
+	}
+
+	@Override
+	public void postProcessXLS(Object document) {
+		dtoParametros.setDescEntidad(null);
+		dtoParametros.setMuestraTotales(Boolean.TRUE);
+		super.postProcessXLS(document);
+	}
+	
+	/**
+	 * Método que obtiene el valor de el atributo muestraTabla
+	 *
+	 * @return boolean : valor que tiene el atributo muestraTabla
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 15/08/2017
+	 */
+	public boolean isMuestraTabla() {
+		return muestraTabla;
+	}
+	
+	/**
+	 * Método que ingresa el valor de el atributo muestraTabla
+	 *
+	 * @param muestraTabla : valor que ingresa a el atributo muestraTabla
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 15/08/2017
+	 */
+	public void setMuestraTabla(boolean muestraTabla) {
+		this.muestraTabla = muestraTabla;
+	}
+
+}

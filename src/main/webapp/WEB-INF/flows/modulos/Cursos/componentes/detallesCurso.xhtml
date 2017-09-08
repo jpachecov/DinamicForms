@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:p="http://primefaces.org/ui"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:pe="http://primefaces.org/ui/extensions"
+    xmlns:sf="http://www.springframework.org/tags/faces"
+    xmlns:sec="http://www.springframework.org/security/tags"
+    xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+    
+    <p:outputPanel id="detallesCursosModal" style="margin-top: -20px;">
+    	<div class="ui-g">
+    		<div class="ui-g-12">
+    			<div class="ui-g-3">
+    				<div class="md-selectfield">
+	    				<p:outputLabel value="#{messageSource['etiqueta_cursos_llevada']}" />
+	    				<p:outputLabel value="#{mbCursos.cursoEncontrado.fecha}">
+							<f:convertDateTime locale="es" pattern="dd 'de' MMMM 'de' yyyy"/> 
+						</p:outputLabel>
+						<p:outputLabel value=" de "/>
+						<p:outputLabel value="#{mbCursos.cursoEncontrado.horaInicio}">
+							 <f:convertDateTime pattern="HH:mm"/>
+						</p:outputLabel>
+						<p:outputLabel value=" a " />
+						<p:outputLabel value="#{mbCursos.cursoEncontrado.horaFin}" >
+							<f:convertDateTime pattern="HH:mm"/>
+						</p:outputLabel>
+						<p:outputLabel value="hrs" />
+					</div>
+    			</div>
+    			<div class="ui-g-9">
+    				<div class="md-selectfield">
+	    				<h:outputLabel value="#{messageSource['etiqueta_cursos_impartida_por']}" />
+	    				<h:outputText value="#{mbCursos.cursoEncontrado.nombre} #{mbCursos.cursoEncontrado.apellidoPaterno} #{mbCursos.cursoEncontrado.apellidoMaterno}"/>
+    				</div>
+    				<div class="md-selectfield">
+    					<h:outputText value="#{mbCursos.cursoEncontrado.cargoResponsable.descripcion}"/>
+    				</div>
+    			</div>
+    		</div>
+    		<div class="ui-g-12">
+    			<div class="md-selectfield">
+    				<h:outputLabel rendered="#{mbCursos.cursoEncontrado.mismoDomicilio eq 'S'}" value="#{messageSource['etiqueta_cursos_realizada_sede']} el domicilio #{mbCursos.cursoEncontrado.mismoDomicilio.description} #{messageSource['etiqueta_cursos_realizada_sede_2']}" />
+    				<h:outputLabel rendered="#{mbCursos.cursoEncontrado.mismoDomicilio eq 'N'}" value="#{messageSource['etiqueta_cursos_realizada_sede']} la #{mbCursos.cursoEncontrado.mismoDomicilio.description} #{messageSource['etiqueta_cursos_realizada_sede_2']}" />
+    			</div>
+    			<div class="ui-g-5">
+    				<div class="md-selectfield">
+    					<h:outputText value="#{messageSource['etiqueta_generales_calle']}: #{mbCursos.cursoEncontrado.calle}" />
+    				</div>
+    			</div>
+    			<div class="ui-g-4">
+    				<div class="md-selectfield">
+    					<h:outputText rendered="#{mbCursos.cursoEncontrado.numeroExterior != null}" value="#{messageSource['etiqueta_generales_numero_exterior']}: #{mbCursos.cursoEncontrado.numeroExterior}" />
+    					<h:outputText rendered="#{mbCursos.cursoEncontrado.numeroExterior == null}" value="#{messageSource['etiqueta_generales_numero_exterior']}: #{messageSource['etiqueta_cursos_consulta_sin_numero']}" />
+    				</div>
+    			</div>
+    			<div class="ui-g-3">
+    				<div class="md-selectfield">
+    					<h:outputText rendered="#{mbCursos.cursoEncontrado.numeroInterior != null}" value="#{messageSource['etiqueta_generales_numero_interior']}: #{mbCursos.cursoEncontrado.numeroInterior}" />
+    					<h:outputText rendered="#{mbCursos.cursoEncontrado.numeroInterior == null}" value="#{messageSource['etiqueta_generales_numero_interior']}: #{messageSource['etiqueta_cursos_consulta_sin_numero']}" />
+    				</div>
+    			</div>
+    		</div>
+    		<div class="ui-g-12">
+    			<div class="ui-g-5">
+    				<div class="md-selectfield">
+    					<h:outputText value="#{messageSource['etiqueta_cursos_colonia']}: #{mbCursos.cursoEncontrado.colonia}" />
+    				</div>
+    			</div>
+    			<div class="ui-g-4">
+    				<div class="md-selectfield">
+    					<h:outputText value="#{messageSource['etiqueta_generales_codigo_postal']}: #{mbCursos.cursoEncontrado.codigoPostal}" />
+    				</div>
+    			</div>
+    		</div>
+    		<div class="ui-g-12">
+    			<div class="ui-g-5">
+    				<div class="md-selectfield">
+    					<h:outputText value="#{messageSource['etiqueta_cursos_municipio']}: #{mbCursos.nombreMunicipio}" />
+    				</div>
+    			</div>
+    			<div class="ui-g-4">
+    				<div class="md-selectfield">
+    					<h:outputText value="#{messageSource['etiqueta_cursos_entidad']}: #{mbCursos.nombreEstado}" />
+    				</div>
+    			</div>
+    		</div>
+    		<div class="ui-g-12">
+	    			<div class="md-selectfield">
+	    				<p:outputLabel value="#{messageSource['etiqueta_cursos_comentarios_observaciones']}:" for="observaciones"/>
+	    				<h:outputText id="observaciones" value="#{mbCursos.cursoEncontrado.observaciones}"/>
+	    			</div>
+    		</div>
+    	</div>
+    	<div class="ui-g">
+			<div class="center-block">
+				<p:commandButton id="boton-aceptar"
+								 value="#{messageSource['etiqueta_boton_aceptar']}"
+								 style="margin-bottom:10px;"
+								 actionListener="#{mbCursos.limpiaPopup()}"
+								 oncomplete="PF('detallesCurso').hide()"/>
+			</div>
+		</div>
+    </p:outputPanel>
+    
+</ui:composition>

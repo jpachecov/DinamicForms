@@ -1,0 +1,306 @@
+package mx.ine.observadoresINE.as.impl;
+
+import java.util.List;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import mx.ine.observadoresINE.as.ASConfiguracionCatalogosInterface;
+import mx.ine.observadoresINE.dao.DAOConfiguarionCatalogosInterface;
+import mx.ine.observadoresINE.dto.db.DTOCAcciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridades;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacion;
+import mx.ine.observadoresINE.dto.db.DTOCJustificaciones;
+
+/**
+ * <code>ASConfiguracionCatalogosImpl.java</code>Descripcion de la clase
+ *
+ * @author Gerardo López
+ * @version 1.0
+ * @since 27/06/2017
+ */
+@Service("asConfiguracionCatalogos")
+@Scope("prototype")
+public class ASConfiguracionCatalogosImpl implements
+		ASConfiguracionCatalogosInterface {
+
+	@Autowired
+	@Qualifier("daoConfiguracionCatalogos")
+	DAOConfiguarionCatalogosInterface daoConfiguracionCatalogos;
+
+	/**
+	 * LOGGER
+	 */
+	private static final Log log = LogFactory
+			.getLog(ASConfiguracionCatalogosImpl.class);
+
+	// ******************** GUARDAR Y/O ACTUALIZAR CATALOGOS ***************
+
+	/**
+	 * Guarda y/o actualiza catálogo de acciones
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void guardaActualizaCAcciones(DTOCAcciones acciones)
+			throws Exception {
+		try {
+			daoConfiguracionCatalogos.guardaActualizaCAcciones(acciones);
+		} catch (Exception e) {
+			log.error("Error en guardar y/o actualizar catálogo de acciones en guardaActualizaCAcciones de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Guarda y/o actualiza catálogo de cargo de responsable
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void guardaActualizaCCargoResponsable(
+			DTOCCargoResponsable cargoResponsable) throws Exception {
+		try {
+			daoConfiguracionCatalogos
+					.guardaActualizaCCargoResponsable(cargoResponsable);
+		} catch (Exception e) {
+			log.error("Error en guardar y/o actualizar catálogo de cargo responsable en guardaActualizaCCargoResponsable de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Guarda y/o actualiza catálogo de escolaridades
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void guardaActualizaCEscolaridades(DTOCEscolaridades escolaridades)
+			throws Exception {
+		try {
+			daoConfiguracionCatalogos
+					.guardaActualizaCEscolaridades(escolaridades);
+		} catch (Exception e) {
+			log.error("Error en guardar y/o actualizar catálogo de escolaridades en guardaActualizaCEscolaridades de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Guarda y/o actualiza catálogo de justificaciones
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void guardaActualizaCJustificaciones(
+			DTOCJustificaciones justificaciones) throws Exception {
+		try {
+			daoConfiguracionCatalogos
+					.guardaActualizaCJustificaciones(justificaciones);
+		} catch (Exception e) {
+			log.error("Error en guardar y/o actualizar catálogo de justificaciones en guardaActualizaCJustificaciones de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Guarda y/o actualiza catálogo de evaluaciones
+	 */
+	@Override
+	public void guardaActualizaCEvaluaciones(DTOCEvaluacion evaluaciones)
+			throws Exception {
+		try {
+			daoConfiguracionCatalogos
+					.guardaActualizaCEvaluaciones(evaluaciones);
+		} catch (Exception e) {
+			log.error("Error en guardar y/o actualizar catálogo de evaluaciones en guardaActualizaCEvaluaciones de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	// ***************************** ELIMINAR CATALOGOS ***********************
+
+	/**
+	 * Elimina catálogo de acciones
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void eliminaCAcciones(List<DTOCAcciones> acciones) {
+		try {
+			daoConfiguracionCatalogos.eliminaCAcciones(acciones);
+		} catch (Exception e) {
+			log.error("Error en eliminar catálogo de acciones en guardaActualizaCAcciones de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Elimina catálogo de cargo de responsable
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void eliminaCCargoResponsable(
+			List<DTOCCargoResponsable> cargoResponsable) {
+		try {
+			daoConfiguracionCatalogos
+					.eliminaCCargoResponsable(cargoResponsable);
+		} catch (Exception e) {
+			log.error("Error en eliminar catálogo de cargo responsable en guardaActualizaCCargoResponsable de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Elimina catálogo de escolaridades
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void eliminaCEscolaridades(List<DTOCEscolaridades> escolaridades) {
+		try {
+			daoConfiguracionCatalogos.eliminaCEscolaridades(escolaridades);
+		} catch (Exception e) {
+			log.error("Error en eliminar catálogo de escolaridades en guardaActualizaCEscolaridades de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	/**
+	 * Elimina catálogo de justificaciones
+	 */
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void eliminaCJustificaciones(
+			List<DTOCJustificaciones> justificaciones) {
+		try {
+			daoConfiguracionCatalogos.eliminaCJustificaciones(justificaciones);
+		} catch (Exception e) {
+			log.error("Error en eliminar catálogo de justificaciones en guardaActualizaCJustificaciones de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+
+	}
+
+	@Override
+	@Transactional(readOnly = false, rollbackFor = { Exception.class })
+	public void eliminaCEvaluaciones(List<DTOCEvaluacion> evaluaciones) {
+		try {
+			daoConfiguracionCatalogos.eliminaCEvaluaciones(evaluaciones);
+		} catch (Exception e) {
+			log.error("Error en eliminar catálogo de evaluaciones en guardaActualizaCEvaluaciones de ASConfiguracionCatalogosImpl");
+			log.error(e);
+			e.printStackTrace();
+		}
+	}
+
+	// ***************************** OBTENER CATALOGOS *************************
+
+	/**
+	 * Obtiene catálogo de acciones
+	 * 
+	 * @throws Exception
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCAcciones> getCAcciones(Integer idProceso, Integer idDetalle)
+			throws Exception {
+		return daoConfiguracionCatalogos.getCAcciones(idProceso, idDetalle);
+	}
+
+	/**
+	 * Obtiene catálogo de cargo responsable
+	 * 
+	 * @throws Exception
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCCargoResponsable> getCCargoResponsable(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return daoConfiguracionCatalogos.getCCargoResponsable(idProceso,
+				idDetalle);
+	}
+
+	/**
+	 * Obtiene catálogo de escolaridades
+	 * 
+	 * @throws Exception
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCEscolaridades> getCEscolaridades(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return daoConfiguracionCatalogos
+				.getCEscolaridades(idProceso, idDetalle);
+	}
+
+	/**
+	 * Obtiene catálogo de justificaciones
+	 * 
+	 * @throws Exception
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCJustificaciones> getCJustificaciones(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return daoConfiguracionCatalogos.getCJustificaciones(idProceso,
+				idDetalle);
+	}
+
+	/**
+	 * Obtiene catálogo de evaluaciones
+	 * 
+	 * @throws Exception
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOCEvaluacion> getCEvaluaciones(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return daoConfiguracionCatalogos.getCEvaluaciones(idProceso, idDetalle);
+	}
+
+	// ******************* Encontrar registros en los demás módulos ***********
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public boolean promocionesXCAcciones(Integer idProceso, Integer idDetalle)
+			throws Exception {
+		return daoConfiguracionCatalogos.promocionesXCAcciones(idProceso,
+				idDetalle);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public boolean cursosXCCargoResponsable(Integer idProceso, Integer idDetalle)
+			throws Exception {
+		return daoConfiguracionCatalogos.cursosXCCargoResponsable(idProceso,
+				idDetalle);
+	}
+
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public boolean observadoresXCEscolarXCJustificaXCEvaluaciones(
+			Integer idProceso, Integer idDetalle) throws Exception {
+		return daoConfiguracionCatalogos
+				.observadoresXCEscolarXCJustificaXCEvaluaciones(idProceso,
+						idDetalle);
+	}
+
+}

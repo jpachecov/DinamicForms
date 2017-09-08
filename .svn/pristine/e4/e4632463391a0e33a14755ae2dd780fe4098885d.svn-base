@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+                xmlns:c="http://java.sun.com/jsp/jstl/core"
+                xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:f="http://java.sun.com/jsf/core"
+                xmlns:p="http://primefaces.org/ui"
+                xmlns:sf="http://www.springframework.org/tags/faces"
+                xmlns:sec="http://www.springframework.org/security/tags"
+                template="/templates/template.xhtml">
+
+
+    <ui:define name="CONTENT">
+        <h:form id="form" styleClass="container-fluid">
+            <div class="card">
+                <!--Navegación-->
+
+                <h1>Listado de reportes</h1>
+
+
+                <div class="ui-g">
+                    <div class="ui-g-12 ui-md-12">
+                        <i class="fa fa-cogs" aria-hidden="true" style="width:20px"></i>
+                        <a href="${request.contextPath}/app/reportes/controlObservadores">
+                            <h:outputText value="#{messageSource['etiqueta_reportes_controlDeObservadores']}" />
+                        </a>
+                    </div>
+                    <div class="ui-g-12 ui-md-12">
+                        <i class="fa fa-tasks" aria-hidden="true" style="width:20px"></i>
+                        <a href="${request.contextPath}/app/reportes/accionesDePromocion">
+                            <h:outputText value="#{messageSource['etiqueta_reportes_accionesDePromocion']}" />
+                        </a>
+                    </div> 
+                    <c:if test="#{!mbReporte.esNivelOC()}">
+                        <div class="ui-g-12 ui-md-12">
+                            <i class="fa fa-book" aria-hidden="true" style="width:20px"></i> 
+                            <a href="${request.contextPath}/app/reportes/cursosDeCapacitacion">
+                                <h:outputText value="#{messageSource['etiqueta_reportes_cursosDeCapacitacion']}" />
+                            </a>
+                        </div>
+                    </c:if>
+                    <div class="ui-g-12 ui-md-12">
+                        <i class="fa fa-edit" aria-hidden="true" style="width:20px"></i>
+                        <a href="${request.contextPath}/app/reportes/solicitudDeAcreditacion">
+                            <h:outputText value="#{messageSource['etiqueta_reportes_solicitudDeAcreditacion']}" />
+                        </a>
+                    </div>
+                    <div class="ui-g-12 ui-md-12">
+                        <i class="fa fa-check" aria-hidden="true" style="width:20px"></i>
+                        <a href="${request.contextPath}/app/reportes/solicitudDeRatificacion">
+                            <h:outputText value="#{messageSource['etiqueta_reportes_solicitudDeRatificacion']}" />
+                        </a>
+                    </div>
+                    <div class="ui-g-12 ui-md-12">
+                        <i class="fa fa-users" aria-hidden="true" style="width:20px"></i>
+                        <a href="${request.contextPath}/app/reportes/agrupaciones">
+                            <h:outputText value="Agrupaciones" />
+                        </a>
+                    </div>
+                    <div class="ui-g-12 ui-md-12">
+                        <i class="fa fa-search" aria-hidden="true" style="width:20px"></i>
+                        <a href="${request.contextPath}/app/reportes/detalleObservadores">
+                            <h:outputText value="#{messageSource['etiqueta_reportes_detalle_observadores']}" />
+                        </a>
+                    </div>
+                </div>
+                <!--La exportación de tablas sólo se pueden realizar con usuarios OC 
+                <c:if test="#{mbReporte.esNivelOC()}">
+                    <h1>Exportar tablas en archivos de texto (.TXT) </h1>  
+
+                    <div class="ui-g">
+                        <div class="ui-g-12 ui-md-12">
+                            <i class="fa fa-group" aria-hidden="true" style="width:20px"></i>
+                            <p:commandLink  immediate="true" ajax="false" value="#{messageSource['etiqueta_reportes_agrupaciones']}">
+                                <p:fileDownload value="#{mbReporte.obtenerTabla(1)}" /> 
+                            </p:commandLink>
+                        </div>
+                        <div class="ui-g-12 ui-md-12">
+                            <i class="fa fa-tasks" aria-hidden="true" style="width:20px"></i>
+                            <p:commandLink  immediate="true" ajax="false" value="#{messageSource['etiqueta_reportes_accionesDePromocion']}">
+                                <p:fileDownload value="#{mbReporte.obtenerTabla(1)}" /> 
+                            </p:commandLink>
+                        </div>
+                        <div class="ui-g-12 ui-md-12">
+                            <i class="fa fa-book" aria-hidden="true" style="width:20px"></i>
+                            <p:commandLink  immediate="true" ajax="false" value="#{messageSource['etiqueta_reportes_cursosDeCapacitacion']}">
+                                <p:fileDownload value="#{mbReporte.obtenerTabla(1)}" /> 
+                            </p:commandLink>
+                        </div>
+                        <div class="ui-g-12 ui-md-12">
+                            <i class="fa fa-eye" aria-hidden="true" style="width:20px"></i>
+                            <p:commandLink  immediate="true" ajax="false" value="#{messageSource['etiqueta_reportes_Observadores']}">
+                                <p:fileDownload value="#{mbReporte.obtenerTabla(1)}" /> 
+                            </p:commandLink>
+                        </div>
+                        <div class="ui-g-12 ui-md-12">
+                            <i class="fa fa-cogs" aria-hidden="true" style="width:20px"></i>
+                            <p:commandLink  immediate="true" ajax="false" value="#{messageSource['etiqueta_reportes_controlDeObservadores']}">
+                                <p:fileDownload value="#{mbReporte.obtenerTabla(1)}" /> 
+                            </p:commandLink>
+                        </div>
+
+                    </div>
+                </c:if>-->
+
+            </div>
+        </h:form>
+    </ui:define>
+</ui:composition>

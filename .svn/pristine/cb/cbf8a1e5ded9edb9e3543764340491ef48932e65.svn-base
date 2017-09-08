@@ -1,0 +1,789 @@
+/**
+ * @(#)PDFAcreditacionesGafetes.java 30/09/2016
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.helper.pdf;
+
+import java.awt.Color;
+import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+
+import javax.faces.context.FacesContext;
+
+import mx.ine.observadoresINE.dto.db.DTOCImagenes;
+import mx.ine.observadoresINE.dto.db.DTOCTextos;
+import mx.ine.observadoresINE.dto.form.FormAcreditacionGafete;
+import mx.ine.observadoresINE.helper.HLPAcreditacionGafete;
+import mx.ine.observadoresINE.util.Utilidades;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+//import com.lowagie.text.Color;
+import com.lowagie.text.Document;
+import com.lowagie.text.DocumentException;
+import com.lowagie.text.Element;
+import com.lowagie.text.Font;
+import com.lowagie.text.Image;
+import com.lowagie.text.PageSize;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Rectangle;
+import com.lowagie.text.pdf.BaseFont;
+import com.lowagie.text.pdf.PdfContentByte;
+import com.lowagie.text.pdf.PdfPCell;
+import com.lowagie.text.pdf.PdfPCellEvent;
+import com.lowagie.text.pdf.PdfPTable;
+import com.lowagie.text.pdf.PdfPageEventHelper;
+import com.lowagie.text.pdf.PdfTemplate;
+import com.lowagie.text.pdf.PdfWriter;
+
+/**
+ * <code>PDFAcreditacionesGafetes.java</code> 
+ *
+ * @author Pablo Zuñiga Mata
+ * @version 0.0.1
+ * @since 30/09/2016
+ */
+public class PDFAcreditacionesGafetes extends PdfPageEventHelper{
+
+	private static final Log logger= LogFactory.getLog(PDFAcreditacionesGafetes.class);
+	private CustomAcreditacionGafetesPDF cp; 
+	private int numeroPagina;
+	private PdfTemplate templatePDF;
+	private PdfTemplate template;
+	public BaseFont baseFontPDF;
+    private String  imgLogoINE;
+    private String  imgObservadorINE;
+    private String  imgArticulos;
+    private String  rutaFirma;
+    private Integer acreditacionGafete;
+    private String cabecera;
+    private String rutaGluster;
+	
+	public PDFAcreditacionesGafetes(List<HLPAcreditacionGafete> lista, FormAcreditacionGafete filtro, String cabecera, String rutaGluster){
+		this.acreditacionGafete = filtro.getAcreditacionGafete();
+		this.cabecera = cabecera;
+		this.rutaGluster = rutaGluster;
+		cp = new CustomAcreditacionGafetesPDF(lista, filtro);
+	}
+
+	/* (non-Javadoc)
+	 * @see com.lowagie.text.pdf.PdfPageEventHelper#onOpenDocument(com.lowagie.text.pdf.PdfWriter, com.lowagie.text.Document)
+	 */
+	@Override
+	public void onOpenDocument(PdfWriter writer, Document document) {
+		if(numeroPagina < 1){
+			try{
+				templatePDF = writer.getDirectContent().createTemplate(80, 80);
+				templatePDF.setBoundingBox(new Rectangle(-10, -20, 70, 70));
+				baseFontPDF = BaseFont.createFont("Helvetica", BaseFont.WINANSI, false);
+			}catch(Exception e){
+				logger.error("Error al crear el template o la fuente 'helvetica'",e);
+			}
+		}
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.lowagie.text.pdf.PdfPageEventHelper#onCloseDocument(com.lowagie.text.pdf.PdfWriter, com.lowagie.text.Document)
+	 */
+	@Override
+	public void onCloseDocument(PdfWriter writer, Document document) {
+		templatePDF.beginText();
+		templatePDF.setFontAndSize(baseFontPDF, 6);
+		templatePDF.setTextMatrix(-10, 0);
+		templatePDF.showText(" " + (writer.getPageNumber() -1));
+		templatePDF.endText();
+	}
+
+	/* (non-Javadoc)
+	 * @see com.lowagie.text.pdf.PdfPageEventHelper#onEndPage(com.lowagie.text.pdf.PdfWriter, com.lowagie.text.Document)
+	 */
+	@Override
+	public void onEndPage(PdfWriter writer, Document document) {
+		PdfPTable table = null;
+		try {
+			table = new PdfPTable(3);
+			float[] width = {6,8,6};
+			table.setWidths(width);
+			table.setWidthPercentage(50);
+			PdfContentByte cd = writer.getDirectContent();
+			cd.saveState();
+			String text = "Página " + writer.getPageNumber() + " de ";
+			table.setTotalWidth(document.right() - document.left()-20);
+			table.writeSelectedRows(0, -1, document.left(), document.getPageSize().getHeight()-20, cd);
+			float textBase = document.bottom() - 15;
+			cd.beginText();
+			cd.setFontAndSize(baseFontPDF, 6);
+			cd.setTextMatrix(document.right()-70, textBase);
+			cd.showText(text);
+			cd.endText();
+			cd.addTemplate(templatePDF, document.right()-16, textBase);
+			cd.restoreState();
+		}catch (Exception e) {
+			logger.error("Error al crear el numero de páginas",e);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see com.lowagie.text.pdf.PdfPageEventHelper#onStartPage(com.lowagie.text.pdf.PdfWriter, com.lowagie.text.Document)
+	 */
+	@Override
+	public void onStartPage(PdfWriter writer, Document document) {
+		numeroPagina++;
+	    document.setPageSize(PageSize.LETTER);
+	    document.setMargins(10, 10, 25, 25);
+	    try{
+	    	if(numeroPagina == 1 && acreditacionGafete == 1){
+				document.add(cp.crearAcreditacion(writer));
+			}else if(numeroPagina == 1 && acreditacionGafete == 2){
+				document.add(cp.crearGafete(writer));
+			}
+		}catch(Exception e){
+			logger.error("Fallo al crear PDF", e);
+		}
+	}
+	
+	class ImageEvent implements PdfPCellEvent {
+        protected Image img;
+        public ImageEvent(Image img) {
+            this.img = img;
+        }
+        public void cellLayout(PdfPCell cell, Rectangle position, PdfContentByte[] canvases) {
+            img.scaleAbsolute(position.getWidth(), position.getHeight());
+            img.setAbsolutePosition(position.getLeft(), position.getBottom());
+            PdfContentByte canvas = canvases[PdfPTable.BACKGROUNDCANVAS];
+            try {
+                canvas.addImage(img);
+            } catch (DocumentException ex) {
+                // do nothing
+            }
+        }
+    }
+
+	class CustomAcreditacionGafetesPDF{
+		private BaseFont bf;
+		private BaseFont bfBold;
+		private List<HLPAcreditacionGafete> lista;
+		private FormAcreditacionGafete filtro;
+		
+		public CustomAcreditacionGafetesPDF(List<HLPAcreditacionGafete> lista, FormAcreditacionGafete filtro){
+			try {
+				bf = BaseFont.createFont(BaseFont.HELVETICA, "Cp1252", false);
+				bfBold = BaseFont.createFont(BaseFont.HELVETICA_BOLD, "Cp1252", false);
+	  		}catch (DocumentException | IOException e) {
+	  			e.printStackTrace();
+	  		}
+			this.lista = lista;
+			this.filtro = new FormAcreditacionGafete();
+			if(filtro != null){
+				this.filtro = filtro;
+			}
+			/**
+		    * idImagen = -1 equivale a la imagen para el nivel JL
+		    * idImagen = -2 equivale a la imagen para el nivel JD
+		    * idImagen = -3 equivale a la ruta de la firma
+		    */
+		   for(DTOCImagenes ruta: this.filtro.getListaRutasIMG()){
+			   if(filtro.getIdDistrito() != null && filtro.getIdDistrito() != 0 && ruta.getDTOCImagenesPK().getIdImagen() == -2){
+				   imgArticulos = obtenRutaImagenAcreditacion(ruta.getRuta());
+			   }else if(filtro.getIdDistrito() != null && filtro.getIdDistrito() == 0 && ruta.getDTOCImagenesPK().getIdImagen() == -1){
+				   imgArticulos = obtenRutaImagenAcreditacion(ruta.getRuta());
+			   }else if(ruta.getDTOCImagenesPK().getIdImagen() == -3){
+				   rutaFirma = ruta.getRuta();
+			   }
+		   }
+		}
+       
+       /**
+        * Método para crear el los gafetes
+        * @param PdfWriter
+        * @return PdfPTable
+        * @throws Exception
+        */
+       public PdfPTable crearGafete(PdfWriter writer) throws Exception {
+    	   imgLogoINE = FacesContext.getCurrentInstance().getExternalContext().getRealPath("resources/imgObs/logo-INE.png");
+    	   PdfPTable renglon = new PdfPTable(2);
+    	   PdfPCell cell = null;
+    	   if(lista.size() > 0){
+    	   		for(HLPAcreditacionGafete r: lista){
+    	   			if(r.getSinFirma() || r.getConFirma()){
+ 				       String rutaF = "";
+ 				       if(r.getFoto() != null){
+ 				    	  imgObservadorINE = obtenRutaFoto(r.getFoto());
+ 				       }else{
+ 				    	  imgObservadorINE = obtenRutaFoto(r.getClaveelector()+Utilidades.mensajeProperties("etiqueta_acreditacionGafete_imagenPng"));
+ 				       }
+	//			       se crea un rectangulo con las dimenciones del gafete
+			    	   Rectangle rect = new Rectangle(2, 2, 118, 178);
+				       rect.setBackgroundColor(Color.WHITE);
+				       rect.setBorder(Rectangle.BOX);
+				       rect.setBorderWidth(0.5F);
+				       
+	//				   se crea el template donde se colocara el rectangulo
+			    	   template = writer.getDirectContent().createTemplate(120, 180);
+				       template.rectangle(rect);
+				       template.fillStroke();
+	//			       se colocan lineas donde se dividira la informacion del gafete y las firmas
+				       template.setColorStroke(Color.GRAY); 
+				       template.setLineWidth(1.5F);
+				       template.moveTo(12,150);
+				       template.lineTo(108,150);
+				       template.stroke();
+				       
+				       template.setColorStroke(Color.GRAY); 
+				       template.setLineWidth(1);
+				       template.moveTo(10,8F);
+				       template.lineTo(57.5F,8F);
+				       template.stroke();
+				       
+				       template.setColorStroke(Color.GRAY); 
+				       template.setLineWidth(1);
+				       template.moveTo(62.5F,8F);
+				       template.lineTo(110,8F);
+				       template.stroke();
+				       
+				       template.setColorStroke(Color.GRAY); 
+				       template.setLineWidth(1);
+				       template.moveTo(10,22F);
+				       template.lineTo(57.5F,22F);
+				       template.stroke();
+				       
+				       template.setColorStroke(Color.GRAY); 
+				       template.setLineWidth(1);
+				       template.moveTo(62.5F,22F);
+				       template.lineTo(110,22F);
+				       template.stroke();
+				       
+	//			       se agrega el logo en el gafete
+			           Image imgL = Image.getInstance(imgLogoINE);
+			           imgL.scalePercent(20);
+			 	       float width = imgL.getScaledWidth();
+			 	       float height = imgL.getScaledHeight();
+			 	       template.addImage(imgL, width, 0, 0, height, 38, 160);
+			 	       template.fillStroke();
+			 	       
+			           Image imgO = Image.getInstance(imgObservadorINE);
+			 	       imgO.scalePercent(20);
+			 	       width = imgO.getScaledWidth();
+			 	       height = imgO.getScaledHeight();
+			 	       template.addImage(imgO, 40, 0, 0, 40, 40, 49);
+			 	       template.fillStroke();
+			 	       
+			 	       template.beginText();
+			 	       template.setTextMatrix(10, 140);
+			 	       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+			 	       template.setFontAndSize(bfBold, 4.7F);
+			 	       template.showText(Utilidades.mensajeProperties("etiqueta_acreditacionGafete_procecoElectoral"));
+			 	       template.endText();
+			 	       
+			 	       template.beginText();
+			 	       template.setTextMatrix(36, 130);
+			 	       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+			 	       template.setFontAndSize(bf, 4.3F);
+			 	       template.showText(Utilidades.mensajeProperties("etiqueta_acreditacionGafete_noFolioAcreditacionGafete")
+			 	    		   +" "+r.getFolio());
+			 	       template.endText();
+			 	       
+			 	       template.beginText();
+			 	       template.setTextMatrix(29, 119.5f);
+			 	       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+			 	       template.setFontAndSize(bf, 4.7F);
+			 	       template.showText(Utilidades.mensajeProperties("etiqueta_acreditacionGafete_ciudadano"));
+			 	       template.endText();
+			 	       
+			           String nombre = r.getApellidoPaterno()+" "+r.getApellidoMaterno()+" "+r.getNombre();
+			           template.beginText();
+			           template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+			           template.setFontAndSize(bfBold, 5.5F);
+			           template.setColorFill(Color.BLACK);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER, nombre, 60, 112F, 0);
+			           template.endText();
+			           
+			           String textoAcreditacion = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_comoObservadorElectoral")+" "
+			        		   						+(this.filtro.getNombreProceso() == null?" ":this.filtro.getNombreProceso());
+			           template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bfBold, 4);
+				       if(filtro.getAmbito().equalsIgnoreCase("F") || filtro.getAmbito().equalsIgnoreCase("C")){
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, textoAcreditacion.substring(0,textoAcreditacion.length()-20).trim(), 60, 104.5f, 0);
+				       }else {
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, textoAcreditacion.substring(0,textoAcreditacion.length()-17).trim(), 60, 104.5f, 0);
+				       }
+				       template.endText();
+			           
+			           template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bfBold, 4);
+				       if(filtro.getAmbito().equalsIgnoreCase("F") || filtro.getAmbito().equalsIgnoreCase("C")){
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, textoAcreditacion.substring(textoAcreditacion.length()-20, textoAcreditacion.length()).trim(), 60, 98F, 0);
+				       }else {
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, textoAcreditacion.substring(textoAcreditacion.length()-17, textoAcreditacion.length()).trim(), 60, 98F, 0);
+				       }
+				       template.endText();
+			           
+				       template.beginText();
+			           template.setTextMatrix(30, 90.5f);
+			           template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+			           template.setFontAndSize(bf, 4.5F);
+			           template.setColorFill(Color.GRAY);
+			           template.showText(Utilidades.mensajeProperties("etiqueta_acreditacionGafete_vigencia")
+			        		   			+" "+filtro.getFechaVigencia());
+			           template.endText();
+			           
+			           template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 3.5F);
+				       template.setColorFill(Color.BLACK);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER, r.getNombreestado(), 30, 9.5F, 0);
+				       template.endText();
+			           
+			           SimpleDateFormat formatdate = new SimpleDateFormat("dd / MMMM / yyyy");
+			           template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 3.5F);
+				       template.setColorFill(Color.BLACK);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER, 
+			        		   formatdate.format(r.getFechasesion().getTime()), 90, 9.5F, 0);
+				       template.endText();
+				       
+				       template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 4F);
+				       template.setColorFill(Color.GRAY);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER,
+			        		   Utilidades.mensajeProperties("etiqueta_acreditacionGafete_interesado"), 30, 41F, 0);
+				       template.endText();
+				       
+				       template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 4F);
+				       template.setColorFill(Color.GRAY);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER,
+			        		   Utilidades.mensajeProperties("etiqueta_acreditacionGafete_firma"), 30, 18F, 0);
+				       template.endText();
+				       
+				       template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 4F);
+				       template.setColorFill(Color.GRAY);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER, 
+			        		   Utilidades.mensajeProperties("etiqueta_acreditacionGafete_firma"), 90, 18F, 0);
+				       template.endText();
+				       
+				       template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 4F);
+				       template.setColorFill(Color.GRAY);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER,
+			        		   Utilidades.mensajeProperties("etiqueta_acreditacionGafete_lugar"), 30, 4F, 0);
+				       template.endText();
+				       
+				       template.beginText();
+				       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				       template.setFontAndSize(bf, 4F);
+				       template.setColorFill(Color.GRAY);
+			           template.showTextAligned(PdfContentByte.ALIGN_CENTER, 
+			        		   Utilidades.mensajeProperties("etiqueta_generales_fecha"), 90, 4F, 0);
+				       template.endText();
+				       
+				       if(r.getConFirma()){
+				    	   if(r.getIdJustificacion() != null && r.getIdJustificacion() == 1 && r.getDistrito() != 0){
+				    		   rutaF = obtenRutaFirma(rutaFirma, r.getFotoVocalPresidenteD());
+				    		   if(rutaF != "" && r.getFotoVocalPresidenteD().trim().length() > 0){
+				    			   	Image firma = Image.getInstance(rutaF);
+				    			   	firma.scalePercent(20);
+			    		          	template.addImage(firma, 48, 0, 0, 15, 62f, 25);
+			    		          	template.fillStroke();
+				    		   }
+					       }else if(r.getIdJustificacion() != null && r.getIdJustificacion() == 14){
+					    	   rutaF = obtenRutaFirma(rutaFirma, r.getFotoVocalPresidenteE());
+					    	   if(rutaF != "" && r.getFotoVocalPresidenteD().trim().length() > 0){
+				    			   	Image firma = Image.getInstance(rutaF);
+				    			   	firma.scalePercent(20);
+			    		          	template.addImage(firma, 48, 0, 0, 15, 62f, 25);
+			    		          	template.fillStroke();
+				    		   }
+					       }
+				       }
+				       
+				       if(r.getIdJustificacion() != null && r.getIdJustificacion() == 1 && r.getDistrito() != 0){
+				    	   template.beginText();
+					       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+					       template.setFontAndSize(bf, 2.8f);
+					       template.setColorFill(Color.BLACK);
+					       template.showTextAligned(PdfContentByte.ALIGN_CENTER, r.getVocalPresidenteD(), 85, 23F, 0);
+					       template.endText();
+				       }else if(r.getIdJustificacion() != null && r.getIdJustificacion() == 14){
+				    	   template.beginText();
+					       template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+					       template.setFontAndSize(bf, 2.8f);
+					       template.setColorFill(Color.BLACK);
+					       template.showTextAligned(PdfContentByte.ALIGN_CENTER, r.getVocalPresidenteE(), 85, 23F, 0);
+					       template.endText();
+				       }
+				       String consejero = "";
+				       if(r.getIdJustificacion() != null && r.getIdJustificacion() == 14){
+				    	   consejero = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteL");
+				    	   template.beginText();
+				    	   template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				    	   template.setFontAndSize(bf, 4);
+				    	   template.setColorFill(Color.BLACK);
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, consejero.substring(0,consejero.length()-14).trim(), 85, 45, 0);
+					       template.endText();
+				    	   
+				    	   template.beginText();
+				    	   template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				    	   template.setFontAndSize(bf, 4);
+				    	   template.setColorFill(Color.BLACK);
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, consejero.substring(consejero.length()-14, consejero.length()).trim().trim(), 85, 41, 0);
+				    	   template.endText();				    	   
+				       }else if(r.getIdJustificacion() != null && r.getIdJustificacion() == 1){
+				    	   consejero = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteD");
+				    	   template.beginText();
+				    	   template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				    	   template.setFontAndSize(bf, 4);
+				    	   template.setColorFill(Color.BLACK);				    	   
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, consejero.substring(0,consejero.length()-18).trim(), 85, 45, 0);
+					       template.endText();
+					       
+					       template.beginText();
+				    	   template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+				    	   template.setFontAndSize(bf, 4);
+				    	   template.setColorFill(Color.BLACK);
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, consejero.substring(consejero.length()-18, consejero.length()).trim(), 85, 41, 0);
+					       template.endText();
+				       }else if(r.getIdJustificacion() != null && r.getIdJustificacion() == 15){
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, Utilidades.mensajeProperties("etiqueta_acreditacionGafete_presidenteOPLE"), 90, 41, 0);
+				       }else if(r.getIdJustificacion() != null && r.getIdJustificacion() == 2){
+				    	   String presidenteG = "";
+				    	   presidenteG = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_presidenteGeneral");			    	   
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, presidenteG.substring(0,presidenteG.length()-19).trim(), 85, 45, 0);
+					       
+				    	   template.showTextAligned(PdfContentByte.ALIGN_CENTER, presidenteG.substring(presidenteG.length()-19, presidenteG.length()).trim(), 90, 41, 0);
+				       }
+	//			       se agrega el template a la celda
+			    	   cell = new PdfPCell();
+			    	   cell.addElement(Image.getInstance(template));
+			    	   cell.setBorderColor(Color.WHITE);
+			           renglon.addCell(cell);
+    	   			}
+    	   		}
+    	   }
+    	   cell = new PdfPCell();
+    	   cell.setBorderColor(Color.WHITE);
+           renglon.addCell(cell);
+    	   return renglon;
+       }
+		
+		/**
+       * Método para crear el los gafetes
+       * @param PdfWriter
+       * @return PdfPTable
+       * @throws Exception
+       */
+      public PdfPTable crearAcreditacion(PdfWriter writer) throws Exception {
+    	  imgLogoINE = FacesContext.getCurrentInstance().getExternalContext().getRealPath("resources/imgObs/logo-INE.png");
+    	  PdfPTable renglon = new PdfPTable(1);
+    	  PdfPCell cell = null;
+		   
+	   	   if(lista.size() > 0){
+	   		   for(HLPAcreditacionGafete r: lista){
+	   			   if(r.getSinFirma() || r.getConFirma()){
+	//	   			   se crea el template
+		   			   template = writer.getDirectContent().createTemplate(120, 27);
+	//	   			   se agrega el logo en la Acreditacion
+		   			   Image imgL = Image.getInstance(imgLogoINE);
+		   			   imgL.scalePercent(13);
+		   			   float width = imgL.getScaledWidth();
+		   			   float height = imgL.getScaledHeight();
+		   			   template.addImage(imgL, width, 0, 0, height, 45.7F, 12);
+		   			   template.fillStroke();
+		   			   
+		   			   template.beginText();
+		   			   template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+		   			   template.setFontAndSize(bfBold, 3);
+		   			   template.showTextAligned(PdfContentByte.ALIGN_CENTER, this.filtro.getNombreProceso(), 60, 6, 0);
+		   			   template.endText();
+		   			   
+	//	   			   se agrega el template a la celda
+		   			   cell = new PdfPCell();
+		   			   cell.addElement(Image.getInstance(template));
+		   			   cell.setBorderColor(Color.WHITE);
+		   			   renglon.addCell(cell);
+		   			   SimpleDateFormat formatdate = new SimpleDateFormat("yyyy-MM-dd");
+		   			   String p1="",p2="",p3="",p4="",p5="";
+		   			   for(DTOCTextos texto: filtro.getListaTextos()){
+		   				   if(texto.getDTOCTextosPK().getIdParrafo() == 1){
+		   					   if(texto.getDTOCTextosPK().getIdTexto() == 1 && r.getDistrito() != 0){
+		   						   p1 = p1+texto.getDescripcion()+" "+r.getDistrito()+" ";
+		   					   }else if(texto.getDTOCTextosPK().getIdTexto() == 2 && r.getDistrito() != 0){
+		   						   p1 = p1+texto.getDescripcion()+" "+cabecera+", "+r.getNombreestado()+" ";
+		   					   }else if(texto.getDTOCTextosPK().getIdTexto() == 3 && r.getDistrito() != 0){
+		   						   p1 = p1+texto.getDescripcion()+" "+r.getNombre()+" "+r.getApellidoPaterno()+" "+r.getApellidoMaterno();
+		   					   }else if(texto.getDTOCTextosPK().getIdTexto() == 4 && r.getDistrito() == 0){
+		   						   p1 = p1+texto.getDescripcion()+" "+r.getNombreestado()+" ";
+		   					   }else if(texto.getDTOCTextosPK().getIdTexto() == 5 && r.getDistrito() == 0){
+		   						   p1 = p1+texto.getDescripcion()+" "+r.getNombre()+" "+r.getApellidoPaterno()+" "+r.getApellidoMaterno();
+		   					   }else if(texto.getDTOCTextosPK().getIdTexto() == 6){
+		   						   p1 = p1+texto.getDescripcion()+" "+formatdate.format(r.getFechasesion().getTime())+".\n\n";
+		   					   }
+		   				   }else if(texto.getDTOCTextosPK().getIdParrafo() == 2){
+		   					   if(texto.getDTOCTextosPK().getIdTexto() == 1){
+		   						   p2 = p2+texto.getDescripcion()+" "+this.filtro.getNombreProceso();
+		   					   }else if(texto.getDTOCTextosPK().getIdTexto() == 2){
+		   						   p2 = p2+texto.getDescripcion()+".\n\n";
+		   					   }
+		   				   }else if(texto.getDTOCTextosPK().getIdParrafo() == 3){
+		   					   p3 = p3+texto.getDescripcion()+".\n\n";
+		   				   }else if(texto.getDTOCTextosPK().getIdParrafo() == 4){
+		   					   p4 = p4+texto.getDescripcion()+".\n\n";
+		   				   }else if(texto.getDTOCTextosPK().getIdParrafo() == 5){
+		   					   p5 = p5+texto.getDescripcion();
+		   				   }
+		   			   }
+		   			   Paragraph parrafo1 = new Paragraph(p1,new Font(bf,8.5F));
+		   			   parrafo1.setFirstLineIndent(20);
+		   			   parrafo1.setAlignment(Element.ALIGN_JUSTIFIED);
+		   			   Paragraph parrafo2 = new Paragraph(p2,new Font(bf,8.5F));
+		   			   parrafo2.setFirstLineIndent(20);
+		   			   parrafo2.setAlignment(Element.ALIGN_JUSTIFIED);
+		   			   Paragraph parrafo3 = new Paragraph(p3,new Font(bf,8.5F));
+		   			   parrafo3.setFirstLineIndent(20);
+		   			   parrafo3.setAlignment(Element.ALIGN_JUSTIFIED);
+		   			   Paragraph parrafo4 = new Paragraph(p4,new Font(bf,8.5F));
+		   			   parrafo4.setFirstLineIndent(20);
+		   			   parrafo4.setAlignment(Element.ALIGN_JUSTIFIED);
+		   			   Paragraph parrafo5 = new Paragraph(p5,new Font(bfBold,9.5F));
+		   			   parrafo5.setAlignment(Element.ALIGN_CENTER);
+		   			   cell = new PdfPCell();
+		   			   cell.setBorderColor(Color.WHITE);
+		   			   cell.addElement(parrafo1);
+		   			   cell.addElement(parrafo2);
+		   			   cell.addElement(parrafo3);
+		   			   cell.addElement(parrafo4);
+	   				   PdfPTable firma = new PdfPTable(1);
+	   				   PdfPTable firmas = new PdfPTable(2);
+		   			   if(r.getVocalSecretarioD() != " " && r.getVocalPresidenteD() == " "){
+		   				   String vocal=" ", secretario = " ";
+		   				   vocal = r.getVocalSecretarioD();
+		   				   if(r.getIdJustificacion() == 1){		   					   
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_secretarioD");
+		   				   }else if(r.getIdJustificacion() == 14){	
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_secretarioL");
+		   				   }				 	      
+		   				   firma.addCell(crearTemplate(writer, vocal, secretario, 100, r.getConFirma(),r.getFotoVocalSecretarioD()));
+			   			   cell.addElement(firma);		   				   
+		   			   }else if(r.getVocalSecretarioD() == " " && r.getVocalPresidenteD() != " "){
+		   				   String vocal=" ", secretario = " ";
+		   				   vocal = r.getVocalPresidenteD();	
+		   				   if(r.getIdJustificacion() == 1){
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteD");
+		   				   }else if(r.getIdJustificacion() == 14){	
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteL");
+		   				   }				 	      
+		   				   firma.addCell(crearTemplate(writer, vocal, secretario, 100, r.getConFirma(),r.getFotoVocalPresidenteD()));
+			   			   cell.addElement(firma);		   				   
+		   			   }else if(r.getVocalSecretarioE() != " " && r.getVocalPresidenteE() == " "){
+		   				   String claveVocal=" ",vocal=" ", secretario = " ";
+		   				   if(r.getIdJustificacion() == 1){		   					   
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_secretarioD");
+		   				   }else if(r.getIdJustificacion() == 14){
+			   				   vocal = r.getVocalSecretarioE();	
+			   				   claveVocal = r.getFotoVocalSecretarioE();
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_secretarioL");
+		   				   }				 	      
+		   				   firma.addCell(crearTemplate(writer, vocal, secretario, 100, r.getConFirma(),claveVocal));
+			   			   cell.addElement(firma);		   				   
+		   			   }else if(r.getVocalSecretarioE() == " " && r.getVocalPresidenteE() != " "){
+		   				   String claveVocal=" ",vocal=" ", secretario = " ";
+		   				   if(r.getIdJustificacion() == 1){
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteD");
+		   				   }else if(r.getIdJustificacion() == 14){	
+			   				   vocal = r.getVocalPresidenteE();	
+			   				   claveVocal = r.getFotoVocalPresidenteE();
+		   					   secretario = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteL");
+		   				   }				 	      
+		   				   firma.addCell(crearTemplate(writer, vocal, secretario, 100, r.getConFirma(),claveVocal));
+			   			   cell.addElement(firma);		   				   
+		   			   }else if((r.getVocalSecretarioD() != " " && r.getVocalPresidenteD() != " ")
+		   					   ||(r.getVocalSecretarioE() != " " && r.getVocalPresidenteE() != " ")){
+		   				   String claveVocalP=" ", claveVocalS=" ",vocalP=" ", vocalS = " ", secretarioP = " ", secretarioS = " ";
+		   				   if(r.getIdJustificacion() == 1){
+		   					   if(r.getDistrito() != 0){
+		   						   vocalP = r.getVocalPresidenteD();		   					   
+		   						   vocalS = r.getVocalSecretarioD();
+			   					   claveVocalP = r.getFotoVocalPresidenteD();		   					   
+			   					   claveVocalS = r.getFotoVocalSecretarioD();
+		   					   }
+		   					   secretarioP = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteD");
+		   					   secretarioS = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_secretarioD");
+		   				   }else if(r.getIdJustificacion() == 14){
+		   					   vocalP = r.getVocalPresidenteE();
+		   					   vocalS = r.getVocalSecretarioE();
+		   					   claveVocalP = r.getFotoVocalPresidenteE();		   					   
+		   					   claveVocalS = r.getFotoVocalSecretarioE();	
+		   					   secretarioP = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_consejeroPresidenteL");
+		   					   secretarioS = Utilidades.mensajeProperties("etiqueta_acreditacionGafete_secretarioL");
+		   				   }				 	      
+		   				   firmas.addCell(crearTemplate(writer, vocalP, secretarioP, 50, r.getConFirma(),claveVocalP));
+		   				   firmas.addCell(crearTemplate(writer, vocalS, secretarioS, 50, r.getConFirma(),claveVocalS));
+			   			   cell.addElement(firmas);
+		   			   }
+		   			   cell.addElement(parrafo5);
+		   			   renglon.addCell(cell);
+		   			   if(imgArticulos != ""){
+			   			   Image imgArticulo = Image.getInstance(imgArticulos);
+			   			   cell = new PdfPCell();
+			   			   cell.setBorderColor(Color.WHITE);
+			   			   cell.setFixedHeight(280);
+			   			   cell.setCellEvent(new ImageEvent(imgArticulo));
+			   			   renglon.addCell(cell);
+		   			   }
+	   			   }
+   			   }
+ 	   	   }
+	   	   cell = new PdfPCell();
+	   	   cell.setBorderColor(Color.WHITE);
+	          renglon.addCell(cell);
+	   	   return renglon;
+      }
+      
+      /**
+       * Método encargado de crear los apartados de las firmas 
+       * en el caso de que el parámetro  width = 50 quiere decir que se trata de que van a existir dos firmas
+       * y si width = 100 se trata de una sola firma
+       * 
+       * @author Pablo Zuñiga Mata
+       * @param writer
+       * @param nombre
+       * @param cargo
+       * @param width
+       * @param firma
+       * @return
+       * @throws Exception
+       * @since 14/07/2017
+       */
+      public PdfPCell crearTemplate(PdfWriter writer, String nombre, String cargo, Integer width, Boolean firma,
+    		  String nombreFirma)  throws Exception {
+    	  imgLogoINE = FacesContext.getCurrentInstance().getExternalContext().getRealPath("resources/imgObs/logo-INE.png");
+    	  PdfPCell cell = new PdfPCell();
+    	  cell.setBorderColor(Color.WHITE);
+    	  PdfTemplate template = writer.getDirectContent().createTemplate((float)width, 20);
+	      template.fillStroke();
+    	  template.setColorStroke(Color.GRAY); 
+	      template.setLineWidth(0.5F);
+	      if(width == 50){
+	    	  template.moveTo(5, 8);	      
+	    	  template.lineTo(45,8);
+	      }else if(width == 100){
+	    	  template.moveTo(30, 8);	      
+	    	  template.lineTo(70,8);
+	      }
+	      // confirmamos si lleva firma
+	      String ruta = obtenRutaFirma(rutaFirma, nombreFirma);
+	      if(firma && ruta != "" && nombreFirma.trim().length() > 0){
+	    	  Image imgL = Image.getInstance(ruta);
+	          imgL.scalePercent(20);
+	          template.addImage(imgL, 25, 0, 0, 9, width==50?12.5f:37.5f, 11);
+	 	      template.fillStroke();
+	      }
+	      template.stroke();
+	      template.fillStroke();					       
+	      template.beginText();
+	      template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+	      template.setFontAndSize(bf, 2F);
+	      template.showTextAligned(PdfContentByte.ALIGN_CENTER, nombre,(float)(width/2),9,0);
+	      template.endText();					       
+	      template.beginText();
+	      template.setTextRenderingMode(PdfContentByte.TEXT_RENDER_MODE_FILL);
+	      template.setFontAndSize(bf, 2F);
+	      template.showTextAligned(PdfContentByte.ALIGN_CENTER, cargo,(float)(width/2),4,0);
+	      template.endText();
+   	   	  cell.addElement(Image.getInstance(template));
+    	  return cell;
+      }
+      
+      /**
+       * Método con el cual obtenemos la foto
+       * 
+       * @author Pablo Zuñiga Mata
+       * @param nombreFoto
+       * @return String
+       * @since 14/07/2017
+       */
+      public String obtenRutaFoto(String nombreFoto){
+    	  String rutaImagen = "";
+    	  if( nombreFoto != null && !nombreFoto.isEmpty() && !nombreFoto.trim().isEmpty()){
+    		  rutaImagen= rutaGluster
+						+ File.separator
+						+ filtro.getRutaFoto()
+						+ File.separator
+						+ nombreFoto;
+				//Al cargar el archivo existente es con el nombre de la clave de elector			
+				File foto = new File(rutaImagen);
+				if (foto.exists()) {
+					return rutaImagen;
+				}else {
+					rutaImagen =  rutaGluster+File.separator+filtro.getRutaFotoSuplente();					
+				}
+			}else {
+				rutaImagen =  rutaGluster+File.separator+filtro.getRutaFotoSuplente();	
+			}
+    	  return rutaImagen;
+      }
+	}
+	
+	/**
+     * Método con el cual obtenemos la imagen de la acreditacion
+     * 
+     * @author Pablo Zuñiga Mata
+     * @param nombreFoto
+     * @return String
+     * @since 14/07/2017
+     */
+    public String obtenRutaImagenAcreditacion(String ruta){
+  	  String rutaImagen = "";
+  	  if( ruta != null && !ruta.isEmpty()){
+  		  rutaImagen = rutaGluster
+						+ File.separator
+						+ ruta;
+			//Al cargar el archivo existente es con el nombre de la clave de elector			
+			File imagen = new File(rutaImagen);
+			if (!imagen.exists()) {
+				rutaImagen = "";
+			}
+		}
+  	  return rutaImagen;
+    }
+    
+    /**
+     * Método con el cual obtenemos la imagen de la acreditacion
+     * 
+     * @author Pablo Zuñiga Mata
+     * @param nombreFoto
+     * @return String
+     * @since 14/07/2017
+     */
+    public String obtenRutaFirma(String ruta, String nombreFirma){
+  	  String rutaImagen = "";
+  	  if( ruta != null && !ruta.isEmpty() && !nombreFirma.equalsIgnoreCase(" ")){
+  		  rutaImagen = rutaGluster
+						+ File.separator
+						+ ruta
+						+ File.separator
+						+ nombreFirma;
+			//Al cargar el archivo existente es con el nombre de la clave de elector			
+			File imagen = new File(rutaImagen);
+			if (!imagen.exists()) {
+				rutaImagen = "";
+			}
+		}
+  	  return rutaImagen;
+    }
+
+}

@@ -1,0 +1,397 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://www.ine.mx/ui" xmlns:deceyec="http://ine.mx/ui">
+
+	<div class="ui-g card">
+
+		<h1>#{messageSource['etiqueta_titulo_catalogo_escolaridades']}</h1>
+
+
+		<!--- Mensaje de información para captura inicial de catálogos-->
+		<!-- 		<p:outputPanel styleClass="ui-g-12" -->
+		<!-- 			rendered="#{mbConfigCat.existenRegistros}"> -->
+		<!-- 			<div class="ui-messages ui-widget" aria-live="polite"> -->
+		<!-- 				<div class="ui-messages-info ui-corner-all"> -->
+		<!-- 					<a href="#" class="ui-messages-close" -->
+		<!-- 						onclick="$(this).parent().slideUp();return false;"> </a> <span -->
+		<!-- 						class="ui-messages-info-icon"></span> -->
+		<!-- 					<ul> -->
+		<!-- 						<li><span class="ui-messages-info-detail">#{messageSource['mensaje_instrucciones_registros_encontrados_otros_modulos']}</span></li> -->
+		<!-- 					</ul> -->
+		<!-- 				</div> -->
+		<!-- 			</div> -->
+		<!-- 		</p:outputPanel> -->
+
+		<!-- 		<p:outputPanel styleClass="ui-g-12" -->
+		<!-- 			rendered="#{!mbConfigCat.existenRegistros}"> -->
+
+		<p:outputPanel styleClass="ui-g-12">
+
+			<ui:include src="mensajesBloqueo.xhtml" />
+
+			<ui:include src="requerido.xhtml" />
+
+			<ui:include src="procesoDetalle.xhtml" />
+
+			<!-- División -->
+			<div class="divider" />
+
+			<!-- **************************************************************************** -->
+			<!-- *************************   VISTA DE CAPTURAR   **************************** -->
+			<!-- **************************************************************************** -->
+			<p:outputPanel id="panelCaptura" styleClass="ui-g-12"
+				rendered="#{mbConfigCat.isRendered(mbConfigCat.accionCapturar) and mbConfigCat.muestraForm}"
+				style="margin-top: 0px;">
+
+
+				<!--- Mensaje de información para captura inicial de catálogos-->
+				<p:outputPanel rendered="#{mbConfigCat.cargaSeleccionada eq false}">
+					<div class="ui-messages ui-widget" aria-live="polite">
+						<div class="ui-messages-info ui-corner-all">
+							<a href="#" class="ui-messages-close"
+								onclick="$(this).parent().slideUp();return false;"> </a> <span
+								class="ui-messages-info-icon"></span>
+							<ul>
+								<li><span class="ui-messages-info-detail">#{messageSource['mensaje_instrucciones_catalogo_escolaridades_captura']}</span></li>
+							</ul>
+						</div>
+					</div>
+				</p:outputPanel>
+
+
+				<!-- Tabla de escolaridades -->
+				<div class="ui-g-12">
+
+					<!-- Tabla de carga incial -->
+					<p:dataTable id="listaEscolaridades"
+						value="#{mbConfigCat.escolaridadesPredefinidas}" var="escolaridad"
+						selection="#{mbConfigCat.escolaridadesSeleccionadas}"
+						rowKey="#{escolaridad.descripcion}" sortOrder="ascending"
+						sortBy="#{escolaridad.descripcion}">
+
+						<f:facet name="header">
+         				   #{messageSource['etiqueta_titulo_catalogo_escolaridades']}
+        				</f:facet>
+
+						<p:column selectionMode="multiple"
+							style="width:25px;text-align:center" />
+
+
+						<p:column headerText="#{messageSource['etiqueta_escolaridades']}">
+        					#{escolaridad.descripcion}
+        				</p:column>
+
+					</p:dataTable>
+				</div>
+
+
+				<!-- Botón de agregar escolaridad -->
+				<div class="ui-g-2">
+					<p:commandButton id="agregarSeleccionadas"
+						onclick="PF('formularioNuevaEscolaridad').show()"
+						value="#{messageSource['etiqueta_boton_agregar_escolaridad']}"
+						style="background-color: #2e333f;" icon="ui-icon-add" />
+				</div>
+
+
+				<!-- Dialogo -->
+				<p:dialog id="dialogoForm" widgetVar="formularioNuevaEscolaridad"
+					closable="false" styleClass="ui-g-12"
+					header="#{messageSource['etiqueta_titulo_agrega_nueva_escolaridad']}">
+
+					<p:outputPanel id="formNewAction" styleClass="ui-g-12">
+
+						<div class=" ui-g-12">
+							<div class=" md-inputfield">
+								<p:inputText id="newEscolaridad"
+									value="#{mbConfigCat.descripcionEscolaridad}"
+									onblur="this.value=this.value.toUpperCase().trim();"
+									onkeypress="if (event.keyCode == 13) { return false; }"
+									maxlength="200">
+									<f:validateRegex
+										pattern="#{messageSource['validacion_expresion_generales_caracteresValidos_cadenas_texto']}" />
+									<pe:keyFilter
+										regEx="#{messageSource['validacion_expresion_generales_caracteresValidos_cadenas_texto_filtro']}"
+										preventPaste="false" />
+								</p:inputText>
+								<p:outputLabel id="textEscolaridad" for="newEscolaridad"
+									value="#{messageSource['etiqueta_texto_nueva_escolaridad_introducir_descripcion']}" />
+							</div>
+						</div>
+
+
+						<div class="ui-g-12">
+							<center>
+								<p:commandButton id="addEscolaridad"
+									value="#{messageSource['etiqueta_boton_agregar']}"
+									onclick="PF('formularioNuevaEscolaridad').hide()"
+									update="@form" actionListener="#{mbConfigCat.agregaRegistro()}" />
+
+								<p:commandButton id="cancelaAddEscolaridad"
+									style="background-color: #ffffff; color: #2e333f;"
+									value="#{messageSource['etiqueta_boton_cancelar']}"
+									onclick="PF('formularioNuevaEscolaridad').hide()">
+
+									<p:ajax update="dialogoForm" resetValues="true" />
+
+								</p:commandButton>
+							</center>
+						</div>
+
+					</p:outputPanel>
+				</p:dialog>
+
+				<!-- Tabla de escolaridades seleccionadas y agregadas por el usuario -->
+				<div class="ui-g-12">
+					<p:dataTable id="listaNewEscolaridades"
+						value="#{mbConfigCat.nuevasEscolaridades}" var="escolaridad"
+						selection="#{mbConfigCat.nuevasEscolaridadesSeleccionadas}"
+						rowKey="#{escolaridad.descripcion}"
+						rendered="#{mbConfigCat.cargaSeleccionada}"
+						emptyMessage="#{messageSource['mensaje_tabla_vacia_escolaridades']}"
+						sortOrder="ascending" sortBy="#{escolaridad.descripcion}">
+
+						<f:facet name="header">
+         				  	#{messageSource['etiqueta_tabla_escolaridades_adicionales']}
+        				</f:facet>
+
+						<p:column selectionMode="multiple"
+							style="width:25px;text-align:center" />
+
+						<p:column headerText="#{messageSource['etiqueta_escolaridades']}">
+        					#{escolaridad.descripcion}
+        				</p:column>
+
+						<p:column style="width:75px;text-align:center"
+							headerText="#{messageSource['etiqueta_boton_eliminar']}">
+							<p:commandButton id="eliminaAccionTabla" icon="ui ui-icon-delete"
+								actionListener="#{mbConfigCat.eliminaModifica(escolaridad)}"
+								update="@form" />
+						</p:column>
+
+					</p:dataTable>
+				</div>
+
+				<!-- Botones para guardar catálogo -->
+				<div class="ui-g-12">
+					<center>
+						<p:commandButton id="guardaEscolaridades"
+							actionListener="#{mbConfigCat.guardaCatalogos()}"
+							value="#{messageSource['etiqueta_boton_guardar']}" update="@form"
+							onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" />
+					</center>
+				</div>
+
+			</p:outputPanel>
+			<!-- Termina vista de captura -->
+
+
+			<!-- **************************************************************************** -->
+			<!-- *************************   VISTA DE CONSULTAR   **************************** -->
+			<!-- **************************************************************************** -->
+			<p:outputPanel id="panelConsulta" styleClass="ui-g-12"
+				rendered="#{mbConfigCat.isRendered(mbConfigCat.accionConsultar) and mbConfigCat.muestraForm}">
+
+				<!-- Tabla de acciones -->
+				<div class="ui-g-12">
+					<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+					<p:dataTable id="listaEscolaridadesConsulta"
+						value="#{mbConfigCat.escolaridadesPredefinidas}" var="escolaridad"
+						emptyMessage="#{messageSource['validacion_mensaje_generales_no_datos']}">
+
+						<f:facet name="header">
+         				  	#{messageSource['etiqueta_titulo_catalogo_escolaridades']}
+        				</f:facet>
+
+						<p:column headerText="#{messageSource['etiqueta_escolaridades']}">
+        					#{escolaridad.descripcion}
+        				</p:column>
+
+					</p:dataTable>
+				</div>
+			</p:outputPanel>
+			<!-- Termina vista de consulta -->
+
+
+			<!-- **************************************************************************** -->
+			<!-- *************************   VISTA DE MODIFICAR   **************************** -->
+			<!-- **************************************************************************** -->
+			<p:outputPanel id="panelModifica" styleClass="ui-g-12"
+				rendered="#{mbConfigCat.isRendered(mbConfigCat.accionModificar) and mbConfigCat.muestraForm}">
+
+				<!-- Tabla de acciones -->
+				<div class="ui-g-12">
+					<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+					<p:dataTable id="listaEscolaridadesModifica"
+						value="#{mbConfigCat.escolaridadesPredefinidas}" var="escolaridad"
+						selection="#{mbConfigCat.escolaridadesSeleccionadas}"
+						emptyMessage="#{messageSource['validacion_mensaje_generales_no_datos']}"
+						rowKey="#{escolaridad.descripcion}">
+
+						<f:facet name="header">
+         				  	#{messageSource['etiqueta_titulo_catalogo_escolaridades']}
+        				</f:facet>
+
+						<p:column selectionMode="multiple"
+							style="width:25px;text-align:center" />
+
+						<p:column headerText="#{messageSource['etiqueta_escolaridades']}">
+        					#{escolaridad.descripcion}
+        				</p:column>
+
+					</p:dataTable>
+				</div>
+
+				<!-- Botón de agregar escolaridad -->
+				<div class="ui-g-2">
+					<p:commandButton id="agregarSeleccionadasModifica"
+						onclick="PF('formularioNuevaEscolaridadModifica').show()"
+						value="#{messageSource['etiqueta_boton_agregar_escolaridad']}"
+						style="background-color: #2e333f;" icon="ui-icon-add" />
+				</div>
+
+
+				<!-- Dialogo -->
+				<p:dialog id="dialogoFormModifica"
+					widgetVar="formularioNuevaEscolaridadModifica" closable="true"
+					styleClass="ui-g-12"
+					header="#{messageSource['etiqueta_titulo_agrega_nueva_escolaridad']}">
+					<p:outputPanel id="formNewActionModifica" styleClass="ui-g-12">
+
+
+
+						<div class=" ui-g-12">
+							<div class=" md-inputfield">
+								<p:inputText id="newEscolaridadModifica"
+									value="#{mbConfigCat.descripcionEscolaridad}"
+									onblur="this.value=this.value.toUpperCase().trim();"
+									onkeypress="if (event.keyCode == 13) { return false; }"
+									maxlength="200">
+									<f:validateRegex
+										pattern="#{messageSource['validacion_expresion_generales_caracteresValidos_descripcion']}" />
+									<pe:keyFilter
+										regEx="#{messageSource['validacion_expresion_generales_caracteresValidos_descripcion_filtro']}"
+										preventPaste="false" />
+								</p:inputText>
+								<p:outputLabel id="textEscolaridadModifica"
+									for="newEscolaridadModifica"
+									value="#{messageSource['etiqueta_texto_nueva_escolaridad_introducir_descripcion']}" />
+							</div>
+						</div>
+
+						<div class="ui-g-12">
+							<center>
+								<p:commandButton id="addEscolaridadModifica"
+									value="#{messageSource['etiqueta_boton_agregar']}"
+									onclick="PF('formularioNuevaEscolaridadModifica').hide()"
+									update="@form" actionListener="#{mbConfigCat.agregaRegistro()}" />
+
+								<p:commandButton id="cancelaAddEscolaridadModifica"
+									style="background-color: #ffffff; color: #2e333f;"
+									value="#{messageSource['etiqueta_boton_cancelar']}"
+									onclick="PF('formularioNuevaEscolaridadModifica').hide()">
+
+									<p:ajax update="dialogoFormModifica" resetValues="true" />
+
+								</p:commandButton>
+							</center>
+						</div>
+
+					</p:outputPanel>
+
+				</p:dialog>
+
+
+				<!-- Tabla de acciones seleccionadas y agregadas por el usuario -->
+				<div class="ui-g-12">
+					<p:dataTable id="listaNewEscolaridadesModifica"
+						value="#{mbConfigCat.nuevasEscolaridades}" var="escolaridad"
+						selection="#{mbConfigCat.nuevasEscolaridadesSeleccionadas}"
+						rowKey="#{escolaridad.descripcion}"
+						rendered="#{mbConfigCat.cargaSeleccionada}"
+						emptyMessage="#{messageSource['mensaje_tabla_vacia_acciones_seleccionadas']}"
+						sortOrder="ascending" sortBy="#{escolaridad.descripcion}">
+
+						<f:facet name="header">
+         				  	#{messageSource['etiqueta_tabla_escolaridades_adicionales']}
+        				</f:facet>
+
+						<p:column selectionMode="multiple"
+							style="width:25px;text-align:center" />
+
+						<p:column headerText="#{messageSource['etiqueta_escolaridades']}">
+        					#{escolaridad.descripcion}
+        				</p:column>
+
+						<p:column style="width:75px;text-align:center"
+							headerText="#{messageSource['etiqueta_boton_eliminar']}">
+							<p:commandButton id="eliminaAccionTabla" icon="ui ui-icon-delete"
+								actionListener="#{mbConfigCat.eliminaModifica(escolaridad)}"
+								update="@form" />
+						</p:column>
+
+					</p:dataTable>
+				</div>
+
+
+				<!-- Boton de guardar modificar -->
+				<div class="ui-g-12">
+					<center>
+						<p:commandButton id="btnGuardarModifca"
+							value="#{messageSource['etiqueta_boton_guardar']}"
+							actionListener="#{mbConfigCat.guardaCatalogos()}"
+							onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" update="@form" />
+
+						<p:commandButton id="btnEliminaAcciones"
+							style="background-color: #ffffff; color: #2e333f;"
+							value="#{messageSource['etiqueta_boton_eliminar_configuracion']}"
+							onclick="PF('confirmaDialogoEliminar').show()" />
+
+						<p:commandButton id="cancelaActionModifica"
+							style="background-color: #ffffff; color: #2e333f;"
+							value="#{messageSource['etiqueta_boton_cancelar']}"
+							action="cancelar" update="@form" />
+
+					</center>
+				</div>
+
+
+				<!-- DIALOGO DE CONFIRMACION PARA ELIMINAR -->
+				<p:confirmDialog widgetVar="confirmaDialogoEliminar"
+					closable="false"
+					header="#{messageSource['etiqueta_titulo_dialogo_elimina']}"
+					severity="info">
+					<f:facet name="message">
+						<h:outputText
+							value="#{messageSource['validacion_mensaje_valida_elimina_configuracion']}"
+							escape="false" />
+					</f:facet>
+					<center>
+						<p:commandButton value="Sí" icon="ui-icon-check" process="@form"
+							update="@form" onclick="PF('confirmaDialogoEliminar').hide()"
+							actionListener="#{mbConfigCat.eliminarCatalogos()}"
+							onstart="PF('progress').block()"
+							onsuccess="PF('progress').unblock()" />
+
+						<p:commandButton value="No" icon="ui-icon-close"
+							onclick="PF('confirmaDialogoEliminar').hide()" />
+					</center>
+				</p:confirmDialog>
+
+			</p:outputPanel>
+			<!-- Termina vista de modificar -->
+
+		</p:outputPanel>
+	</div>
+
+</ui:composition>

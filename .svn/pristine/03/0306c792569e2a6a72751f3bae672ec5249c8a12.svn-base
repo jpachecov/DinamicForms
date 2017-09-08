@@ -1,0 +1,117 @@
+/**
+ * @(#)DTOTabla.java 14/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+
+package mx.ine.observadoresINE.dto;
+
+import java.io.Serializable;
+
+/**
+ * Clase de tipo Pojo que permite crer una estructura de tabla para los reportes
+ * 
+ * @author Helaine Flores Cervantes
+ * @since 14/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class DTOEncabezadoTabla implements Serializable {
+
+    private static final long serialVersionUID = -8174652411791180801L;
+    /**
+     * Index
+     */
+    private Integer index;
+    /**
+     * Ancho de la celda
+     */
+    private Integer ancho;
+    /**
+     * Alto de la celda
+     */
+    private Integer alto;
+    /**
+     * Descripción de la celda
+     */
+    private String descripcion;
+    /**
+     * Tipo de la fila: 1.Encabezado, 2. Totales, 3. Pie de página
+     */
+    private Integer tipoFila;
+    /**
+     * Número de renglon
+     */
+    private Integer numeroRenglon;
+    
+    /**
+     * Constructor
+     * @param index
+     * @param ancho
+     * @param alto
+     * @param descripcion
+     * @param tipoFila
+     * @param numeroRenglon 
+     */
+    public DTOEncabezadoTabla(Integer index, Integer ancho, Integer alto, String descripcion, Integer tipoFila, Integer numeroRenglon) {
+        this.index = index;
+        this.ancho = ancho;
+        this.alto = alto;
+        this.descripcion = descripcion;
+        this.tipoFila = tipoFila;
+        this.numeroRenglon = numeroRenglon;
+    }
+
+    
+    public Integer getIndex() {
+        return index;
+    }
+
+    public void setIndex(Integer index) {
+        this.index = index;
+    }
+
+    public Integer getAncho() {
+        return ancho;
+    }
+
+    public void setAncho(Integer ancho) {
+        this.ancho = ancho;
+    }
+
+    public Integer getAlto() {
+        return alto;
+    }
+
+    public void setAlto(Integer alto) {
+        this.alto = alto;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public Integer getTipoFila() {
+        return tipoFila;
+    }
+
+    public void setTipoFila(Integer tipoFila) {
+        this.tipoFila = tipoFila;
+    }
+
+    public Integer getNumeroRenglon() {
+        return numeroRenglon;
+    }
+
+    public void setNumeroRenglon(Integer numeroRenglon) {
+        this.numeroRenglon = numeroRenglon;
+    }
+    
+
+    
+}

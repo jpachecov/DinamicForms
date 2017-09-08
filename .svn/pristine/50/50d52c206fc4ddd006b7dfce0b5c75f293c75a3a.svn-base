@@ -1,0 +1,21 @@
+ /**
+ * @(#)BSDReporteDetalleObservadoresInterface.java 17/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.bsd;
+
+import mx.ine.observadoresINE.helper.HLPReporteDetalleObservadores;
+
+ /**
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 17/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public interface BSDReporteDetalleObservadoresInterface {
+
+	public HLPReporteDetalleObservadores generaReporte();
+}

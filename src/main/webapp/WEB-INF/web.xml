@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0">
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+		<cookie-config>
+			<!-- Asegura que la cookie no puede accederse desde el lado del cliente 
+				con un script, sólo del lado del servidor -->
+			<http-only>true</http-only>
+			<!-- Forza el uso SSL -->
+			<secure>true</secure>
+		</cookie-config>
+		<!-- Asegura que el JSESSIONID se almacene en una cookie y no como parámetro 
+			en la URL para evitar ataques hijacking -->
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/spring/root-context.xml</param-value>
+	</context-param>
+
+	<!-- SE AGREGA POR NUEVO JAR DE RECURSOS WEB -->
+	<context-param>
+		<param-name>primefaces.FONT_AWESOME</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>com.sun.faces.displayConfiguration</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>com.sun.faces.sendPoweredByHeader</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>com.sun.faces.sendRequestedWithHeader</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>observadoresINE</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
+	</listener>
+
+	<listener>
+		<listener-class>com.sun.faces.config.ConfigureListener</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>characterEncodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>characterEncodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Para el control de sesiones concurrente -->
+	<listener>
+		<listener-class>org.springframework.security.web.session.HttpSessionEventPublisher</listener-class>
+	</listener>
+
+	<servlet>
+		<servlet-name>appServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<param-value>/WEB-INF/spring/SpringMVC.xml</param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/app/*</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>Captcha</servlet-name>
+		<servlet-class>mx.ine.observadoresINE.servlet.ServletCaptcha</servlet-class>
+		<init-param>
+			<param-name>height</param-name>
+			<param-value>50</param-value>
+		</init-param>
+		<init-param>
+			<param-name>width</param-name>
+			<param-value>170</param-value>
+		</init-param>
+		<init-param>
+			<param-name>length</param-name>
+			<param-value>6</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Captcha</servlet-name>
+		<url-pattern>/app/captcha/captcha.png</url-pattern>
+	</servlet-mapping>
+
+
+	<filter>
+		<filter-name>ClickjackFilterDeny</filter-name>
+		<filter-class>mx.ine.observadoresINE.seguridad.ClickjackFilter</filter-class>
+		<init-param>
+			<param-name>mode</param-name>
+			<param-value>DENY</param-value>
+		</init-param>
+	</filter>
+
+	<!-- Defininimos el filtro XSS -->
+	<filter>
+		<filter-name>FilterXSS</filter-name>
+		<filter-class>mx.ine.observadoresINE.seguridad.XSSPreventionFilter</filter-class>
+	</filter>
+
+	<filter>
+		<filter-name>CSRFValidationFilter</filter-name>
+		<filter-class>mx.ine.observadoresINE.seguridad.CSRFValidationFilter</filter-class>		
+	</filter>
+
+
+	<filter>
+		<filter-name>ClickjackFilterSameOrigin</filter-name>
+		<filter-class>mx.ine.observadoresINE.seguridad.ClickjackFilter</filter-class>
+		<init-param>
+			<param-name>mode</param-name>
+			<param-value>SAMEORIGIN</param-value>
+		</init-param>
+	</filter>
+
+	<!-- use the Deny version to prevent anyone, including yourself, from framing 
+		the page -->
+	<filter-mapping>
+		<filter-name>ClickjackFilterDeny</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<!-- Definimos que el filtro XSS se aplique a todas las rutas dentro de 
+		la app -->
+	<filter-mapping>
+		<filter-name>FilterXSS</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<servlet-name>appServlet</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+
+	<filter-mapping>
+		<filter-name>CSRFValidationFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Si es true, considera los valores UIInput vacíos como null en lugar 
+		de cadena vacía. -->
+	<context-param>
+		<description>Si es true, considera los valores UIInput vacíos como
+			null en lugar de cadena vacía</description>
+		<param-name>javax.faces.INTERPRET_EMPTY_STRING_SUBMITTED_VALUES_AS_NULL</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<!-- Lista de rutas separada por puntos y coma de bibliotecas de etiquetas 
+		Facelet. -->
+	<!-- Este parámetro obliga a faces a tomar el timezone del servidor para 
+		todos los formateadores de fecha y hora de faces -->
+	<context-param>
+		<param-name>javax.faces.DATETIMECONVERTER_DEFAULT_TIMEZONE_IS_SYSTEM_TIMEZONE</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<description>Lista de rutas separada por puntos y coma de bibliotecas de etiquetas Facelet</description>
+		<param-name>javax.faces.FACELETS_LIBRARIES</param-name>
+		<param-value>/WEB-INF/springsecurity.taglib.xml;/WEB-INF/primefaces-ultima.taglib.xml</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+		<param-value>.xhtml</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.PROJECT_STAGE</param-name>
+		<param-value>Production</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.FACELETS_REFRESH_PERIOD</param-name>
+		<param-value>1</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.FACELETS_SKIP_COMMENTS</param-name>
+		<param-value>true</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.faces.application.FACELETS_RESOURCE_RESOLVER</param-name>
+		<param-value>mx.ine.observadoresINE.util.FaceletsResourceResolver</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>primefaces.THEME</param-name>
+		<param-value>indigo-teal</param-value>
+	</context-param>
+
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.faces</url-pattern>
+	</servlet-mapping>
+
+	<!-- Método de guardado del estado de la vista: "cliente" o "servidor" (= 
+		por defecto). Ver JSF especificación 2.5.2 -->
+	<context-param>
+		<description>Método de guardado del estado de la vista: "cliente" o
+			"servidor" (= por defecto). Ver JSF especificación 2.5.2</description>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>client</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+		<param-value>resources.application</param-value>
+	</context-param>
+
+	<!-- Se agregan estas líneas de código para indicar a faces que sólo cuando 
+		se supere este tamaño máximo de archivo genere un temporal, ya que faces 
+		tiene problemas con el manejo de estos archivos temporales y hay que actualizar 
+		el valor de acuerdo a las necesidades -->
+	<filter>
+		<filter-name>PrimeFaces FileUpload Filter</filter-name>
+		<filter-class>org.primefaces.webapp.filter.FileUploadFilter</filter-class>
+		<init-param>
+			<param-name>thresholdSize</param-name>
+			<param-value>1073741824</param-value>
+		</init-param>
+	</filter>
+
+	<filter-mapping>
+		<filter-name>PrimeFaces FileUpload Filter</filter-name>
+		<servlet-name>appServlet</servlet-name>
+	</filter-mapping>
+
+	<!-- Páginas de error -->
+	<error-page>
+		<error-code>400</error-code>
+		<location>/app/error</location>
+	</error-page>
+	<error-page>
+		<error-code>401</error-code>
+		<location>/app/error</location>
+	</error-page>
+	<error-page>
+		<error-code>403</error-code>
+		<location>/app/error</location>
+	</error-page>
+	<error-page>
+		<error-code>404</error-code>
+		<location>/app/error</location>
+	</error-page>
+	<error-page>
+		<error-code>500</error-code>
+		<location>/app/error</location>
+	</error-page>
+	<error-page>
+		<error-code>501</error-code>
+		<location>/app/error</location>
+	</error-page>
+
+	<mime-mapping>
+		<extension>eot</extension>
+		<mime-type>application/vnd.ms-fontobject</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>woff</extension>
+		<mime-type>application/x-font-woff</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>woff2</extension>
+		<mime-type>application/x-font-woff2</mime-type>
+	</mime-mapping>
+	<mime-mapping>
+		<extension>ttf</extension>
+		<mime-type>application/x-font-ttf</mime-type>
+	</mime-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+</web-app>

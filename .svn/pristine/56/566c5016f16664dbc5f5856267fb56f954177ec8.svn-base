@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://ine.mx/ui" xmlns:deceyec="http://ine.mx/ui"
+	template="/templates/templateBasico.xhtml">
+
+	<ui:define name="CONTENT">
+
+		<h:form id="formContent" styleClass="container">
+			<div class="card">
+				<div class="ui-g">
+
+					<!-- IMPORTANTE, DEJAR UN COMMAND BUTTON VACIO AL INICIO DEL FORM -->
+					<p:commandButton style="display: none;" />
+					<pe:inputNumber style="display:none" />
+
+
+					<div class="ui-g-12 ui-md-12">
+						<p:outputLabel value="Exportar a:" />
+					</div>
+
+					<div class="ui-g-12 ui-md-12">
+						<h:commandLink>
+							<p:button value="EXCEL" styleClass="export-btn-Reportes" />
+							<p:dataExporter type="xls" target="genericReport"
+								fileName="lineResult" pageOnly="true" />
+						</h:commandLink>
+
+						<h:commandLink>
+							<p:button value="PDF" styleClass="export-btn-Reportes" />
+							<p:dataExporter type="pdf" target="genericReport"
+								fileName="lineResult" pageOnly="true" />
+						</h:commandLink>
+					</div>
+					<div class="ui-g-12">
+						<p:dataTable id="genericReport"
+							value="#{mbPruebaConPaginado.lazyData}" var="lineResult"
+							paginator="true" rows="20"
+							paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+							rowsPerPageTemplate="5,10,15,20" lazy="true"
+							emptyMessage="Sin datos" resizableColumns="true"
+							selectionMode="single" widgetVar="tabla">
+
+							<!-- 							<p:ajax event="sort" -->
+							<!-- 								listener="#{mbPruebaConPaginado.lazyData.listener}" -->
+							<!-- 								update="formContent:genericReport" -->
+							<!-- 								oncomplete="location.reload();" /> -->
+
+							<!-- 							<p:ajax event="page" oncomplete="location.reload();" /> -->
+
+							<p:ajax event="sort"
+								listener="#{mbPruebaConPaginado.lazyData.listener}"
+								update="genericReport" />
+							<p:ajax event="page" update="genericReport" />
+
+							<f:facet name="header">
+								<h:outputText value="Reporte Genérico" />
+							</f:facet>
+
+							<p:column style="width:16px">
+								<p:rowToggler />
+							</p:column>
+
+
+							<c:forEach var="j" begin="0"
+								end="#{mbPruebaConPaginado.lazyData.numColumnas-1}">
+
+
+								<c:forEach
+									items="#{mbPruebaConPaginado.lazyData.selectedColumns}"
+									var="select">
+
+
+
+									<c:if test="${ j == select}">
+										<p:column
+											id="${mbPruebaConPaginado.lazyData.CONS_ID_COLUMNA}${j}"
+											sortBy=" #{lineResult[j]}" filterBy="#{lineResult[j]}"
+											headerText="#{mbPruebaConPaginado.lazyData.encabezados[j]}">
+
+											<h:outputText value="#{lineResult[j]}" />
+
+											<c:choose>
+												<!-- Ningun filtro -->
+												<c:when
+													test="${ mbPruebaConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'N'.charAt(0)}">
+													<f:facet name="filter">
+														<p:inputText disabled="true" rendered="false"></p:inputText>
+													</f:facet>
+												</c:when>
+												<!-- Filtro de InputText -->
+												<c:when
+													test="${ mbPruebaConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'I'.charAt(0)}">
+													<f:facet name="filter">
+														<p:inputText
+															value="#{mbPruebaConPaginado.lazyData.seleccionados[j]}">
+
+															<c:if
+																test="${not empty mbPruebaConPaginado.lazyData.arregloMascaras[j]}">
+																<pe:keyFilter
+																	regEx="${mbPruebaConPaginado.lazyData.arregloMascaras[j]}" />
+															</c:if>
+															<c:if
+																test="${not empty mbPruebaConPaginado.lazyData.arregloExpresionesRegulares[j]}">
+																<f:validateRegex
+																	pattern="${mbPruebaConPaginado.lazyData.arregloExpresionesRegulares[j]}" />
+															</c:if>
+
+															<p:ajax event="change"
+																listener="#{mbPruebaConPaginado.lazyData.actionListener(j)}"
+																update="genericReport" />
+														</p:inputText>
+													</f:facet>
+												</c:when>
+												<!-- Filtro de Combo -->
+												<c:when
+													test="${ mbPruebaConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'C'.charAt(0)}">
+													<f:facet name="filter">
+														<p:selectOneMenu
+															value="#{mbPruebaConPaginado.lazyData.seleccionados[j]}">
+															<p:ajax event="change"
+																listener="#{mbPruebaConPaginado.lazyData.actionListener(j)}"
+																update="genericReport" />
+															<f:selectItems
+																value="#{mbPruebaConPaginado.lazyData.conjuntoFiltros[j]}" />
+														</p:selectOneMenu>
+													</f:facet>
+												</c:when>
+												<!-- Filtro de fecha -->
+												<c:when
+													test="${ mbPruebaConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'F'.charAt(0)}">
+
+													<f:facet name="filter">
+														<p:inputText styleClass="datepicker" id="input${j}"
+															value="#{mbPruebaConPaginado.lazyData.seleccionados[j]}">
+															<p:ajax
+																listener="#{mbPruebaConPaginado.lazyData.actionListener(j)}"
+																update="genericReport" event="change" />
+														</p:inputText>
+													</f:facet>
+												</c:when>
+											</c:choose>
+											<f:facet name="footer">
+												<h:outputText
+													value="#{mbPruebaConPaginado.lazyData.totales[j]}" />
+											</f:facet>
+										</p:column>
+									</c:if>
+
+									<p:rowExpansion>
+										<c:forEach var="jj" begin="0"
+											end="#{mbPruebaConPaginado.lazyData.numColumnas-1}">
+											<div class="ui-g-12 ui-md-12">
+												<h:outputText value="#{mbPruebaConPaginado.lazyData.encabezados[jj]}  : " />
+												<h:outputText value="  #{lineResult[jj]}" />
+											</div>
+										</c:forEach>
+									</p:rowExpansion>
+
+								</c:forEach>
+							</c:forEach>
+						</p:dataTable>
+					</div>
+				</div>
+			</div>
+		</h:form>
+		<script>
+		$.datepicker.regional['es'] = {
+				 closeText: 'Cerrar',
+				 prevText: '&#x3c;Ant',
+				 nextText: 'Sig&#x3e;',
+				 currentText: 'Hoy',
+				 monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+				 monthNamesShort: ['Ene','Feb','Mar','Abr', 'May','Jun','Jul','Ago','Sep', 'Oct','Nov','Dic'],
+				 dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+				 dayNamesShort: ['Dom','Lun','Mar','Mié','Juv','Vie','Sáb'],
+				 dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+				 weekHeader: 'Sm',
+				 dateFormat: 'dd/mm/yy',			
+				 firstDay: 1,
+				 isRTL: false,
+				 showMonthAfterYear: false,
+				 yearSuffix: ''
+				 };
+		$.datepicker.setDefaults($.datepicker.regional['es']);
+	
+		jQuery(document).ready(function($) {
+			$('.datepicker').each(function(){
+				$(this).datepicker();
+			});
+		});
+	</script>
+	</ui:define>
+</ui:composition>

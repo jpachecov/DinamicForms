@@ -1,0 +1,155 @@
+package mx.ine.observadoresINE.bsd.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Component;
+
+import mx.ine.observadoresINE.as.ASConfiguracionCatalogosInterface;
+import mx.ine.observadoresINE.bsd.BSDConfiguracionCatalogosInterface;
+import mx.ine.observadoresINE.dto.db.DTOCAcciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.dto.db.DTOCEscolaridades;
+import mx.ine.observadoresINE.dto.db.DTOCEvaluacion;
+import mx.ine.observadoresINE.dto.db.DTOCJustificaciones;
+
+/**
+ * <code>BSDConfiguracionCatalogosImpl.java</code>Descripcion de la clase
+ *
+ * @author Gerardo López
+ * @version 1.0
+ * @since 27/06/2017
+ */
+@Component("bsdConfiguracionCatalogos")
+@Scope("prototype")
+public class BSDConfiguracionCatalogosImpl implements
+		BSDConfiguracionCatalogosInterface {
+
+	@Autowired
+	@Qualifier("asConfiguracionCatalogos")
+	ASConfiguracionCatalogosInterface asConfiguracionCatalogos;
+
+	// ******************** GUARDAR Y/O ACTUALIZAR CATALOGOS ***************
+
+	@Override
+	public void guardaActualizaCAcciones(DTOCAcciones acciones)
+			throws Exception {
+		asConfiguracionCatalogos.guardaActualizaCAcciones(acciones);
+	}
+
+	@Override
+	public void guardaActualizaCCargoResponsable(
+			DTOCCargoResponsable cargoResponsable) throws Exception {
+		asConfiguracionCatalogos
+				.guardaActualizaCCargoResponsable(cargoResponsable);
+	}
+
+	@Override
+	public void guardaActualizaCEscolaridades(DTOCEscolaridades escolaridades)
+			throws Exception {
+		asConfiguracionCatalogos.guardaActualizaCEscolaridades(escolaridades);
+	}
+
+	@Override
+	public void guardaActualizaCJustificaciones(
+			DTOCJustificaciones justificaciones) throws Exception {
+		asConfiguracionCatalogos
+				.guardaActualizaCJustificaciones(justificaciones);
+	}
+
+	@Override
+	public void guardaActualizaCEvaluaciones(DTOCEvaluacion evaluaciones)
+			throws Exception {
+		asConfiguracionCatalogos.guardaActualizaCEvaluaciones(evaluaciones);
+	}
+
+	// ***************************** ELIMINAR CATALOGOS ***********************
+
+	@Override
+	public void eliminaCAcciones(List<DTOCAcciones> acciones) {
+		asConfiguracionCatalogos.eliminaCAcciones(acciones);
+	}
+
+	@Override
+	public void eliminaCCargoResponsable(
+			List<DTOCCargoResponsable> cargoResponsable) {
+		asConfiguracionCatalogos.eliminaCCargoResponsable(cargoResponsable);
+	}
+
+	@Override
+	public void eliminaCEscolaridades(List<DTOCEscolaridades> escolaridades) {
+		asConfiguracionCatalogos.eliminaCEscolaridades(escolaridades);
+	}
+
+	@Override
+	public void eliminaCJustificaciones(
+			List<DTOCJustificaciones> justificaciones) {
+		asConfiguracionCatalogos.eliminaCJustificaciones(justificaciones);
+	}
+
+	@Override
+	public void eliminaCEvaluaciones(List<DTOCEvaluacion> evaluaciones) {
+		asConfiguracionCatalogos.eliminaCEvaluaciones(evaluaciones);
+	}
+
+	// ***************************** OBTENER CATALOGOS *************************
+
+	@Override
+	public List<DTOCAcciones> getCAcciones(Integer idProceso, Integer idDetalle)
+			throws Exception {
+		return asConfiguracionCatalogos.getCAcciones(idProceso, idDetalle);
+	}
+
+	@Override
+	public List<DTOCCargoResponsable> getCCargoResponsable(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return asConfiguracionCatalogos.getCCargoResponsable(idProceso,
+				idDetalle);
+	}
+
+	@Override
+	public List<DTOCEscolaridades> getCEscolaridades(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return asConfiguracionCatalogos.getCEscolaridades(idProceso, idDetalle);
+	}
+
+	@Override
+	public List<DTOCJustificaciones> getCJustificaciones(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return asConfiguracionCatalogos.getCJustificaciones(idProceso,
+				idDetalle);
+	}
+
+	@Override
+	public List<DTOCEvaluacion> getCEvaluaciones(Integer idProceso,
+			Integer idDetalle) throws Exception {
+		return asConfiguracionCatalogos.getCEvaluaciones(idProceso, idDetalle);
+	}
+
+	// ******************* Encontrar registros en los demás módulos ******
+
+	@Override
+	public boolean promocionesXCAcciones(Integer idProceso, Integer idDetalle)
+			throws Exception {
+		return asConfiguracionCatalogos.promocionesXCAcciones(idProceso,
+				idDetalle);
+	}
+
+	@Override
+	public boolean cursosXCCargoResponsable(Integer idProceso, Integer idDetalle)
+			throws Exception {
+		return asConfiguracionCatalogos.cursosXCCargoResponsable(idProceso,
+				idDetalle);
+	}
+
+	@Override
+	public boolean observadoresXCEscolarXCJustificaXCEvaluaciones(
+			Integer idProceso, Integer idDetalle) throws Exception {
+		return asConfiguracionCatalogos
+				.observadoresXCEscolarXCJustificaXCEvaluaciones(idProceso,
+						idDetalle);
+	}
+
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+	  start-state="observadorModificar_view" parent="parent-flow">
+	  	
+  	<!-- Flujos Internos-->
+	<var name="mbObservadores" class="mx.ine.observadoresINE.mb.MBObservadores" />
+	
+	<view-state id="observadorModificar_view" view="modificar.xhtml">
+		<on-entry>
+			<evaluate expression="mbObservadores.init()"></evaluate>
+		</on-entry>
+		
+		<transition on="modificar" to="modificado"/>
+		<transition on="cancelar" to="observadorModificar_view"/>
+	</view-state>
+	
+	<view-state id="observador_view_error" view="modificar.xhtml">
+		<on-entry>
+			<evaluate expression="mbObservadores.init()"></evaluate>
+		</on-entry>
+		<transition on="modificar" to="modificado"/>
+		<transition on="cancelar" to="home"/>
+		
+	</view-state>
+	
+	<!-- Flujos Externos -->
+	
+	<decision-state id="modificado">
+	<if  test="mbObservadores.modificarObservador()" then="observadorModificar_view" else="observador_view_error"/>
+	</decision-state>
+	
+	<view-state id="consultarSolicitudes" view="externalRedirect:servletRelative:/modulos/Solicitudes/consultar" />
+    <view-state id="modificarSolicitudes" view="externalRedirect:servletRelative:/modulos/Solicitudes/modificar" />
+	<view-state id="home" view="externalRedirect:servletRelative:/home" />	
+</flow>

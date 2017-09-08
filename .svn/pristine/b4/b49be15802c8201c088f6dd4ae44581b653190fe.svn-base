@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://ine.mx/ui" xmlns:deceyec="http://ine.mx/ui"
+	template="/templates/template.xhtml">
+
+	<h:head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</h:head>
+
+	<ui:define name="CONTENT">
+
+		<pe:blockUI id="progress" target="formConsultaAccionPromocion"
+			content="blockUIContent" widgetVar="progress" />
+
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText
+				value="#{messageSource['mensaje_generales_procesando']}"
+				style="white-space: nowrap;" />
+		</h:panelGrid>
+		<!-- Se cambia para prueba de styleClass="container" a styleClass="container-fluid"  -->
+		<h:form id="formConsultaAccionPromocion" styleClass="container-fluid"
+			enctype="multipart/form-data">
+			<p:messages for="mensajesError" autoUpdate="false" />
+			<p:messages for="mensajesInfo" autoUpdate="false" />
+			<p:growl for="mensajesExito" autoUpdate="false" />
+
+			<p:outputPanel id="titulo">
+				<div class="card">
+					<h1>#{messageSource['etiqueta_titulo_modulo_promociones']}</h1>
+					<!-- 					<p> -->
+					<!-- 						#{messageSource['etiqueta_generales_requerido_0']}<span -->
+					<!-- 							class="requerido"></span>#{messageSource['etiqueta_generales_requerido_2']} -->
+					<!-- 					</p> -->
+				</div>
+			</p:outputPanel>
+
+			<div>
+				<ui:include src="../componentesPromociones/menuFiltros.xhtml" />
+			</div>
+
+			<p:outputPanel id="resultadoBusqueda"
+				rendered="#{mbAccionesPromocion.lstAccionPromociones ne null}">
+				<div class="card">
+					<h1>#{messageSource['etiqueta_titulo_resultado_busqueda']} -
+						#{mbAccionesPromocion.nombreMedioComunicacion}</h1>
+					<p:dataTable id="resultadoBusquedaPromociones"
+						value="#{mbAccionesPromocion.lstAccionPromociones}"
+						var="promocion" widgetVar="tabla" paginator="true" rows="10"
+						currentPageReportTemplate="({currentPage} de {totalPages})"
+						paginatorTemplate="{FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
+						rowsPerPageTemplate="10,40,75,100"
+						emptyMessage="#{messageSource['validacion_mensaje_generales_no_datos']}"
+						resizableColumns="false" resizeMode="expand"
+						paginatorPosition="bottom" tableStyle="table-layout: auto;">
+						<!-- EVENTOS AJAX -->
+						<p:ajax event="page" update="resultadoBusquedaPromociones" />
+						<p:column
+							headerText="#{messageSource['etiqueta_acciones_fechaAccion']}"
+							styleClass="ui-state-default"
+							style="text-align: center; width:170px">
+							<p:outputLabel id="fecha" value="#{promocion.fechaAccion}">
+								<f:convertDateTime dateStyle="long" locale="es"
+									pattern="dd/MM/yyyy" type="both" />
+							</p:outputLabel>
+						</p:column>
+
+						<p:column
+							headerText="#{messageSource['etiqueta_acciones_descripcion']}"
+							styleClass="ui-state-default">
+							<h:outputText value="#{promocion.descripcion}"
+								style="text-align: left"
+								rendered="#{fn:length(promocion.descripcion) le 200}" />
+							<h:outputText style="text-align: left"
+								value="#{fn:substring(promocion.descripcion, 0, 200)}..."
+								rendered="#{fn:length(promocion.descripcion) gt 200}" />
+						</p:column>
+
+						<p:column style="width:84px">
+							<p:commandButton
+								update="resultadoBusquedaPromociones :formModificaAccionPromocion"
+								oncomplete="PF('promocionDialog').show()" icon="ui-icon-pencil"
+								title="Modificar">
+								<f:setPropertyActionListener value="#{promocion}"
+									target="#{mbAccionesPromocion.selectedAccionPromocion}" />
+							</p:commandButton>
+							<p:commandButton update="@form :formConsultaAccionPromocion"
+								icon="ui-icon-trash"
+								actionListener="#{mbAccionesPromocion.eliminarPromocion(promocion)}"
+								onstart="PF('progress').block()"
+								oncomplete="PF('progress').unblock()" title="Eliminar">
+								<p:confirm
+									header="#{messageSource['etiqueta_titulo_dialogo_elimina']}"
+									message="#{messageSource['etiqueta_acciones_mensaje_elimina_accion']}"
+									icon="ui-icon-info">
+								</p:confirm>
+							</p:commandButton>
+
+							<p:confirmDialog global="true" showEffect="fade" closable="false"
+								hideEffect="fade">
+								<sec:authorize
+									ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+ 	 									ROLE_OBSERVADORES.ADMIN.CAPTURA.OC,  
+ 										 ROLE_OBSERVADORES.CONSEJERO.OC, 
+ 										 ROLE_OBSERVADORES.CONSULTA.OC,
+ 										 ROLE_OBSERVADORES.CAPTURA.JL,  
+ 										 ROLE_OBSERVADORES.CONSULTA.JL, 
+ 										 ROLE_OBSERVADORES.ADMIN.EXT.OPLE.JL,
+ 										 ROLE_OBSERVADORES.CAPTURA.JD, 
+ 										 ROLE_OBSERVADORES.CONSULTA.JD">
+									<p:commandButton
+										value="#{messageSource['etiqueta_generales_si']}"
+										type="button" styleClass="ui-confirmdialog-yes"
+										icon="ui-icon-check" />
+								</sec:authorize>
+								<p:commandButton
+									value="#{messageSource['etiqueta_generales_no']}"
+									type="button" styleClass="ui-confirmdialog-no"
+									icon="ui-icon-close" />
+							</p:confirmDialog>
+
+						</p:column>
+					</p:dataTable>
+				</div>
+			</p:outputPanel>
+		</h:form>
+
+		<!-- DIALOGO QUE PERMITE MODIFICAR UNA PROMOCION -->
+		<p:dialog widgetVar="promocionDialog" modal="true" showEffect="fade"
+			closeOnEscape="true" draggable="false" responsive="true"
+			header="#{messageSource['etiqueta_titulo_dialogo_modifica']}"
+			closable="false" position="center" id="consultaDetalleDialog"
+			width="1000px" hideEffect="fade" resizable="false">
+			<p:separator />
+			<!-- Se cambia para prueba de styleClass="container" a styleClass="container-fluid"  -->
+			<h:form id="formModificaAccionPromocion" styleClass="container-fluid"
+				style="margin:0; width: auto">
+				<p:outputPanel id="detalleConsulta">
+					<p:scrollPanel mode="native" style="width:auto;height:300px">
+						<!-- SPAN PARA CACHAR EL FOCUS Y EVITAR QUE SE ACTIVE EL CALENDARIO AL ABRIRSE EL DIALOGO -->
+						<span class="ui-helper-hidden-accessible"><input
+							type="text" /></span>
+						<div class="ui-g">
+							<div class="ui-g-6">
+								<div class="md-selectfield">
+									<p:outputLabel for="medioComunicacionMod"
+										value="#{messageSource['etiqueta_acciones_medioComunicacion']}" />
+									<!-- PARA EVITAR NULLPOINTER SOBRE EL OBJETO SELECTEDACCIONPROMOCION AL INICIAR EL MODULO -->
+									<c:choose>
+										<c:when
+											test="#{mbAccionesPromocion.selectedAccionPromocion ne null}">
+											<p:selectOneMenu id="medioComunicacionMod" required="true"
+												value="#{mbAccionesPromocion.selectedAccionPromocion.idAccion}"
+												requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+												<f:selectItem
+													itemLabel="#{messageSource['etiqueta_generales_selecciona']}"
+													noSelectionOption="true" itemValue="#{null}" />
+												<f:selectItems
+													value="#{mbAccionesPromocion.lstMediosComunicacion}"
+													var="medio" itemLabel="#{medio.nombre}"
+													itemValue="#{medio.dTOCAccionesPK.idAccion}" />
+											</p:selectOneMenu>
+										</c:when>
+										<c:otherwise>
+											<p:selectOneMenu id="medioComunicacionMod" required="true"
+												value="0"
+												requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
+												<f:selectItem
+													itemLabel="#{messageSource['etiqueta_generales_selecciona']}"
+													noSelectionOption="true" itemValue="#{null}" />
+												<f:selectItems
+													value="#{mbAccionesPromocion.lstMediosComunicacion}"
+													var="medio" itemLabel="#{medio.nombre}"
+													itemValue="#{medio.dTOCAccionesPK.idAccion}" />
+											</p:selectOneMenu>
+										</c:otherwise>
+									</c:choose>
+								</div>
+								<p:message id="msjcomboMedioComunicacionMod"
+									for="medioComunicacionMod" />
+							</div>
+						</div>
+						<div class="ui-g">
+							<div class="ui-g-3">
+								<div class="md-selectfield">
+									<p:outputLabel for="fechaAccionPromocionMod"
+										id="labelFechaAccion"
+										value="#{messageSource['etiqueta_acciones_fechaAccion']}" />
+									<p:calendar id="fechaAccionPromocionMod" pattern="dd/MM/yyyy"
+										locale="es" mask="true" placeholder="dd/mm/aaaa"
+										required="true" navigator="true"
+										value="#{mbAccionesPromocion.selectedAccionPromocion.fechaAccion}"
+										requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+										converterMessage="#{messageSource['validacion_mensajes_generales_dato_requerido_fecha_invalida']}">
+										<p:ajax event="blur" update="mensajeFechaMod"></p:ajax>
+										<p:ajax event="dateSelect" update="mensajeFechaMod"></p:ajax>
+									</p:calendar>
+								</div>
+								<p:messages for="fechaAccionPromocionMod" id="mensajeFechaMod" />
+							</div>
+						</div>
+						<div class="ui-g">
+							<div class="ui-g-12">
+								<div class="md-selectfield">
+									<p:outputLabel for="descripcionMod" id="labelDescripcion"
+										value="#{messageSource['etiqueta_acciones_descripcion']}" />
+									<p:inputTextarea id="descripcionMod"
+										value="#{mbAccionesPromocion.selectedAccionPromocion.descripcion}"
+										required="true" rows="15" cols="150"
+										requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
+										counterTemplate="{0} caracteres restantes" maxlength="4000"
+										counter="counterDescripcion">
+										<pe:keyFilter
+											regEx="#{messageSource['validacion_expresion_caracteresValidos_descripcion_filtro']}"
+											preventPaste="false" />
+									</p:inputTextarea>
+								</div>
+								<p:messages for="descripcionMod" id="msjDescripcion" />
+								<p:messages for="validacionDescripcion" autoUpdate="false" />
+								<h:outputText class="ui-g-6" id="counterDescripcion" />
+							</div>
+						</div>
+					</p:scrollPanel>
+
+					<div class="ui-g">
+						<div class="center-block">
+
+							<sec:authorize
+								ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+ 	 									ROLE_OBSERVADORES.ADMIN.CAPTURA.OC,  
+ 										 ROLE_OBSERVADORES.CONSEJERO.OC, 
+ 										 ROLE_OBSERVADORES.CONSULTA.OC,
+ 										 ROLE_OBSERVADORES.CAPTURA.JL,  
+ 										 ROLE_OBSERVADORES.CONSULTA.JL, 
+ 										 ROLE_OBSERVADORES.ADMIN.EXT.OPLE.JL,
+ 										 ROLE_OBSERVADORES.CAPTURA.JD, 
+ 										 ROLE_OBSERVADORES.CONSULTA.JD">
+
+								<p:commandButton id="btnModificaAccionPromocion"
+									update="@form :formConsultaAccionPromocion"
+									value="#{messageSource['etiqueta_boton_guardar']}"
+									process="@form"
+									actionListener="#{mbAccionesPromocion.modificarPromocion}"
+									oncomplete="if (args &amp;&amp; !args.validationFailed) PF('promocionDialog').hide()">
+								</p:commandButton>
+
+								<p:blockUI block="formModificaAccionPromocion"
+									trigger="btnModificaAccionPromocion" />
+
+							</sec:authorize>
+							&nbsp;&nbsp;
+							<p:commandButton id="btnCerrarDialogoPromocion" update="@form"
+								process="@form" styleClass="secondary"
+								value="#{messageSource['etiqueta_boton_cancelar']}"
+								oncomplete="PF('promocionDialog').hide()">
+							</p:commandButton>
+						</div>
+					</div>
+				</p:outputPanel>
+
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>

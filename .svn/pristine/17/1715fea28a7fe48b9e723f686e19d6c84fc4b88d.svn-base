@@ -1,0 +1,169 @@
+/**
+ * @(#)DAOReportesImp.java 5/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dao.impl;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import mx.ine.observadoresINE.dao.DAOReportesInterface;
+import mx.ine.observadoresINE.dto.DTOFiltroReporteAcciones;
+import mx.ine.observadoresINE.dto.DTOReportesParametros;
+import mx.ine.observadoresINE.dto.db.DTOReportesBitacora;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import mx.ine.observadoresINE.helper.HLPReporteDetalleObservadores;
+
+import org.hibernate.SQLQuery;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Repository;
+
+/**
+ * <code>DAOReportesImp.java</code>
+ *
+ * @author Helaine Flores Cervantes
+ * @since 5/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+@Repository("daoReportes")
+@Scope("prototype")
+public class DAOReportesImp extends DAOGeneric<DTOReportesBitacora, Long> implements DAOReportesInterface {
+    /**
+     * {@inheritDoc}
+     */
+    @SuppressWarnings("unchecked")
+	@Override
+    public List<String> obtenerTabla(int numeroTabla) {
+
+        String nombreQuery;
+        switch (numeroTabla) {
+            case 1: //Tabla Agrupaciones
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaAgrupaciones");
+                break;
+            case 2: //Tabla Accion de Promoción
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaAccionesPromocion");
+                break;
+            case 3: //Cursos de capacitación
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaCursos");
+                break;
+            case 4: //Observadoras y Observadores
+                nombreQuery = this.getContainer().getQuery("query_reporte_tablaObservadores");
+                break;
+            default:
+                nombreQuery = null;
+                break;
+        }
+
+        SQLQuery query = getSession().createSQLQuery(nombreQuery);
+        List<String> tabla = (List<String>) query.list();
+        return tabla;
+
+    }
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<Object[]> consultarReporteControlObs(FormRepControlObs form) {
+        String sql ;
+        SQLQuery query; 
+        List<Object[]> reporte;
+        
+        sql = this.getContainer().getQuery(form.getNombreQuery());
+        sql = sql.replace("-idProcesoElectoral-", form.getUsuario().getIdProcesoElectoral().toString());
+        sql = sql.replace("-idDetalleProceso-", form.getUsuario().getIdDetalleProceso().toString());
+        sql = sql.replace("-idEstado-", form.getUsuario().getIdEstadoSeleccionado().toString());
+        query = getSession().createSQLQuery(sql);
+        reporte = (List<Object[]>)query.list();
+        return reporte;
+    }
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> consultaDatosReporteAgrupaciones(
+			Integer idFiltroAgrupacion) throws Exception {
+		String sql = this.getContainer().getQuery("query_reporte_agrupaciones");
+		List<Object[]> resultado = null;
+		// Consulta las agrupaciones del periodo de Sep/17 - Jun/18
+		if (idFiltroAgrupacion.equals(2)) {
+			sql += " WHERE A.FECHA_HORA BETWEEN '17/09/17' AND '18/06/18'";
+		}
+
+		SQLQuery query = getSession().createSQLQuery(sql);
+		resultado = (List<Object[]>) query.list();
+		return resultado;
+	}
+	
+    /**
+     * {@inheritDoc}
+     */
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<Object[]> consultaDatosReporteAcciones(String query) throws Exception {
+		SQLQuery sqlQuery = getSession().createSQLQuery(query);
+		return sqlQuery.list();
+	}
+	
+	/**
+	* {@inheritDoc}
+	*/
+	@SuppressWarnings("unchecked")
+	@Override
+	public HLPReporteDetalleObservadores generaReporteDetalleObs(LinkedHashMap<String, Integer> filtros)
+			throws Exception {
+		List<Object []> listaDatos = new ArrayList<Object[]>();
+		Integer nivelOficinas = filtros.get("nivelOficinas");
+		Integer idProceso = filtros.get("idProceso");
+		Integer idDetalle = filtros.get("idDetalle");
+		Integer idEstado;
+		Integer idDistrito;
+		String sql = "";
+		SQLQuery query = null;
+		switch (nivelOficinas) {
+		case 1:
+			sql = this.getContainer().getQuery("query_reporte_detalle_obs_OC");
+			query = getSession().createSQLQuery(sql);
+			query.setParameter("idProceso", idProceso);
+            query.setParameter("idDetalle", idDetalle);
+			break;
+
+		case 2:
+			idEstado = filtros.get("idEstado");
+			sql = this.getContainer().getQuery("query_reporte_detalle_obs_JL");
+			query = getSession().createSQLQuery(sql);
+			query.setParameter("idProceso", idProceso);
+            query.setParameter("idDetalle", idDetalle);
+            query.setParameter("idEstado", idEstado);
+			break;
+		case 3:
+			idEstado = filtros.get("idEstado");
+			idDistrito = filtros.get("idDistrito");
+			sql = this.getContainer().getQuery("query_reporte_detalle_obs_JL");
+			query = getSession().createSQLQuery(sql);
+			query.setParameter("idProceso", idProceso);
+            query.setParameter("idDetalle", idDetalle);
+            query.setParameter("idEstado", idEstado);
+            query.setParameter("idDistrito", idDistrito);
+			break;
+		}
+		for(int i = 1; i <= 11; i++){
+        	query.addScalar("field"+i);
+        }
+        listaDatos = (List<Object []>) query.list();
+        
+		HLPReporteDetalleObservadores resultado = new HLPReporteDetalleObservadores(filtros.get("nivelOficinas"), listaDatos);
+		return resultado;
+	}
+	
+	
+	@Override
+	public DTOReportesParametros obtenReporteCursos(DTOFiltroReporteAcciones query) {
+		return null;
+	}
+
+
+
+}

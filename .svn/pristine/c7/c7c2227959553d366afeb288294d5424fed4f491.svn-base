@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://ine.mx/ui" xmlns:deceyec="http://ine.mx/ui"
+	template="/templates/templateBasico.xhtml">
+
+	<ui:define name="CONTENT">
+
+		<h:form id="formContent">
+		<!-- <p:growl id="msgs" showDetail="true" globalOnly="false" autoUpdate="true" /> -->
+		
+		<!-- IMPORTANTE, DEJAR UN COMMAND BUTTON VACIO AL INICIO DEL FORM -->
+		<p:commandButton style="display: none;" />
+		<pe:inputNumber style="display:none" />
+		<div class="card">
+		<div class="ui-g">
+<!-- 		<p:commandButton process="@this" partialSubmit="true" update="@form" -->
+<!-- 			value="Reporte Sistemas Con Paginado" -->
+<!-- 			actionListener="#{mbReporteSistemasConPaginado.init}" -->
+<!-- 			oncomplete="location.reload();"> -->
+<!-- 		</p:commandButton> -->
+		<p:commandButton process="@this" partialSubmit="true" update="formContent"
+			value="Reporte Sistemas Con Paginado"
+			actionListener="#{mbReporteSistemasConPaginado.init}">
+		</p:commandButton>
+		
+		<h3>Columnas</h3>
+		<p:selectManyCheckbox id="idSeleccionColumnas"
+			value="#{mbReporteSistemasConPaginado.lazyData.selectedColumns}"
+			layout="grid" columns="1">
+			
+			<c:forEach var="j" begin="0"
+				end="#{mbReporteSistemasConPaginado.lazyData.numColumnas-1}">
+				<c:choose>
+					<c:when
+						test="${mbReporteSistemasConPaginado.lazyData.columnaObligatoria[j]}">
+						<f:selectItem itemDisabled="true"
+							itemLabel="#{mbReporteSistemasConPaginado.lazyData.encabezados[j]}"
+							itemValue="${j}" />
+					</c:when>
+					<c:otherwise>
+						<f:selectItem
+							itemLabel="#{mbReporteSistemasConPaginado.lazyData.encabezados[j]}"
+							itemValue="${j}" />
+					</c:otherwise>
+					
+				</c:choose>
+			</c:forEach>
+			
+<!-- 				<p:ajax oncomplete="location.reload()" event="change" -->
+<!-- 				listener="#{mbReporteSistemasConPaginado.lazyData.cboxListener}" -->
+<!-- 				update="@form" /> -->
+				<p:ajax event="change"
+				listener="#{mbReporteSistemasConPaginado.lazyData.cboxListener}"
+				oncomplete="location.reload()" />
+		</p:selectManyCheckbox>
+		
+		<br />
+		
+		<p:dataTable id="genericReport"
+			value="#{mbReporteSistemasConPaginado.lazyData}" var="lineResult"
+			paginator="true" rows="20"
+			paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+			rowsPerPageTemplate="10, 20, 30, 40" lazy="true"
+			resizableColumns="false" resizeMode="expand"
+			tableStyle="table-layout: auto;" widgetVar="tabla">
+			
+<!-- 			<p:ajax event="sort" -->
+<!-- 				listener="#{mbReporteSistemasConPaginado.lazyData.listener}" -->
+<!-- 				update="formContent:genericReport" oncomplete="location.reload();" /> -->
+				
+			<p:ajax event="page" oncomplete="location.reload();" />
+			
+			<p:ajax event="sort"
+				listener="#{mbReporteSistemasConPaginado.lazyData.listener}"
+				update="genericReport"  />
+				
+<!-- 			<p:ajax event="page" update="genericReport" /> -->
+			
+			
+			<f:facet name="header">
+				<h:outputText value="Reporte Genérico" />
+			</f:facet>
+			
+			<c:forEach var="j" begin="0"
+				end="#{mbReporteSistemasConPaginado.lazyData.numColumnas-1}">
+			
+				<c:forEach
+					items="#{mbReporteSistemasConPaginado.lazyData.selectedColumns}"
+					var="select">
+					
+					<c:if test="${ j == select}">
+						<p:column
+							id="${mbReporteSistemasConPaginado.lazyData.CONS_ID_COLUMNA}${j}"
+							sortBy=" #{lineResult[j]}" filterBy="#{lineResult[j]}"
+							headerText="#{mbReporteSistemasConPaginado.lazyData.encabezados[j]}">
+							
+							<h:outputText value="#{lineResult[j]}" />
+							
+							<c:choose>
+								<!-- Ningun filtro -->
+								<c:when
+									test="${ mbReporteSistemasConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'N'.charAt(0)}">
+									<f:facet name="filter">
+										<p:inputText disabled="true" rendered="false"></p:inputText>
+									</f:facet>
+								</c:when>
+								<!-- Filtro de InputText -->
+								<c:when
+									test="${ mbReporteSistemasConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'I'.charAt(0)}">
+									<f:facet name="filter">
+<!-- 										<p:inputText -->
+<!-- 											value="#{mbReporteSistemasConPaginado.lazyData.seleccionados[j]}" -->
+<!-- 											onchange="if (event.keyCode == 13) { return true; return false; }" > -->
+										<p:inputText
+											value="#{mbReporteSistemasConPaginado.lazyData.seleccionados[j]}" >
+											
+											<c:if
+												test="${not empty mbReporteSistemasConPaginado.lazyData.arregloMascaras[j]}">
+												<pe:keyFilter regEx="${mbReporteSistemasConPaginado.lazyData.arregloMascaras[j]}" />
+											</c:if>
+											<c:if
+												test="${not empty mbReporteSistemasConPaginado.lazyData.arregloExpresionesRegulares[j]}">
+												<f:validateRegex
+													pattern="${mbReporteSistemasConPaginado.lazyData.arregloExpresionesRegulares[j]}" />
+											</c:if>
+											
+<!-- 											<p:ajax event="change" -->
+<!-- 												listener="#{mbReporteSistemasConPaginado.lazyData.actionListener(j)}" -->
+<!-- 												update="@form" oncomplete="location.reload();" /> -->
+											<p:ajax event="change"
+												listener="#{mbReporteSistemasConPaginado.lazyData.actionListener(j)}"
+												update="formContent:genericReport" />
+										</p:inputText>
+									</f:facet>
+								</c:when>
+								<!-- Filtro de Combo -->
+								<c:when
+									test="${ mbReporteSistemasConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'C'.charAt(0)}">
+									<f:facet name="filter">
+										<p:selectOneMenu
+											value="#{mbReporteSistemasConPaginado.lazyData.seleccionados[j]}">
+<!-- 											<p:ajax event="change" -->
+<!-- 												listener="#{mbReporteSistemasConPaginado.lazyData.actionListener(j)}" -->
+<!-- 												update=":formContent:genericReport" oncomplete="location.reload();"/> -->
+											<p:ajax event="change"
+												listener="#{mbReporteSistemasConPaginado.lazyData.actionListener(j)}"
+												update="formContent:genericReport"/>
+											<f:selectItems
+												value="#{mbReporteSistemasConPaginado.lazyData.conjuntoFiltros[j]}" />
+										</p:selectOneMenu>
+									</f:facet>
+								</c:when>
+								<!-- Filtro de fecha -->
+								<c:when
+									test="${ mbReporteSistemasConPaginado.lazyData.tipoColumnaFiltro[j]  eq 'F'.charAt(0)}">
+									
+									<f:facet name="filter">
+										<p:inputText styleClass="datepicker" id="input${j}" value="#{mbReporteSistemasConPaginado.lazyData.seleccionados[j]}" >
+											<p:ajax oncomplete="location.reload();" listener="#{mbReporteSistemasConPaginado.lazyData.actionListener(j)}" update="formContent:genericReport" event="change"/>
+
+								
+										</p:inputText>
+									</f:facet>
+								</c:when>
+							</c:choose>
+							<f:facet name="footer">
+								<h:outputText
+									value="#{mbReporteSistemasConPaginado.lazyData.totales[j]}" />
+							</f:facet>
+						</p:column>
+					</c:if>
+				</c:forEach>
+			</c:forEach>
+		</p:dataTable>
+		
+		<h3>Acotaciones</h3>
+		<p:dataList value="#{mbReporteSistemasConPaginado.lazyData.cotas}" var="cota">
+			#{cota}
+		</p:dataList>
+		</div>
+		</div>
+	</h:form>
+	<script>
+		$.datepicker.regional['es'] = {
+				 closeText: 'Cerrar',
+				 prevText: '&#x3c;Ant',
+				 nextText: 'Sig&#x3e;',
+				 currentText: 'Hoy',
+				 monthNames: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
+				 monthNamesShort: ['Ene','Feb','Mar','Abr', 'May','Jun','Jul','Ago','Sep', 'Oct','Nov','Dic'],
+				 dayNames: ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'],
+				 dayNamesShort: ['Dom','Lun','Mar','Mié','Juv','Vie','Sáb'],
+				 dayNamesMin: ['Do','Lu','Ma','Mi','Ju','Vi','Sá'],
+				 weekHeader: 'Sm',
+				 dateFormat: 'dd/mm/yy',			
+				 firstDay: 1,
+				 isRTL: false,
+				 showMonthAfterYear: false,
+				 yearSuffix: ''
+				 };
+		$.datepicker.setDefaults($.datepicker.regional['es']);
+	
+		jQuery(document).ready(function($) {
+			$('.datepicker').each(function(){
+				$(this).datepicker();
+			});
+		});
+	</script>
+			
+
+	</ui:define>
+</ui:composition>

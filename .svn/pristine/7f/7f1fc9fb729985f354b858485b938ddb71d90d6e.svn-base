@@ -1,0 +1,305 @@
+/**
+ * @(#)HLPReporteControlObs.java 12/07/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.helper;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+import mx.ine.observadoresINE.dto.DTOEncabezadoTabla;
+import mx.ine.observadoresINE.dto.form.FormRepControlObs;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+/**
+ *
+ * @author Helaine Flores Cervantes
+ * @since 12/07/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class HLPReporteControlObs implements Serializable {
+
+    private static final long serialVersionUID = 8895329902895358281L;
+    private List<HLPReportesEncabezado> listaEncabezados;
+    private String tituloReporte;
+    private Integer columnas;
+    private static final Log LOGGER = LogFactory.getLog(HLPReporteControlObs.class);
+
+    boolean agregarTercerEncabezado = false;
+    boolean agregarSolicitudProcedencia = false;
+    int columnasAdicionales = 0;
+    String primeraColumna;
+    String segundaCalumna;
+
+    public HLPReporteControlObs(FormRepControlObs filtros) {
+
+        switch (filtros.getValorPrimerFiltro()) {
+            case 1:
+                tituloReporte = "Solicitudes de acreditación";
+                obtenerEncabezados();
+                break;
+            case 2:
+                tituloReporte = "Acreditaciones Aprobadas";
+                break;
+            case 3:
+                tituloReporte = "Acreditación no Aprobadas";
+                break;
+        }
+
+    }
+
+    private void obtenerEncabezados() {
+        List<DTOEncabezadoTabla> encabezados = new ArrayList<>();
+        encabezados.add(new DTOEncabezadoTabla(0, 1, 1, " ", 1, 1));
+        encabezados.add(new DTOEncabezadoTabla(1, 7, 1, "Personas que han tomado curso de capacitación impartido por", 1, 1));
+        encabezados.add(new DTOEncabezadoTabla(2, 3, 2, "Pendientes", 1, 1));
+        encabezados.add(new DTOEncabezadoTabla(3, 3, 2, "Aprobadas", 1, 1));
+        encabezados.add(new DTOEncabezadoTabla(4, 3, 2, "Denegadas / Canceladas", 1, 1));
+        encabezados.add(new DTOEncabezadoTabla(5, 3, 2, "Válidas", 1, 1));
+        crearTabla(encabezados);
+        columnas = 20;
+
+    }
+
+    private void crearTabla(List<DTOEncabezadoTabla> encabezados) {
+
+        listaEncabezados = new ArrayList<>();
+        Integer numeroRenglonAnterior = 1;
+        int totalRenglones = 1;
+        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+        for (DTOEncabezadoTabla renglon : encabezados) {
+            if (renglon.getNumeroRenglon().equals(numeroRenglonAnterior)) {
+                hlpEncabezado.ingresarEncabezado(renglon.getIndex(), renglon.getAncho(), renglon.getAlto(), renglon.getDescripcion(), renglon.getTipoFila());
+                if(totalRenglones == encabezados.size()){
+                   listaEncabezados.add(hlpEncabezado); 
+                }
+
+            } else {
+                listaEncabezados.add(hlpEncabezado); 
+                hlpEncabezado = new HLPReportesEncabezado();
+                hlpEncabezado.ingresarEncabezado(renglon.getIndex(), renglon.getAncho(), renglon.getAlto(), renglon.getDescripcion(), renglon.getTipoFila());
+                if(totalRenglones == encabezados.size()){
+                   listaEncabezados.add(hlpEncabezado);
+                   numeroRenglonAnterior = renglon.getNumeroRenglon();
+                }
+            }
+            
+            totalRenglones++; 
+
+        }
+
+    }
+
+//    private void filtrarSolicitudAcreditacion(FormRepControlObs filtros) {
+//
+//            switch (filtros.getNivelOficinas()) {
+//                //Oficinas Centrales
+//                case 1:
+//                    break;
+//                //Junta Local
+//                case 2:
+//                     LOGGER.info("ENTRO A JL");
+//                    switch (filtros.getFiltroCheckBox().length) {
+//                        case 1://Se selecciono un filtro
+//                            agregarTercerEncabezado = false;
+//                            columnasAdicionales = 1;
+//                            if (filtros.getFiltroCheckBox()[0] == 1) { //Filtro por entidad
+//                                primeraColumna = "";
+//                            } else if (filtros.getFiltroCheckBox()[0] == 2) {//Filtro por Distrito
+//                                columnasAdicionales = 2;
+//                                primeraColumna = "Distrito";
+//                                segundaCalumna = "Rubro";
+//                                agregarTercerEncabezado = true;
+//                            } else if (filtros.getFiltroCheckBox()[0] == 3) {//Filtro por Asiganción
+//                                primeraColumna = "Agrupacion";
+//                            }
+//                            break;
+//                        case 2://Se seleccionaron dos filtros
+//                            break;
+//                        case 3://Se seleccionaron los tres filtros
+//                            break;
+//                        default:
+//                            break;
+//                    }
+//                    break;
+//                //Junta Distrital
+//                case 3:
+//                    agregarTercerEncabezado = false;
+//                    columnasAdicionales = 1;
+//                    //Filtrado por Distrito
+//                    if (filtros.getFiltroRadio() == 1) {
+//                        agregarSolicitudProcedencia = true;
+//                        primeraColumna = " ";
+//                        columnas = 23;
+//                    } else { //Filtrado por Agrupaciones
+//                        primeraColumna = "Agrupaciones";
+//                        columnas = 20;
+//                    }
+//
+//                    break;
+//                default:
+//                    break;
+//            }
+//            crearTablaSolicitudAcreditacion();
+//
+//    }
+//    private void crearTablaSolicitudAcreditacion() {
+//        LOGGER.info("Entro a crear Solicitud de Acredeitacion");
+//        listaEncabezados = new ArrayList<>();
+//        int renglones;
+//        renglones = agregarTercerEncabezado ? 3 : 2;
+//        //Primer encabezado
+//        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, renglones, primeraColumna, 1);
+//
+//        if (agregarSolicitudProcedencia) {
+//            hlpEncabezado.ingresarEncabezado(1, 1, renglones, "Solicitudes", 1);
+//            hlpEncabezado.ingresarEncabezado(2, 2, renglones - 1, "Procedencia", 1);
+//            columnasAdicionales = columnasAdicionales + 2;
+//        }
+//        hlpEncabezado.ingresarEncabezado(columnasAdicionales + 0, 7, 1, "Personas que han tomado curso de capacitación impartido por", 1);
+//        hlpEncabezado.ingresarEncabezado(columnasAdicionales + 1, 3, 2, "Pendientes", 1);
+//        hlpEncabezado.ingresarEncabezado(columnasAdicionales + 2, 3, 2, "Aprobadas", 1);
+//        hlpEncabezado.ingresarEncabezado(columnasAdicionales + 3, 3, 2, "Denegadas / Canceladas", 1);
+//        hlpEncabezado.ingresarEncabezado(columnasAdicionales + 4, 3, 2, "Válidas", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//        //Segundo encabezado
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        int inicio = 0;
+//        if (agregarSolicitudProcedencia) {
+//            hlpEncabezado.ingresarEncabezado(0, 1, 1, "INE", 1);
+//            hlpEncabezado.ingresarEncabezado(1, 1, 1, "OPLE", 1);
+//            inicio = 2;
+//        }
+//
+//        hlpEncabezado.ingresarEncabezado(inicio, 2, 1, "INE", 1);
+//        hlpEncabezado.ingresarEncabezado(inicio + 1, 2, 1, "Agrupación", 1);
+//        hlpEncabezado.ingresarEncabezado(inicio + 2, 2, 1, "OPLE", 1);
+//        hlpEncabezado.ingresarEncabezado(inicio + 3, 1, 1, "Total", 1);
+//        listaEncabezados.add(hlpEncabezado);
+
+//        //Tercer encabezado
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "INE", 1);
+//        hlpEncabezado.ingresarEncabezado(1, 1, 1, "OPLE", 1);
+//        hlpEncabezado.ingresarEncabezado(2, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(3, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(4, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(5, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(6, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(7, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(8, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(9, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(10, 1, 1, "Total", 1);
+//        hlpEncabezado.ingresarEncabezado(11, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(12, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(13, 1, 1, "Total", 1);
+//        hlpEncabezado.ingresarEncabezado(14, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(15, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(16, 1, 1, "Total", 1);
+//        hlpEncabezado.ingresarEncabezado(17, 1, 1, "Cons. Loc", 1);
+//        hlpEncabezado.ingresarEncabezado(18, 1, 1, "Cons. Dttales", 1);
+//        hlpEncabezado.ingresarEncabezado(19, 1, 1, "Total", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//    }
+
+//    private void crearTablaAcreditacionAprobadas() {
+//
+//        //Primer encabezado JD-Concentrado
+//        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha Sesión", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Individuales", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupación", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Totales", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//        //Primer encabezado JD-Listado
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Nombre", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupación / Individual", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Curso impartido por Agrupación / INE / OPLE	", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Clave de elector", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha de acreditacion", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Folio del gafete", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//        //Primer encabezado JL-Concentrado
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha Sesión", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Individuales local", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Individuales distrital", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Total individuales", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupación local", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupaciones distritales", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Total agrupaciones", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Totales", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//        //Primer encabezado JD-Listado
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Local / Cabecera Dist.", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Nombre", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupación / Individual", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Curso impartido por Agrupación / INE / OPLE", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Clave de elector", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha de acreditacion", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Folio del gafete", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//        //Para OC
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Agrupación", 1);
+//        //Se agrega la abreviatura del estado
+//
+//    }
+
+//    private void crearTablaAcreditacionNoAprobadas() {
+//
+//        //Primer encabezado JD-Concentrado
+//        HLPReportesEncabezado hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Descripción", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Cantidad", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//        //Primer encabezado JD-Concentrado
+//        hlpEncabezado = new HLPReportesEncabezado();
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Nombre", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Individual/Agrupación", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Clave de elector", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Fecha denegadas / canceladas", 1);
+//        hlpEncabezado.ingresarEncabezado(0, 1, 1, "Motivo denegada/cancelada", 1);
+//        listaEncabezados.add(hlpEncabezado);
+//
+//    }
+
+    //******************************GETTERS AND SETTERS**************************//
+    public List<HLPReportesEncabezado> getListaEncabezados() {
+        return listaEncabezados;
+    }
+
+    public void setListaEncabezados(List<HLPReportesEncabezado> listaEncabezados) {
+        this.listaEncabezados = listaEncabezados;
+    }
+
+    public String getTituloReporte() {
+        return tituloReporte;
+    }
+
+    public void setTituloReporte(String tituloReporte) {
+        this.tituloReporte = tituloReporte;
+    }
+
+    public Integer getColumnas() {
+        return columnas;
+    }
+
+    public void setColumnas(Integer columnas) {
+        this.columnas = columnas;
+    }
+
+}

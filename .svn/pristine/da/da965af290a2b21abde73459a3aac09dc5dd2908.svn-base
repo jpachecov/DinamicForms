@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
+	start-state="capturar" parent="parent-flow">
+
+	<secured
+		attributes="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+ 	 ROLE_OBSERVADORES.ADMIN.CAPTURA.OC,  
+ 	 ROLE_OBSERVADORES.CONSEJERO.OC,  
+ 	 ROLE_OBSERVADORES.CONSULTA.OC,  
+ 	 ROLE_OBSERVADORES.CAU.OC,  
+ 	 ROLE_OBSERVADORES.CAPTURA.JL,
+ 	 ROLE_OBSERVADORES.CONSULTA.JL,
+ 	 ROLE_OBSERVADORES.ADMIN.EXT.OPLE.JL, 
+ 	 ROLE_OBSERVADORES.CAPTURA.JD,  
+ 	 ROLE_OBSERVADORES.CONSULTA.JD"
+		match="any" />
+
+	<decision-state id="validaRolUsuario">
+		<if test="mbAccionesPromocion.esRolParaConsulta()" then="consultar"
+			else="capturar" />
+	</decision-state>
+
+	<view-state id="capturar" view="capturar.xhtml">
+		<on-entry>
+			<evaluate expression="mbAdmin.dto.setIdModulo(6)"></evaluate>
+			<evaluate expression="mbAdmin.dto.setIdAccion(1)"></evaluate>
+			<evaluate expression="mbAccionesPromocion.initCapturar()" />
+		</on-entry>
+
+		<transition on="success" to="capturar" />
+		<transition on="error" to="capturar" />
+
+		<transition on="consulta" to="consultar" />
+		<transition on="modifica" to="modificar" />
+	</view-state>
+
+
+	<view-state id="consultar"
+		view="externalRedirect:servletRelative:/modulos/Promociones/consultar" />
+	<view-state id="modificar"
+		view="externalRedirect:servletRelative:/modulos/Promociones/modificar" />
+
+</flow>

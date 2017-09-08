@@ -1,0 +1,175 @@
+ /**
+ * @(#)FormCursos.java 29/06/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dto.form;
+
+import java.io.Serializable;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOCCargoResponsable;
+import mx.ine.observadoresINE.enums.EnumImparticionCursos;
+import mx.ine.observadoresINE.enums.EnumMismoDomicilio;
+
+ /**
+ * Clase que modela el formulario a ser guardado del módulo Cursos
+ * 
+ * @author Emmanuel García Ysamit
+ * @since 29/06/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class FormCursos implements Serializable {
+
+	/**
+	 * Atributo necesario para la serealización de objetos
+	 */
+	private static final long serialVersionUID = -5554733153638297742L;
+	
+	private Integer idProceso;
+	
+	private Integer idDetalleProceso;
+	
+	private Integer origenCurso;
+	
+	private Date fecha;
+	
+	private Integer idAgrupacion;
+	
+	
+	
+	public FormCursos(){
+		this.idProceso = null;
+		this.idDetalleProceso = null;
+		this.origenCurso = null;
+		this.fecha = null;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo idProceso
+	 *
+	 * @return Integer : valor que tiene el atributo idProceso
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public Integer getIdProceso() {
+		return idProceso;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo idProceso
+	 *
+	 * @param idProceso : valor que ingresa a el atributo idProceso
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public void setIdProceso(Integer idProceso) {
+		this.idProceso = idProceso;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo idDetalleProceso
+	 *
+	 * @return Integer : valor que tiene el atributo idDetalleProceso
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public Integer getIdDetalleProceso() {
+		return idDetalleProceso;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo idDetalleProceso
+	 *
+	 * @param idDetalleProceso : valor que ingresa a el atributo idDetalleProceso
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public void setIdDetalleProceso(Integer idDetalleProceso) {
+		this.idDetalleProceso = idDetalleProceso;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo origenCurso
+	 *
+	 * @return Character : valor que tiene el atributo origenCurso
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public Integer getOrigenCurso() {
+		return origenCurso;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo origenCurso
+	 *
+	 * @param origenCurso : valor que ingresa a el atributo origenCurso
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public void setOrigenCurso(Integer origenCurso) {
+		this.origenCurso = origenCurso;
+	}
+
+
+	/**
+	 * Método que obtiene el valor de el atributo fecha
+	 *
+	 * @return Calendar : valor que tiene el atributo fecha
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public Date getFecha() {
+		return fecha;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo fecha
+	 *
+	 * @param fecha : valor que ingresa a el atributo fecha
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 29/06/2017
+	 */
+	public void setFecha(Date fecha) {
+		this.fecha = fecha;
+	}
+
+	/**
+	 * Método que obtiene el valor de el atributo idAgrupacion
+	 *
+	 * @return Integer : valor que tiene el atributo idAgrupacion
+	 * 
+	 * @author Emmanuel García Ysamit
+	 * @since 21/07/2017
+	 */
+	public Integer getIdAgrupacion() {
+		return idAgrupacion;
+	}
+
+	/**
+	 * Método que ingresa el valor de el atributo idAgrupacion
+	 *
+	 * @param idAgrupacion : valor que ingresa a el atributo idAgrupacion
+	 *
+	 * @author Emmanuel García Ysamit
+	 * @since 21/07/2017
+	 */
+	public void setIdAgrupacion(Integer idAgrupacion) {
+		this.idAgrupacion = idAgrupacion;
+	}
+
+	
+}

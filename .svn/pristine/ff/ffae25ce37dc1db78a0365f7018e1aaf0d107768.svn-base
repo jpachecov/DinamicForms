@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/jee 
+		http://www.springframework.org/schema/jee/spring-jee-3.2.xsd" >
+	<bean id="localeResolver" class="org.springframework.web.servlet.i18n.SessionLocaleResolver" />
+	<!-- Definición del properties de la aplicación -->
+	<context:property-placeholder location="classpath:ApplicationConfig.properties" />
+	<!-- Definición para habilitar anotaciones en los bean -->
+	<context:annotation-config/>	
+	<!-- Definición de paquetes que escaneará para subir a contexto -->
+	<context:component-scan base-package="mx.ine.observadoresINE, mx.org.ine.servicios, mx.ine.common, mx.ine.servicio ,  mx.ine.historicos.api" />
+	<!-- Definición de beans para uso en el sistema -->
+	<bean id="currentDate" class="java.util.Date" scope="request" />
+	<!-- Definición de las vistas del tipo xhtml que funcionan con faces -->
+	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.faces.mvc.JsfView" />
+		<property name="prefix" value="/WEB-INF/views/" />
+		<property name="suffix" value=".xhtml" />
+	</bean>
+	<!-- Definición de archivos properties de la aplicación, para subir al contexto -->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource" 
+		  lazy-init="false" autowire="byName" >
+		<property name="defaultEncoding" value="UTF-8" />
+		<property name="basenames">
+			<list>
+				<value>ApplicationResources</value>
+				<value>GenericConstants</value>
+				<value>ApplicationConfig</value>				
+			</list>
+		</property>
+	</bean>
+	<!-- Bean administrador -->
+	<bean id="mbAdmin" class="mx.ine.observadoresINE.mb.MBAdministradorSistema" scope="session" lazy-init="false">
+  		<!-- Declarar las variables necesarias para su sistema -->
+  		<property name="dto.tipoSistema" value="${sistema.tipo}"/>
+  		<property name="dto.vigente" value="${vigente}"/>
+  		<property name="dto.tipoProceso" value="${tipo.proceso}"/>
+  	</bean>
+  	<!-- JNDI Gluster -->
+	<jee:jndi-lookup id="jndiRutaGluster" jndi-name="${jndi.gluster.path}"/>
+	<bean id="rutaGluster" class="java.lang.String">
+		<constructor-arg value="#{jndiRutaGluster}"/>
+	</bean>
+	<!-- Utilerias -->
+	<bean id="jaxbUtil" class="mx.ine.common.util.JaxbUtil">
+		<constructor-arg ref="jaxbContextHelper"/>
+	</bean>
+	<bean id="jaxbContextHelper" class="mx.ine.observadoresINE.util.JaxbContextHelperFactory"
+		factory-method="getJaxbContextHelper">
+		<constructor-arg>
+			<list>
+				<value>mx.ine.common.ws.administracion.dto.response.DTODetalleProcesoWS</value>
+				<value>mx.ine.common.ws.administracion.dto.response.DTOProcesoElectoralVigenteWS</value>
+				<value>mx.ine.common.ws.administracion.dto.response.DTOResponseProcesoWS</value>
+				<value>mx.ine.common.ws.geografico.dto.response.DTOResponseGeograficoWS</value>
+				<value>mx.ine.common.ws.casillas.dto.response.DTOResponseCasillasWS</value>
+			</list>
+		</constructor-arg>
+	</bean>
+	<bean id="jsonParser" class="com.google.gson.Gson"/>
+	<!-- JNDI WS -->
+	<jee:jndi-lookup id="jndiUrlRestWS" jndi-name="${jndi.rest.ws}"/>
+	<!-- Bean del la url del servidor del servicios web -->
+	<bean id="urlRestWs" class="java.lang.String">
+		<constructor-arg value="#{jndiUrlRestWS}"/>
+	</bean>
+
+	<!-- Datos del certificado -->
+	<bean id="certPath" class="java.lang.String">
+		<constructor-arg value="keystore/certINE.jks"/>
+	</bean>
+
+	<bean id="certPass" class="java.lang.String">
+		<constructor-arg value="pwd_llave_ine"/>
+	</bean>
+</beans>

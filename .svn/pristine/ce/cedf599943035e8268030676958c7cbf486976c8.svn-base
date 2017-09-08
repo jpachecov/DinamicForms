@@ -1,0 +1,154 @@
+/**
+ * @(#)FormRepControlObs.java 14/08/2017
+ * <p>
+ * Copyright (C) 2016 Instituto Nacional Electoral (INE).
+ * <p>
+ * Todos los derechos reservados.
+ */
+package mx.ine.observadoresINE.dto.form;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import mx.ine.observadoresINE.dto.DTOList;
+
+/**
+ * Clase de tipo pojo que permite obtener los filtros seleccionados del reporte "Control de Observadores"
+ * 
+ * @author Helaine Flores Cervantes
+ * @since 14/08/2017
+ * @copyright Direccion de sistemas - INE
+ */
+public class FormRepControlObs implements Serializable {
+
+    private static final long serialVersionUID = 7032586926628379272L;
+    /**
+     * Lista que contiene la lista del primer nivel de filtros
+     */
+    private List<DTOList> primerNivelFiltros;
+    /**
+     * Lista que contiene la lista del segundo nivel de filtros
+     */
+    private List<DTOList> segundoNivelFiltros;
+    /**
+     * Lista que contiene la lista del tercer nivel de filtros
+     */
+    private List<DTOList> tercerNivelFiltros;
+    /**
+     * Almacena el valor del primer filtro
+     */
+    private Integer valorPrimerFiltro;
+    /**
+     * Almacena el valor del segundo filtro
+     */
+    private Integer valorSegundoFiltro;
+    /**
+     * Almacena el valor del tercer filtro
+     */
+    private Integer[] valorTercerFiltro;
+    private boolean opcionDeFechas;
+    private Integer[] valorOpcionDeFechas;
+    private boolean habilitarFecha;
+    private Date fechaIncio, fechaFin;
+    private int nivelOficinas;
+
+
+
+    public List<DTOList> getPrimerNivelFiltros() {
+        return primerNivelFiltros;
+    }
+
+    public void setPrimerNivelFiltros(List<DTOList> primerNivelFiltros) {
+        this.primerNivelFiltros = primerNivelFiltros;
+    }
+
+    public List<DTOList> getSegundoNivelFiltros() {
+        return segundoNivelFiltros;
+    }
+
+    public void setSegundoNivelFiltros(List<DTOList> segundoNivelFiltros) {
+        this.segundoNivelFiltros = segundoNivelFiltros;
+    }
+
+    public List<DTOList> getTercerNivelFiltros() {
+        return tercerNivelFiltros;
+    }
+
+    public void setTercerNivelFiltros(List<DTOList> tercerNivelFiltros) {
+        this.tercerNivelFiltros = tercerNivelFiltros;
+    }
+
+    public Integer getValorPrimerFiltro() {
+        return valorPrimerFiltro;
+    }
+
+    public void setValorPrimerFiltro(Integer valorPrimerFiltro) {
+        this.valorPrimerFiltro = valorPrimerFiltro;
+    }
+
+    public Integer getValorSegundoFiltro() {
+        return valorSegundoFiltro;
+    }
+
+    public void setValorSegundoFiltro(Integer valorSegundoFiltro) {
+        this.valorSegundoFiltro = valorSegundoFiltro;
+    }
+
+    public Integer[] getValorTercerFiltro() {
+        return valorTercerFiltro;
+    }
+
+    public void setValorTercerFiltro(Integer[] valorTercerFiltro) {
+        this.valorTercerFiltro = valorTercerFiltro;
+    }
+
+    public int getNivelOficinas() {
+        return nivelOficinas;
+    }
+
+    public void setNivelOficinas(int nivelOficinas) {
+        this.nivelOficinas = nivelOficinas;
+    }
+
+    public boolean isOpcionDeFechas() {
+        return opcionDeFechas;
+    }
+
+    public void setOpcionDeFechas(boolean opcionDeFechas) {
+        this.opcionDeFechas = opcionDeFechas;
+    }
+
+    public Integer[] getValorOpcionDeFechas() {
+        return valorOpcionDeFechas;
+    }
+
+    public void setValorOpcionDeFechas(Integer[] valorOpcionDeFechas) {
+        this.valorOpcionDeFechas = valorOpcionDeFechas;
+    }
+
+    public boolean isHabilitarFecha() {
+        return habilitarFecha;
+    }
+
+    public void setHabilitarFecha(boolean habilitarFecha) {
+        this.habilitarFecha = habilitarFecha;
+    }
+
+    public Date getFechaIncio() {
+        return fechaIncio;
+    }
+
+    public void setFechaIncio(Date fechaIncio) {
+        this.fechaIncio = fechaIncio;
+    }
+
+    public Date getFechaFin() {
+        return fechaFin;
+    }
+
+    public void setFechaFin(Date fechaFin) {
+        this.fechaFin = fechaFin;
+    }
+    
+
+}

@@ -1,0 +1,173 @@
+package mx.ine.observadoresINE.mb;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+import mx.ine.observadoresINE.bsd.BSDReporteAgrupacionesInterface;
+import mx.ine.observadoresINE.helper.HLPReporteAgrupaciones;
+import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+public class MBReporteAgrupaciones extends MBReportesMenu {
+
+	private static final long serialVersionUID = 150820171051L;
+	private static final Log logger = LogFactory
+			.getLog(MBReporteAgrupaciones.class);
+
+	private Map<String, Serializable> parametrosPDF;
+	private Boolean muestraTabla;
+	protected Map<String, String> lstFiltrosAgrupaciones;
+	protected Integer idFiltroAgrupacion;
+
+	@Autowired
+	@Qualifier("bsdReporteAgrupaciones")
+	private transient BSDReporteAgrupacionesInterface bsdReporteAgrupaciones;
+
+	@Override
+	public void init() {
+		muestraTabla = false;
+		super.init();
+		inicializaReporteAgrupaciones();		
+	}
+	
+	private void inicializaReporteAgrupaciones() {
+		parametrosPDF = new LinkedHashMap<>();
+//		inicializaParametrosGeografia();
+		parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS,
+				HLPReporteAgrupaciones.COLUMNAS);
+		parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO,
+				Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones"));
+		// Se declara nombre para archivo excel
+		setNombreReporte(Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones"));
+		obtenTituloModulo();
+		cargaFiltrosAgrupaciones();
+		setMuestraTotales(Boolean.TRUE);
+	}
+
+	private void obtenTituloModulo() {
+		this.mbAdmin.getDto().setTituloModulo(
+				Utilidades.mensajeProperties("etiqueta_reportes_agrupaciones"));
+	}
+
+	private void cargaFiltrosAgrupaciones() {
+		this.lstFiltrosAgrupaciones = new HashMap<String, String>();
+		this.lstFiltrosAgrupaciones.put("Agrupaciones", "1");
+		this.lstFiltrosAgrupaciones.put(
+				"Agrupaciones registradas en el presente Proceso Electoral",
+				"2");
+	}
+
+	/*private void inicializaParametrosGeografia() {
+		Integer idEstado = getUsuario().getIdEstadoSeleccionado() == null ? 0
+				: getUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = getUsuario().getIdDistritoSeleccionado() == null ? 0
+				: getUsuario().getIdDistritoSeleccionado();
+		// Version OC y JL
+		if (idEstado.intValue() >= 0 && idDistrito.intValue() == 0) {
+			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario().getEstadoSeleccionado());
+		}
+		// Version JD
+		else if (idEstado.intValue() > 0 & idDistrito.intValue() > 0) {
+			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario().getEstadoSeleccionado());
+			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, getUsuario().getDistritoSeleccionado());
+		}
+	}*/
+
+	public void consultaReporte() {
+		// Se inicializa el encabezado
+		super.inicializaParametrosEncabezado();
+//		inicializaDimensionesEncabezado();
+
+		HLPReporteAgrupaciones hlpAgrupaciones;
+		try {
+			hlpAgrupaciones = new HLPReporteAgrupaciones(
+					bsdReporteAgrupaciones, getIdFiltroAgrupacion());
+			dtoParametros.setColumnas(HLPReporteAgrupaciones.COLUMNAS);
+			dtoParametros.setEncabezado(hlpAgrupaciones.getListaEncabezados());
+			procesaDomicilio(hlpAgrupaciones.getListaDatos());
+			dtoParametros.setListaDatos(hlpAgrupaciones.getListaDatos());
+			dtoParametros.setTituloReporte(hlpAgrupaciones.getTituloReporte());
+			dtoParametros.setAnchoFechaHora(HLPReporteAgrupaciones.COLUMNAS);
+			muestraTabla = true;
+		} catch (Exception e) {
+			logger.error("Error al consultar datos Reporte", e);
+		}
+
+	}
+	
+	/**
+	 * Reemplaza los caracteres de pipe y doble pipe por espacios
+	 * @param agrupaciones
+	 */
+	private void procesaDomicilio(List<Object[]> agrupaciones) {
+		String domicilio = null;
+		for (Object[] agrupacion : agrupaciones) {
+			if (agrupacion[3] instanceof String) {
+				domicilio = ((String) agrupacion[3]).replace("||", " ").replace("|", " ");
+			}
+			agrupacion[3] = domicilio;
+		}
+	}
+
+	/*private void inicializaDimensionesEncabezado() {
+		Integer idEstado = obtenUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = obtenUsuario().getIdDistritoSeleccionado();
+		if (idEstado == null || idEstado.equals(0)) {
+			dtoParametros.setAnchoEntidad(2);
+			dtoParametros.setAnchoFechaHora(4);
+		} else if (!idEstado.equals(0) && idDistrito.equals(0)) {
+			dtoParametros.setAnchoEntidad(2);
+			dtoParametros.setAnchoFechaHora(4);
+		} else if (!idEstado.equals(0) && !idDistrito.equals(0)) {
+			dtoParametros.setAnchoEntidad(1);
+			dtoParametros.setAnchoDistrito(2);
+			dtoParametros.setAnchoFechaHora(4);
+		}
+	}*/
+
+	public void exportPDF() throws IOException {
+		setParametros(parametrosPDF);
+		super.exportPDF();
+	}
+
+	public void postProcessXLS(Object document) {
+		dtoParametros.setRutaImgEstado("");
+		dtoParametros.setDescEntidad(null);
+		dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+	}
+
+	public Boolean getMuestraTabla() {
+		return muestraTabla;
+	}
+
+	public void setMuestraTabla(Boolean muestraTabla) {
+		this.muestraTabla = muestraTabla;
+	}
+
+	public Map<String, String> getLstFiltrosAgrupaciones() {
+		return lstFiltrosAgrupaciones;
+	}
+
+	public void setLstFiltrosAgrupaciones(
+			Map<String, String> lstFiltrosAgrupaciones) {
+		this.lstFiltrosAgrupaciones = lstFiltrosAgrupaciones;
+	}
+
+	public Integer getIdFiltroAgrupacion() {
+		return idFiltroAgrupacion;
+	}
+
+	public void setIdFiltroAgrupacion(Integer idFiltroAgrupacion) {
+		this.idFiltroAgrupacion = idFiltroAgrupacion;
+	}
+
+}

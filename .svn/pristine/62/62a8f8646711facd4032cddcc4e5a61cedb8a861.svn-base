@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui" xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:c="http://java.sun.com/jsp/jstl/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:pe="http://primefaces.org/ui/extensions"
+	xmlns:sf="http://www.springframework.org/tags/faces"
+	xmlns:sec="http://www.springframework.org/security/tags"
+	xmlns:ine="http://ine.mx/ui" xmlns:deceyec="http://ine.mx/ui"
+	template="/templates/template.xhtml">
+
+	<h:head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	</h:head>
+
+	<ui:define name="CONTENT">
+
+		<pe:blockUI id="progress" target="formCapturaAccionPromocion"
+			content="blockUIContent" widgetVar="progress" />
+
+		<h:panelGrid id="blockUIContent" columns="2" style="display:none;">
+			<h:graphicImage library="img" name="loader.gif" width="70" />
+			<h:outputText
+				value="#{messageSource['mensaje_generales_procesando']}"
+				style="white-space: nowrap;" />
+		</h:panelGrid>
+		<!-- Se cambia para prueba de styleClass="container" a styleClass="container-fluid"  -->
+		<h:form id="formCapturaAccionPromocion" styleClass="container-fluid"
+			enctype="multipart/form-data">
+			<p:messages for="mensajesError" autoUpdate="false" />
+			<p:messages for="mensajesInfo" autoUpdate="false" />
+			<p:growl for="mensajesExito" autoUpdate="false" />
+
+			<!-- Mensajes -->
+			<p:messages id="msj" closable="true" for="mensaje" />
+			<p:outputPanel id="titulo">
+				<div class="card">
+					<h1>#{messageSource['etiqueta_titulo_modulo_promociones']}</h1>
+					<!-- 					<p> -->
+					<!-- 						#{messageSource['etiqueta_generales_requerido_0']}<span -->
+					<!-- 							class="requerido"></span>#{messageSource['etiqueta_generales_requerido_2']} -->
+					<!-- 					</p> -->
+				</div>
+			</p:outputPanel>
+
+			<div>
+				<ui:include src=" ../componentesPromociones/menuFiltros.xhtml" />
+			</div>
+
+			<sec:authorize
+				ifAnyGranted="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
+ 	 									ROLE_OBSERVADORES.ADMIN.CAPTURA.OC,  
+ 										 ROLE_OBSERVADORES.CONSEJERO.OC, 
+ 										 ROLE_OBSERVADORES.CONSULTA.OC, 
+ 										 ROLE_OBSERVADORES.CAPTURA.JL,  
+ 										 ROLE_OBSERVADORES.CONSULTA.JL, 
+ 										 ROLE_OBSERVADORES.ADMIN.EXT.OPLE.JL,
+ 										 ROLE_OBSERVADORES.CAPTURA.JD, 
+ 										 ROLE_OBSERVADORES.CONSULTA.JD">
+
+				<div class="ui-g">
+					<div class="center-block">
+						<p:commandButton id="btnAccionPromocion" update="@form"
+							value="#{messageSource['etiqueta_boton_guardar']}"
+							actionListener="#{mbAccionesPromocion.guardarPromocion}"
+							onstart="PF('progress').block()"
+							oncomplete="PF('progress').unblock()">
+						</p:commandButton>
+					</div>
+				</div>
+			</sec:authorize>
+		</h:form>
+	</ui:define>
+</ui:composition>

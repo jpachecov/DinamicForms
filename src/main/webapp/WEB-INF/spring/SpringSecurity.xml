@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bean:beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:bean="http://www.springframework.org/schema/beans" xmlns:jee="http://www.springframework.org/schema/jee"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+            http://www.springframework.org/schema/beans/spring-beans.xsd 
+            http://www.springframework.org/schema/security
+            http://www.springframework.org/schema/security/spring-security.xsd
+            http://www.springframework.org/schema/jee
+            http://www.springframework.org/schema/jee/spring-jee.xsd">
+
+	<!-- Las reglas seguriead para las URL se ejecutan en el orden que aparecen -->
+
+	<!-- La página de error no se protege para que el web.xml redireccione a 
+		ésta en caso de no tener acceso al sistema -->
+	<security:http pattern="/app/error" security="none" />
+	<security:http pattern="/app/login*" security="none" />
+	<security:http pattern="/app/captcha/captcha.png"
+		security="none" />
+
+	<!-- Todos los recursos de faces no se protegen para el Login -->
+	<security:http pattern="/app/javax.faces.resource/**"
+		security="none" />
+	<security:http pattern="/resource/**" security="none" />
+
+	<security:http disable-url-rewriting="true"
+		use-expressions="true" auto-config="true">
+
+		<security:form-login login-page="/app/login"
+			default-target-url="/app/home" always-use-default-target="true"
+			authentication-failure-url="/app/login?error=credencialesInvalidas" />
+
+		<!-- Validación de roles para candidatos -->
+		<security:intercept-url pattern="/**"
+			access="isAuthenticated()" />
+
+		<!-- delete-cookies limpia la cookie de sesión para evitar que cuando se 
+			haga un logout también se genere un submit con una sesión inválida y se redireccione 
+			a invalid-session-url -->
+		<security:logout success-handler-ref="customLogoutHandler"
+			delete-cookies="JSESSIONID" />
+
+		<security:custom-filter ref="sessionManagementFilter"
+			before="SESSION_MANAGEMENT_FILTER" />
+		<security:custom-filter ref="filtroSeguridadComplementaria"
+			before="FORM_LOGIN_FILTER" />
+
+		<security:session-management
+			invalid-session-url="/app/login?execution=e1s1&amp;error=2"
+			session-authentication-strategy-ref="sessionAuthenticationStrategy" />
+	</security:http>
+
+	<!-- INICIO - FILTRO PARA DETECTAR UNA SESIÓN INVÁLIDA -->
+	<bean id="sessionManagementFilter"
+		class="org.springframework.security.web.session.SessionManagementFilter">
+		<constructor-arg name="securityContextRepository"
+			ref="httpSessionSecurityContextRepository" />
+		<!-- this permits redirection to session timeout page from javascript/ajax 
+			or http -->
+		<property name="invalidSessionStrategy" ref="jsfRedirectStrategy" />
+		<property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
+	</bean>
+	<!-- FIN - FILTRO PARA DETECTAR UNA SESIÓN INVÁLIDA -->
+
+	<!-- Clase personalizada para manejo de sesión -->
+	<bean id="jsfRedirectStrategy"
+		class="mx.ine.observadoresINE.seguridad.CustomInvalidSessionStrategy">
+		<constructor-arg name="invalidSessionUrl"
+			value="/app/login?error=sesionInvalida" />
+	</bean>
+
+	<bean id="httpSessionSecurityContextRepository"
+		class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" />
+	<!-- FIN - FILTRO PARA DETECTAR UNA SESIÓN INVÁLIDA -->
+
+	<!-- INICIO - CLASE PARA AGREGAR A LA AUTENTICACIÓN EL CAPTCHA -->
+	<bean:bean id="filtroSeguridadComplementaria"
+		class="mx.ine.observadoresINE.seguridad.FiltroSeguridadComplementaria">
+		<bean:property name="authenticationManager" ref="authenticationManager" />
+		<bean:property name="sessionAuthenticationStrategy" ref="sessionAuthenticationStrategy" />
+		<bean:property name="succesUrl" value="/app/home" />
+		<bean:property name="errorUrl" value="/app/login?error=1" />
+		<bean:property name="captchaParamName" value="j_captcha" />
+	</bean:bean>
+	<!-- FIN - CLASE PARA AGREGAR A LA AUTENTICACIÓN EL CAPTCHA -->
+
+	<!-- FIN - Filtro que permite interceptar cuando se realiza un logout en 
+		la aplicación -->
+	<bean id="customLogoutHandler" class="mx.ine.observadoresINE.seguridad.CustomLogoutHandler">
+		<property name="logoutSuccessUrl" value="/app/login?logout=true" />
+		<property name="invalidSessionUrl" value="/app/login?error=sesionInvalida" />
+	</bean>
+
+	<!-- INICIO - FILTRO PARA EL MANEJO DE SESIONES CONCURRENTES -->
+	<bean id="sessionAuthenticationStrategy"
+		class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+		<constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+		<property name="exceptionIfMaximumExceeded" value="true" />
+		<property name="maximumSessions" value="1" />
+	</bean>
+
+	<bean id="sessionRegistry"
+		class="org.springframework.security.core.session.SessionRegistryImpl" />
+	<!-- FIN - FILTRO PARA EL MANEJO DE SESIONES CONCURRENTES -->
+
+	<!-- INICIO - AUTENTICACIÓN JAR -->
+	<security:authentication-manager alias="authenticationManager">
+		<security:authentication-provider
+			ref="authenticationProvider" />
+	</security:authentication-manager>
+
+	<bean id="authenticationProvider"
+		class="mx.ine.observadoresINE.seguridad.CustomAuthenticationProvider">
+		<property name="userDetailsService" ref="userDetailsService" />
+	</bean>
+
+	<bean id="userDetailsService"
+		class="mx.ine.observadoresINE.seguridad.CustomUserDetailsService" />
+	<!-- FIN - AUTENTICACIÓN JAR -->
+</bean:beans>

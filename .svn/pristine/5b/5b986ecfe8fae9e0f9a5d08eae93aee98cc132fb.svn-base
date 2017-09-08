@@ -1,0 +1,146 @@
+package mx.ine.observadoresINE.as.impl;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Scope;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+import mx.ine.observadoresINE.as.ASAgrupacionesInterface;
+import mx.ine.observadoresINE.bo.impl.BOAgrupaciones;
+import mx.ine.observadoresINE.dao.DAOAgrupacionesInterface;
+import mx.ine.observadoresINE.dto.DTODatosAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOAgrupaciones;
+import mx.ine.observadoresINE.dto.db.DTOAgrupacionesPK;
+
+/**
+ * 
+ * @author jpachecov
+ *
+ */
+@Service("asAgrupaciones")
+@Scope("prototype")
+public class ASAgrupacionesImpl implements ASAgrupacionesInterface {
+
+	
+	@Autowired
+	@Qualifier("daoAgrupaciones")
+	private transient DAOAgrupacionesInterface daoAgrupaciones;
+
+	@Autowired
+	@Qualifier("boAgrupaciones")
+	private transient BOAgrupaciones boAgrupaciones;
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public DTOAgrupaciones obtenAgrupacion(DTOAgrupacionesPK pk) throws Exception {
+		return daoAgrupaciones.obtenAgrupacion(pk);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = { Exception.class })
+	public void guardaActualiza(DTODatosAgrupaciones dto) throws Exception {
+		if (boAgrupaciones.esCapturaValida(dto)) {
+			DTOAgrupaciones agrupacion = boAgrupaciones.generaDTO(dto);
+			daoAgrupaciones.guardaActualiza(agrupacion);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public List<DTOAgrupaciones> obtenAgrupaciones(Integer idProceso, Integer idDetalle) throws Exception {
+		return daoAgrupaciones.obtenAgrupaciones(idProceso, idDetalle);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = { Exception.class })
+	public void actualizaAgrupacion(DTOAgrupacionesPK pk, DTODatosAgrupaciones datos) throws Exception {
+		if (boAgrupaciones.esCapturaValida(datos)) {
+			daoAgrupaciones.actualizaAgrupaciones(boAgrupaciones.generaDTO(pk, datos));
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public DTODatosAgrupaciones mapeaDatos(DTOAgrupaciones dto) {
+		return boAgrupaciones.obtenDatos(dto);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public boolean existeIdAgrupacion(Integer id) throws Exception {
+		return daoAgrupaciones.existeIdAgrupacion(id);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean esNombreTitularValido(DTODatosAgrupaciones dto) throws Exception {
+		return boAgrupaciones.esNombreTitularValido(dto);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public boolean sonApellidosInvalidos(DTODatosAgrupaciones dto) throws Exception {
+		return boAgrupaciones.sonApellidosInvalidos(dto);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public boolean existeNombreAgrupacion(DTOAgrupacionesPK pk, DTODatosAgrupaciones dto) throws Exception {
+		return daoAgrupaciones.existeNombreAgrupacion(pk, dto);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true, rollbackFor = { Exception.class })
+	public boolean existeAbreviAgrupacion(DTOAgrupacionesPK pk, DTODatosAgrupaciones dto) throws Exception {
+		return daoAgrupaciones.existeAbreviAgrupacion(pk, dto);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = { Exception.class })
+	public void eliminaAgrupacion(DTOAgrupacionesPK pk, DTODatosAgrupaciones datos) throws Exception {
+		daoAgrupaciones.eliminaAgrupacion(boAgrupaciones.generaDTO(pk, datos));
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = false, rollbackFor = { Exception.class })
+	public List<Object[]> consultaDatosReporte(Integer idFiltroAgrupacion) throws Exception {		
+		return daoAgrupaciones.consultaDatosReporte(idFiltroAgrupacion);
+	}
+}

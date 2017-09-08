@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow xmlns="http://www.springframework.org/schema/webflow"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.springframework.org/schema/webflow
+        				  http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
+      start-state="inicio" parent="parent-flow" >
+
+    <var name="mbReporte" class="mx.ine.observadoresINE.mb.MBExportacionTablas" />
+    <view-state id="inicio" view="index_reportes.xhtml">
+        <on-entry>
+            <evaluate expression="mbAdmin.dto.setIdModulo(null)" />
+            <evaluate expression="mbAdmin.dto.setIdAccion(null)" />
+        </on-entry>
+    </view-state>
+    
+</flow> 
