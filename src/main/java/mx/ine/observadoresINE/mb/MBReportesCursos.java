@@ -20,6 +20,7 @@ import mx.ine.observadoresINE.dto.DTOReportesParametros;
 import mx.ine.observadoresINE.dto.db.DTOCursos;
 import mx.ine.observadoresINE.helper.HLPReportesEncabezado;
 import mx.ine.observadoresINE.util.Constantes;
+import mx.ine.observadoresINE.util.Utilidades;
 
 public class MBReportesCursos extends MBReportesMenu {
 	private static final long serialVersionUID = 3113130095648135798L;
@@ -51,8 +52,13 @@ public class MBReportesCursos extends MBReportesMenu {
 			this.habilitaFiltroCursos1 = false;
 			this.habilitaListadoCursos = false;
 			this.habilitaListadoIntegrantes = false;
-			this.filtroReportes.setOrigenCurso("1,2");
 			this.filtroReportes.setCampoOrdenamiento(null);
+			this.filtroReportes.setNivel(obtenNivelReporte());
+			LOGGER.info("El nivel es ::: " + this.filtroReportes.getNivel());
+			
+			this.setMuestraTabla(false);
+			
+			 
 		} catch (Exception e) {
 			LOGGER.error("Ups! se genero un error en :: ", e);
 		}
@@ -209,52 +215,14 @@ public class MBReportesCursos extends MBReportesMenu {
 		this.parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO,"TITULO DEL REPORTE");
 		Integer idEstado = this.getUsuario().getIdEstadoSeleccionado() == null ? 0 : this.getUsuario().getIdEstadoSeleccionado();
 		Integer idDistrito = this.getUsuario().getIdDistritoSeleccionado() == null ? 0 : this.getUsuario().getIdDistritoSeleccionado();
-		this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, this.getUsuario().getEstadoSeleccionado());
-		this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, this.getUsuario().getDistritoSeleccionado());
+		this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, this.getUsuario().getEstadoSeleccionado() );
+		this.parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, this.getUsuario().getDistritoSeleccionado()
+				== null ? "Junta Local" : this.getUsuario().getDistritoSeleccionado()  );
 
 	}
 
-	private void inicializaDimensionesEncabezado() {
-		if(this.filtroReportes.getTipoReporte().equals("L") ){
-		this.dtoParametros.setAnchoEntidad(2);
-		this.dtoParametros.setAnchoDistrito(2);
-		this.dtoParametros.setAnchoFechaHora(4);
-		}else{
-			this.dtoParametros.setAnchoEntidad(2);
-			this.dtoParametros.setAnchoDistrito(2);
-			this.dtoParametros.setAnchoFechaHora(5);
-		}
-	}
 
-	/**
-	 * Método que asigna en la clase padre los datos para la visuzalición de la
-	 * tabla del reporte.
-	 * 
-	 * @param dto
-	 */
-	public void asignaParametrosReporte(DTOReportesParametros dto) {
-		try {
-			super.inicializaParametrosEncabezado();
-			inicializaDimensionesEncabezado();
-			this.dtoParametros.setTituloReporte(dto.getTituloReporte());
-			this.dtoParametros.setEncabezado(this.obtenEncabezados());
-			if(this.filtroReportes.getTipoReporte().equals("L") ){
-			this.dtoParametros.setColumnas(8);
-			}else{
-			this.dtoParametros.setColumnas(9);	
-			}
-			this.dtoParametros.setListaDatos(dto.getListaDatos());
-			if(this.filtroReportes.getTipoReporte().equals("C") ){
-			this.dtoParametros.setTituloReporte(  this.filtroReportes.getUsuario().getIdDistritoSeleccionado() > 0 ?
-			"Cursos de capacitación impartidos y/o supervisados por Distrito." :		"Cursos de capacitación impartidos y/o supervisados por junta local.");
-			}else{
-				this.dtoParametros.setTituloReporte( "Listado de integrantes de los cursos.");	
-			}
-			super.setNombreReporte("reporteCursos");
-		} catch (Exception e) {
-			LOGGER.error("Ups! se genero un error en  asignaParametrosReporte ::::", e);
-		}
-	}
+	
 
 	private List<HLPReportesEncabezado> obtenEncabezados() {
 		List<HLPReportesEncabezado> lista = new ArrayList<HLPReportesEncabezado>();
@@ -279,36 +247,133 @@ public class MBReportesCursos extends MBReportesMenu {
 			hlpEncabezadoo.ingresarEncabezado(5, 1, 1, "Cargo ", 1);
 			hlpEncabezadoo.ingresarEncabezado(6, 1, 1, "Nota ", 1);
 			hlpEncabezadoo.ingresarEncabezado(7, 1, 1, "No. de ciudadanas/os que tomaron el curso ", 1);
-			hlpEncabezadoo.ingresarEncabezado(8, 1, 1, "No. de ciudadanas/os que tomaron el curso y lo acreditaron ", 1);
+			hlpEncabezadoo.ingresarEncabezado(8, 1, 1, "Personas que acreditaron el curso", 1);
 			lista.add(hlpEncabezadoo);
 		}
 		
 		return lista;
 	}
 
-	/**
-	 * 
-	 */
+ 
+	
+	
+	
+	
 	public void postProcessXLS(Object document) {
 		try {
-			this.dtoParametros.setRutaImgEstado("");
-			this.dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
+			dtoParametros.setRutaImgEstado("");
+			dtoParametros.crearEncabezadoXLS((HSSFWorkbook) document);
 		} catch (Exception e) {
-			LOGGER.error("Error en postProcessXLS", e);
+//			addErrorMessage("Ocurrió un error al exportar archivo XLS");
+//			scrollTop();
+			LOGGER.error("Error en postProcessXLS");
+			LOGGER.error(e);
+			e.printStackTrace();
 		}
 	}
 
 	/**
+	 * Genera un archivo PDF
 	 * 
+	 * @author jpachecov
 	 */
 	public void exportPDF() {
 		try {
-			this.setParametros(this.getParametrosPdf());
+			setParametros(filtroReportes.getDatosPdf(dtoParametros.getListaDatos()));
 			super.exportPDF();
 		} catch (Exception e) {
-			LOGGER.error("Error en exportPDF", e);
+//			addErrorMessage("Ocurrió un error al exportar archivo PDF");
+//			scrollTop();
+			LOGGER.error("Error en exportPDF");
+			LOGGER.error(e);
+			e.printStackTrace();
+			
 		}
 	}
+
+	/**
+	 * OBtiene el nivel de oficinas según el estado actual del menú lateral.
+	 * 
+	 * @return
+	 * @throws Exception
+	 * @author jpachecov
+	 */
+	public String obtenNivelReporte() throws Exception {
+		Integer idEstado = getUsuario().getIdEstadoSeleccionado();
+		Integer idDistrito = getUsuario().getIdDistritoSeleccionado();
+		 
+		if (idEstado != null && idEstado > 0) {
+			if (idDistrito != null && idDistrito.intValue() == 0) {
+				return "JL";
+			}
+			if (idDistrito != null && idDistrito.intValue() > 0) {
+				return "JD";
+			}
+			
+			
+		}
+		throw new Exception("No se pudo obtener el nivel de oficinas centrales.");
+	}
+
+	/**
+	 * Inicilializa las dimensiones del encabezado
+	 * 
+	 * @author jpachecov
+	 */
+	private void inicializaDimensionesEncabezado(DTOReportesParametros dto) {
+		 
+		if(this.filtroReportes.getTipoReporte().equals("L") ){
+			this.dtoParametros.setAnchoEntidad(2);
+			this.dtoParametros.setAnchoDistrito(2);
+			this.dtoParametros.setAnchoFechaHora(4);
+			}else{
+				this.dtoParametros.setAnchoEntidad(2);
+				this.dtoParametros.setAnchoDistrito(2);
+				this.dtoParametros.setAnchoFechaHora(5);
+			}
+		
+		if ( filtroReportes.esNivel("JL")) {
+			LOGGER.info("ES nivel JL");
+			 	dtoParametros.setAnchoDistrito(null);
+			}
+		}
+		 
+ 
+
+  
+
+	
+	/**
+	 * Método que asigna en la clase padre los datos para la visuzalición de la
+	 * tabla del reporte.
+	 * 
+	 * @param dto
+	 */
+	public void asignaParametrosReporte(DTOReportesParametros dto) {
+		try {
+			super.inicializaParametrosEncabezado();
+			 
+			inicializaDimensionesEncabezado(dto);
+			this.dtoParametros.setTituloReporte(dto.getTituloReporte());
+			this.dtoParametros.setEncabezado(this.obtenEncabezados());
+			if(this.filtroReportes.getTipoReporte().equals("L") ){
+			this.dtoParametros.setColumnas(8);
+			}else{
+			this.dtoParametros.setColumnas(9);	
+			}
+			this.dtoParametros.setListaDatos(dto.getListaDatos());
+			if(this.filtroReportes.getTipoReporte().equals("C") ){
+			this.dtoParametros.setTituloReporte(  this.filtroReportes.getUsuario().getIdDistritoSeleccionado() > 0 ?
+			"Cursos de capacitación impartidos y/o supervisados por Distrito." :		"Cursos de capacitación impartidos y/o supervisados por junta local.");
+			}else{
+				this.dtoParametros.setTituloReporte( "Listado de integrantes de los cursos.");	
+			}
+			super.setNombreReporte("reporteCursos");
+		} catch (Exception e) {
+			LOGGER.error("Ups! se genero un error en  asignaParametrosReporte ::::", e);
+		}
+	}
+	
 
 	/**
 	 * 
@@ -323,6 +388,14 @@ public class MBReportesCursos extends MBReportesMenu {
 		DTODetalleEstadoProcesoWS estado = getUsuario().getEstadoSeleccionado();
 		DTODetalleDistritoProcesoWS distrito = getUsuario().getDistritoSeleccionado();
 		parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, estado);
+		
+		if(distrito != null){
+		LOGGER.info(distrito.toString());
+		}else{
+			 parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, "Junta Local");	
+		}
+//		 parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, distrito);
+		 
 		return parametrosPDF;
 	}
 

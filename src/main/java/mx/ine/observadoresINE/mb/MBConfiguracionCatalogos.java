@@ -1001,27 +1001,14 @@ public class MBConfiguracionCatalogos implements Serializable {
 					evaluacionesPredefinidas = bsdConfiguracionCatalogos
 							.getCEvaluaciones(sinIdProceso, sinIdDetalle);
 
-					// justificacionesSeleccionadas
-					// .addAll(justificacionesPredefinidas);
-
+					// Obtener la justificacion por default
+					boolean esEncontrada = false;
 					List<DTOCEvaluacion> indexs = new ArrayList<DTOCEvaluacion>();
-					boolean esEncontrado = false;
+					evaluacionesXDefault = new ArrayList<DTOCEvaluacion>();
 					for (int i = 0; i < evaluacionesPredefinidas.size(); i++) {
-						// if (justificaciones
-						// .getDTOCJustificacionesPK()
-						// .getIdJustificacion()
-						// .equals(Constantes.ID_JUSTIFICACION_POR_DEFECTO_CATALOGO))
-						// {
-						if (evaluacionesPredefinidas
-								.get(i)
-								.getDTOCEvaluacionPK()
-								.getIdEvaluacion()
-								.equals(Constantes.ID_EVALUACION_POR_DEFECTO_NA)
-								|| evaluacionesPredefinidas
-										.get(i)
-										.getDTOCEvaluacionPK()
-										.getIdEvaluacion()
-										.equals(Constantes.ID_EVALUACION_POR_DEFECTO_P)) {
+
+						if (i == evaluacionesPredefinidas.size() - 2
+								|| i == evaluacionesPredefinidas.size() - 1) {
 
 							evaluacionesXDefault.add(evaluacionesPredefinidas
 									.get(i));
@@ -1031,18 +1018,17 @@ public class MBConfiguracionCatalogos implements Serializable {
 					}
 
 					if (indexs != null && !indexs.isEmpty()) {
-						esEncontrado = true;
+						esEncontrada = true;
 					}
 
-					if (esEncontrado) {
-						log.info("Tamaño de la lista de indexs: "
-								+ indexs.size());
-						for (DTOCEvaluacion evaluacionAEliminar : indexs) {
-							evaluacionesPredefinidas
-									.remove(evaluacionAEliminar);
+					if (esEncontrada) {
+						evaluacionesPredefinidas.removeAll(indexs);
+						if (evaluacionesPredefinidas != null
+								&& !evaluacionesPredefinidas.isEmpty()) {
+							evaluacionesSeleccionadas
+									.addAll(evaluacionesPredefinidas);
+							muestraForm = true;
 						}
-						evaluacionesSeleccionadas
-								.addAll(evaluacionesPredefinidas);
 
 						// Obtener las reglas de evaluacione predefinidas
 						for (DTOCEvaluacion eval : evaluacionesSeleccionadas) {
@@ -1417,9 +1403,9 @@ public class MBConfiguracionCatalogos implements Serializable {
 				int tamañoDetalles = listaDetalles.size() - 1;
 				for (int i = 0; i < tamañoDetalles; i++) {
 					// TODO AQUI TAMBIEN
-					 listValida = bsdConfiguracionCatalogos.getCEvaluaciones(
-					 listaDetalles.get(i).getIdProcesoElectoral(),
-					 listaDetalles.get(i).getIdDetalleProceso());
+					listValida = bsdConfiguracionCatalogos.getCEvaluaciones(
+							listaDetalles.get(i).getIdProcesoElectoral(),
+							listaDetalles.get(i).getIdDetalleProceso());
 
 					// listValida =
 					// bsdConfiguracionCatalogos.getCEvaluaciones(9,
@@ -4894,9 +4880,9 @@ public class MBConfiguracionCatalogos implements Serializable {
 		// cargamos ese detalle-proceso a nuestro objeto
 		if (listaDetalles.size() == 2) {
 			// TODO AQUI
-			 procesoDetalle = listaDetalles.get(0);
-//			procesoDetalle.setIdProcesoElectoral(9);
-//			procesoDetalle.setIdDetalleProceso(38);
+			procesoDetalle = listaDetalles.get(0);
+			// procesoDetalle.setIdProcesoElectoral(9);
+			// procesoDetalle.setIdDetalleProceso(38);
 			comboDetalleUnico = true;
 			cambiaCombo();
 		}
@@ -4915,9 +4901,9 @@ public class MBConfiguracionCatalogos implements Serializable {
 					if (detalle.getIdDetalleProceso().equals(
 							idDetalleSeleccionado)) {
 						// TODO AQUI
-						 procesoDetalle = detalle;
-//						procesoDetalle.setIdProcesoElectoral(9);
-//						procesoDetalle.setIdDetalleProceso(38);
+						procesoDetalle = detalle;
+//						 procesoDetalle.setIdProcesoElectoral(9);
+//						 procesoDetalle.setIdDetalleProceso(38);
 					}
 				}
 			}
@@ -5165,12 +5151,6 @@ public class MBConfiguracionCatalogos implements Serializable {
 					List<DTOCEvaluacion> indexs = new ArrayList<DTOCEvaluacion>();
 					evaluacionesXDefault = new ArrayList<DTOCEvaluacion>();
 					for (int i = 0; i < evaluacionesPredefinidas.size(); i++) {
-						// if (evaluacionesPredefinidas.get(i).getDescripcion()
-						// .equals(Constantes.EVALUACION_POR_DEFECTO_NA)
-						// || evaluacionesPredefinidas
-						// .get(i)
-						// .getDescripcion()
-						// .equals(Constantes.EVALUACION_POR_DEFECTO_P)) {
 
 						if (i == evaluacionesPredefinidas.size() - 2
 								|| i == evaluacionesPredefinidas.size() - 1) {

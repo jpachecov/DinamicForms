@@ -108,7 +108,7 @@ public class HLPReporteControlObs implements Serializable {
         hlpEncabezado.ingresarEncabezado(7, 3, 1, "Pendientes", 1);
         hlpEncabezado.ingresarEncabezado(8, 3, 1, "Aprobadas", 1);
         hlpEncabezado.ingresarEncabezado(9, 3, 1, "Denegadas / Canceladas", 1);
-        hlpEncabezado.ingresarEncabezado(10, 3, 1, "* Válidas", 1);
+        hlpEncabezado.ingresarEncabezado(10, 3, 1, "*Válidas", 1);
         listaEncabezados.add(hlpEncabezado);
 
         //Tercer encabezado
