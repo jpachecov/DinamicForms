@@ -13,15 +13,13 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * 
- * Clase que representa una relacion de equivalencia
+ * Clase que representa una relacion o funcion
  * entre valores y listas de String.
  * 
  * En el mejor de los casos esta relación es una función.
  * 
- * Se usa para representar relaciones de la siguiente forma.
- * (Abusando de la notación para funciones)
  * 
- * Sea Fi una trancición
+ * Sea Fi una transición
  * 
  * Fi : T -> List<String>
  * 
@@ -29,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * Constante.
  * Para todo x en T Fi(x) = {a,b,c,d,e,...,n} con a,b,c...,n Strings
- * Y se define usando ña funcion ANY.
+ * Y se define usando la funcion ANY.
  * 
  * POr casos.
  * Sean x1, ... , xn en T entonces
@@ -103,7 +101,7 @@ public class FiTransition<T> implements Serializable{
 	
 	/**
 	 * Obtiene una lista con los ids.
-	 * Es la imagen de la funcion bajo el valor v
+	 * Es la imagen de la 'funcion' bajo el valor v
 	 * @param v - El valor
 	 * @return Lista que representa la imagen
 	 */
@@ -122,6 +120,9 @@ public class FiTransition<T> implements Serializable{
 	}
 	
 	/**
+	 *
+	 * TODO Este codigo lo tengo en varios lados, hay que factorizar
+	 *
 	 * Mapea una String a una lista de Strings
 	 * @param st - Es una cadena con la siguiente forma
 	 * s1,s2,s3,s4,s5 ie separada por comas.

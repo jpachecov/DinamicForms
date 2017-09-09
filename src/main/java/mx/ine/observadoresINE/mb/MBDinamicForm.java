@@ -64,6 +64,8 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			try {
 				edos = bsdServicios.obtenEstados();
 			} catch (Exception e) {
+				log.error("Hubo un error al obtener los estados.");
+				log.error(e);
 				e.printStackTrace();
 			}
 			return edos;
@@ -74,11 +76,12 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		A.setValueFunction(edo -> {
 			return edo.getIdEstado() + "";
 		});
-		FiTransition<String> fiA = new FiTransition<>();
+		//FiTransition<String> fiA = new FiTransition<>();
 //		fiA.when("1", "C");
+		/*
 		fiA.any("B");
 		A.setFiTransition(fiA);
-		
+		*/
 		
 		
 		SelectOneMenuFilter<String, DTOMunicipio> B = new SelectOneMenuFilter<>("B", "Municipios");
@@ -100,13 +103,13 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			return dtto.getIdMunicipio() + "";
 		});
 		
-		FiTransition<String> fiB = new FiTransition<>();
-		B.setFiTransition(fiB);
+		//FiTransition<String> fiB = new FiTransition<>();
+		//B.setFiTransition(fiB);
 		
 		
 		SelectOneRadio<String, String> C = new SelectOneRadio<>("C", "Sexo");
-		FiTransition<String> fiC = new FiTransition<>();
-		C.setFiTransition(fiC);
+		//FiTransition<String> fiC = new FiTransition<>();
+		//C.setFiTransition(fiC);
 		C.setInitF(v -> {
 			List<String> l = new ArrayList<String>();
 			l.add("H");
@@ -122,15 +125,15 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		
 		
 		CalendarFilter<Date> fecha = new CalendarFilter<>("D", "Fecha de nacimiento");
-		FiTransition<Date> fiFecha = new FiTransition<>();
-		fecha.setFiTransition(fiFecha);
+		//FiTransition<Date> fiFecha = new FiTransition<>();
+		//fecha.setFiTransition(fiFecha);
 		
 		
 		InputTextFilter<String> nombre = new InputTextFilter<>("F", "Nombre completo");
-		FiTransition<String> fiNombre = new FiTransition<>();
-		nombre.setFiTransition(fiNombre);
+		//FiTransition<String> fiNombre = new FiTransition<>();
+		//nombre.setFiTransition(fiNombre);
 		
-		
+		/*
 		List<DFilter> allFilters = new ArrayList<DFilter>();
 		allFilters.add(C);
 		allFilters.add(fecha);
@@ -144,15 +147,27 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		initialFilters.add(C);
 		initialFilters.add(fecha);
 		initialFilters.add(A);
-		
+		*/
 		
 		for(DFilter s : allFilters){
 			s.setRequired(true);
 		}
 		
-		DinamicFormBuilder builder = new DinamicFormBuilder(allFilters, initialFilters);
+		//DinamicFormBuilder builder = new DinamicFormBuilder(allFilters, initialFilters);
+		DinamicFormBuilder builder = new DinamicFormBuilder();
+
 		try {
-			if(builder.validateDefinition()){
+			builder.addFilter(C);
+			builder.addFilter(fecha);
+			builder.addFilter(A);
+			builder.addFilter(B);
+			builder.addFilter(nombre);
+			builder.setInitialFilters("F,C,K");
+			builder.setFor("F").any("A");
+			builder.setFor("C").any("B");
+			builder.setFor("B").any("F");
+
+			if(builder.isValidDefinition()){
 				log.info("Bien definido!");
 				machine = builder.getMagia();
 			} else {

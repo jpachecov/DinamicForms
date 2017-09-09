@@ -41,9 +41,19 @@ public class DinamicFormBuilder implements Serializable{
 	private List<String> errores = new ArrayList<String>();
 	
 	/**
-	 * 
-	 * Si queremos usar este constructor estonces
-	 * cada uno de los filtros dados debe tener definida su transicion Fi.
+	* Constructor
+	*/
+	public DinamicFormBuilder(){
+		this.l_filtros = new ArrayList<DFilter>();
+		this.filtros = new LinkedHashMap<String, List<DFilter>>();
+		this.initialState = new ArrayList<DFilter>();
+	}
+
+	/**
+	 * Constructor
+	 * Construye la lista de todos los filtros
+	 * y  la lista de filtros que aparecerán inicialmente
+	 * en la vista.
 	 * @param todos
 	 * @param transitions
 	 */
@@ -52,11 +62,97 @@ public class DinamicFormBuilder implements Serializable{
 		this.initialState = initialState;
 		this.filtros = new LinkedHashMap<String, List<DFilter>>();
 		for(DFilter f : todos){
+			if(f.getFiTransition() == null){
+				f.setFiTransition(new FiTransition());
+			}
 			if(filtros.get(f.getId()) == null){
 				filtros.put(f.getId(), new ArrayList<DFilter>());
 			}
 			filtros.get(f.getId()).add(f);
 		}
+	}
+
+	/**
+	* Este metodo se llama cuando ya existe la lista de todos los filtros.
+	*
+	*
+	*
+	*/
+	public void setInitialFilters(String filtros) throws Exception{
+		boolean hay = false;
+		List<String> flts = mapString(filtros){
+			for(String id : flts){
+				if(!existFilter(id)){
+					hay &= true;
+					errores.add("El id: " + id + " no se encuentra asociado a ningun filtro.");
+				} 
+			}
+		}
+		if(!hay){
+			agregaIniciales(flts);
+		}
+		throw Exception("No se pudieron definir los filtros iniciales del formulario.");
+
+	}
+
+	/**
+	* Agrega los filtros iniciales a partir de una lista valida de ids de filtros.
+	* Es decir, estos si existen.
+	*
+	*/
+	public void agregaIniciales(List<String> ids){
+		for(String id : ids){
+			initialState.add(filtros.get(id));
+		}
+
+	}
+	/**
+	 *
+	 * TODO Este codigo lo tengo en varios lados, hay que factorizar
+	 *
+	 * Mapea una String a una lista de Strings
+	 * @param st - Es una cadena con la siguiente forma
+	 * s1,s2,s3,s4,s5 ie separada por comas.
+	 * @return
+	 */
+	public List<String> mapString(String st){
+		List<String> ids = new ArrayList<String>();
+			Arrays.stream(st.split(",")).map(s -> {
+				return s.trim();
+			}).forEach(s -> {
+				ids.add(s);
+			});
+		return ids;
+	}
+
+
+
+	/**
+	*
+	* Agrega un nuevo filtro a la lista de todos los filtros y
+	* al Hash.
+	*/
+	public void addFilter(DFilter filter) throws Exception{
+		if(existFilter(filter)){
+			throw new Exception("El id: " + filter.getId() + " ya existe.");
+		}
+		l_filtros.add(filter);
+		filtros.put(filter.getId(), filter);
+	}	
+
+	/**
+	* Obtiene el objecto FiTransition del filtro
+    * Este método debe ser llamado después de construir el objeto
+    * DinamicFormFilter con la lista de todos los filtros,
+    * ya que se hace validacion de existencia de filtro para el 
+    * id dado.
+	*
+	*/
+	public FiTransition setFor(String idF) throws Exception {
+		if(existFilter(idF)){
+			return filtros.get(idF).getFiTransition();
+		}
+		throw new Exception("El filtro con id: " + idF + " no existe.");
 	}
 	
 	/**
@@ -79,7 +175,7 @@ public class DinamicFormBuilder implements Serializable{
 	 * @return
 	 * @throws Exception
 	 */
-	public boolean validateDefinition() throws Exception{
+	public boolean isValidDefinition() throws Exception{
 		boolean valid = true;
 		// Primero validamos nombres
 		valid &= checkFilterNames();

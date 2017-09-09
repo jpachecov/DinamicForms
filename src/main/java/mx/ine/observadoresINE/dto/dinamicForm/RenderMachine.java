@@ -20,7 +20,7 @@ import org.apache.tika.detect.NNExampleModelDetector;
  * La vista renderiza sólo los filtros que pertenezcan
  * al estado actual de la máquina.
  * 
- * 
+ * TODO ver si usamos mejor hashmap para hacer consultas constantes
  * 
  * @author jpachecov
  *
