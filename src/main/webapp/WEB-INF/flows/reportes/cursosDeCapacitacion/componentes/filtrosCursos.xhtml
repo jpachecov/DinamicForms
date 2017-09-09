@@ -100,7 +100,7 @@
 					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
 						required="true" value="#{mbReporte.filtroReportes.selectTipoCurso}">
 						<f:selectItem itemLabel="Agrupacion" itemValue="1" />
-						<f:selectItem itemLabel="Individual" itemValue="3" />
+						<f:selectItem itemLabel="Individual" itemValue="2" />
 						<p:ajax process="@this" update="@form  mensajeTipoAgrupacion" />
 					</p:selectManyCheckbox>
 					<p:messages id="mensajeTipoAgrupacion" for="segundoNivelCheck1"  />
@@ -113,8 +113,8 @@
 				<div class="ui-g-12 ui-md-12 ui-sm-12">
 					<p:selectManyCheckbox id="segundoNivelCheck2"  layout="grid"  columns="1"
 						value="#{mbReporte.filtroReportes.selectTipoCurso}">
-						<f:selectItem itemLabel="Agrupacion" itemValue="3" />
-						<f:selectItem itemLabel="Individual" itemValue="1" />
+						<f:selectItem itemLabel="Agrupacion" itemValue="1" />
+						<f:selectItem itemLabel="Individual" itemValue="2" />
 						<p:ajax event="change" process="@this" update="@form "
 							listener="#{mbReporte.obtenCurso()}" />
 					</p:selectManyCheckbox>

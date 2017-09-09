@@ -150,7 +150,6 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			s.setRequired(true);
 		}
 		
-		
 		DinamicFormBuilder builder = new DinamicFormBuilder(allFilters, initialFilters);
 		try {
 			if(builder.validateDefinition()){

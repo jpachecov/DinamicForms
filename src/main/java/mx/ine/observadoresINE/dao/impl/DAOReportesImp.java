@@ -265,7 +265,9 @@ public class DAOReportesImp extends DAOGeneric<DTOReportesBitacora, Long> implem
 					
 			 List<DTOCursos> resultado = new ArrayList<DTOCursos>();
 				String sql =  this.getContainer().getQuery("query_obten_cursos_observadores_reporte");  
-				sql = sql.replace("-origenCurso-", filtros.getOrigenCurso());
+				
+				sql = sql.replace("-origenCurso-", filtros.getOrigenCurso()); //TODO
+				
 				Query query = getSession().createSQLQuery(sql)
 						  .addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
 					      .addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)

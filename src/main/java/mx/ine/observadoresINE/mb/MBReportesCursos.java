@@ -66,21 +66,27 @@ public class MBReportesCursos extends MBReportesMenu {
 
 	public void obtenCurso() {
 		this.filtroReportes.setOrigenCurso(this.regresaorigenCurso());
-		this.listaCursosMostrar = new ArrayList<DTOCursos>();
+		this.listaCursosMostrar = new ArrayList<DTOCursos>();  // id_agrupacion  is null
 		if (this.filtroReportes.getOrigenCurso().length() >= 1) {
+			LOGGER.info("El origen curso es ::: " + this.filtroReportes.getOrigenCurso() );
+			
+			
 			this.listaCursosMostrar = this.obtenListaCursos(this.filtroReportes);
 		}
 		LOGGER.info("obtenCurso");
 	}
 
 	private String regresaorigenCurso() {
-		String resultado = "";
-		for (int i = 0; i < this.filtroReportes.getSelectTipoCurso().length; i++) {
-			LOGGER.info("Lo que tiene setTipoCurso es :: " + this.filtroReportes.getSelectTipoCurso()[i]);
-			resultado += this.filtroReportes.getSelectTipoCurso()[i].equals("1") ? "1 , 2 " : this.filtroReportes.getSelectTipoCurso()[i] ;
-			resultado += (i == this.filtroReportes.getSelectTipoCurso().length - 1 ? "" : " , ");
-
-		}
+		String resultado = ""; //TODO
+		
+		if(this.filtroReportes.getSelectTipoCurso().length == 1){
+			resultado += this.filtroReportes.getSelectTipoCurso()[0].equals("1") ? " and  id_agrupacion  is not null " : 
+		 		" and id_agrupacion  is null " ;
+			} else{
+				resultado = " ";
+			}
+		
+		 
 		return resultado;
 	}
 
@@ -159,32 +165,35 @@ public class MBReportesCursos extends MBReportesMenu {
 					+ " to_char(  o.FECHA_ACREDITACION  , 'dd/mm/yyyy' ) fechaAcreditacion from  observadores o  join cursos c on "
 					+ " o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
 					+ " o.id_curso = c.id_curso   join C_cargo_responsable r  on r.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and "
-					+ " r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO    -filtros-  -subFiltros- order by -ordenamiento-  ";
+					+ " r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO      -subFiltros- order by -ordenamiento-  ";
 			  whereSubConsulta = " Where c.id_proceso_electoral = " + this.filtroReportes.getUsuario().getIdProcesoElectoral() + " and " +
 					 " c.id_detalle_proceso = " + this.filtroReportes.getUsuario().getIdDetalleProceso() + 
 					"  and c.id_estado = " +  this.filtroReportes.getUsuario().getIdEstadoSeleccionado() + "  "
 							+ " and c.id_distrito = " +  this.filtroReportes.getUsuario().getIdDistritoSeleccionado();
 			if (filtros.getTipoFiltroEspecifico().equals("C")) {
+				 
 				String idCurso = "and c.id_curso = " + this.filtroReportes.getIdCursoSeleccionado() + "";
-				idCurso +=	" and  c.origen_curso in ( ";
-				for (int i = 0; i < this.filtroReportes.getSelectTipoCurso().length; i++) {
-					idCurso += this.filtroReportes.getSelectTipoCurso()[i].equals("1") ? "1 , 2" :  this.filtroReportes.getSelectTipoCurso()[i] ;
-					idCurso += (i == this.filtroReportes.getSelectTipoCurso().length - 1 ? "" : " , ");
-				}
-				idCurso += " ) ";
+				 
+						
 				queryGeneral = queryGeneral.replace("-ordenamiento-", " 1 , 2, 3");
 				queryGeneral = queryGeneral.replace("-filtros-", idCurso);
 				queryGeneral = queryGeneral.replace("-subFiltros-", whereSubConsulta);
 				return queryGeneral;
 			} else {  
-				String tiposCurso = " and c.origen_curso in ( ";
-				for (int i = 0; i < this.filtroReportes.getSelectTipoCurso().length; i++) {
-					tiposCurso += this.filtroReportes.getSelectTipoCurso()[i].equals("1") ? "1 , 2" :  this.filtroReportes.getSelectTipoCurso()[i] ;
-					tiposCurso += (i == this.filtroReportes.getSelectTipoCurso().length - 1 ? "" : " , ");
-				}
-				tiposCurso += " ) ";
+				String tiposCurso = "   ";
+//				for (int i = 0; i < this.filtroReportes.getSelectTipoCurso().length; i++) {
+//					tiposCurso += this.filtroReportes.getSelectTipoCurso()[i].equals("1") ? "1 , 2" :  this.filtroReportes.getSelectTipoCurso()[i] ;
+//					tiposCurso += (i == this.filtroReportes.getSelectTipoCurso().length - 1 ? "" : " , ");
+//				}
+				if(this.filtroReportes.getSelectTipoCurso().length == 1){
+				tiposCurso += this.filtroReportes.getSelectTipoCurso()[0].equals("1") ? " and o.id_agrupacion  is not null " : 
+			 		" and o.id_agrupacion  is null " ;
+				} 
+				
+				whereSubConsulta = whereSubConsulta + " " + tiposCurso;
+				
 				queryGeneral = queryGeneral.replace("-ordenamiento-", " 1 , 2, 3");
-				queryGeneral = queryGeneral.replace("-filtros-", tiposCurso);
+//				queryGeneral = queryGeneral.replace("-filtros-", tiposCurso);
 				queryGeneral = queryGeneral.replace("-subFiltros-", whereSubConsulta);
 				LOGGER.info("El query es :::: " + queryGeneral);
 				return queryGeneral;
