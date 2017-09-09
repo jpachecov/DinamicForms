@@ -75,7 +75,7 @@ public class RenderMachine implements Serializable{
 	private RenderState delta(RenderState crt, String id) throws Exception{
 		DFilter f = F(id);
 		RenderState newState = new RenderState();
-		transicionBienDefinida(crt, f);
+		obtenNuevoEstado(crt, f);
 		newState.setFiltros(crt.getFiltros());
 		return newState;
 	}
@@ -116,23 +116,21 @@ public class RenderMachine implements Serializable{
 	}
 	
 	/**
-	 * Para saber si la transicion del filtro con el valor actual
-	 * esta bien definida.
-	 * @param crt
-	 * @param f
-	 * @return
+	 * Obtiene el nuevo estado de la máquina. ie, 
+	 * Obtiene los filtros que activa f y los agrega al 
+	 * estado actual.
+	 * @param crt : Estado actual de esta máquina
+	 * @param f : Filtro donde hubo cambio.
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void transicionBienDefinida(RenderState crt, DFilter f) throws Exception {
+	public void obtenNuevoEstado(RenderState crt, DFilter f) throws Exception {
 		// TODO revisar si es mejor usar F
 		List<String> target = f.getFiTransition().getImagen(f.getValue());
 		for(String n : target){
 			for(DFilter ft: getAllFilters()){
 				if(n.equals(ft.getId())){
 					if(ft.getInitF() != null){
-						log.info("INIT() - JEAN");
-						log.info("Ejecutando init de: " + ft.getId());
 						ft.init(f.getValue());
 					}
 					if(!ft.isVisible()){

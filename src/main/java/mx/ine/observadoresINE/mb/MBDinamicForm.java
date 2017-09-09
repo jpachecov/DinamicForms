@@ -53,79 +53,8 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 	
 	@SuppressWarnings("rawtypes")
 	public void init(){
-		
 		log.info("MBDinamicForm");
-//		
-//		// Filtros
-//		InputTextFilter<String> A = new InputTextFilter<>("A", "Filtro A");
-//		CalendarFilter<Date> B = new CalendarFilter<>("B", "Filtro B");
-//		InputTextFilter<String> C = new InputTextFilter<>("C", "Filtro C");
-//		CalendarFilter<Date> D = new CalendarFilter<>("D", "Filtro D");
-//		SelectOneMenuFilter<String, List<String>> E = new SelectOneMenuFilter<>("E", "Filtro E"); 
-//		SelectOneRadio<String, String> F = new SelectOneRadio<>("F", "Filtro F");
-//		
-//		
-//		
-//		// Transiciones del componente A
-//		FiTransition<String> fiA = new FiTransition<>();
-//		fiA.when("1", "B,C");
-//		fiA.any("D");
-//		A.setFiTransition(fiA);
-//		
-//		FiTransition<Date> fiB = new FiTransition<>();
-//		B.setFiTransition(fiB);
-//		
-//		
-//		FiTransition<String> fiC = new FiTransition<>();
-//		fiC.when("1", "D");
-//		C.setFiTransition(fiC);
-//		
-//		FiTransition<Date> fiD = new FiTransition<>();
-//		fiD.any("E");
-//		D.setFiTransition(fiD);
-//		D.setInitF(v -> {
-//			D.setValue(null);
-//			return new Date();
-//		});
-//
-//		FiTransition<String> fiE = new FiTransition<>();
-//		E.setFiTransition(fiE);
-//		E.setInitF(v -> {
-//			List<String> l = new ArrayList<String>();
-//			l.add("1");
-//			l.add("2");
-//			return l;
-//		});
-//		
-//		
-//		FiTransition<String> fiF = new FiTransition<>();
-//		F.setFiTransition(fiF);
-//		F.setInitF(v -> {
-//			List<String> l = new ArrayList<String>();
-//			l.add("Sí");
-//			l.add("No");
-//			return l;
-//		});
-//		
-//		
-//		List<DFilter> allFilters = new ArrayList<DFilter>();
-//		allFilters.add(A);
-//		allFilters.add(B);
-//		allFilters.add(C);
-//		allFilters.add(D);
-//		allFilters.add(E);
-//		allFilters.add(F);
-//		
-//		List<DFilter> initialState = new ArrayList<DFilter>();
-//
-//		initialState.add(A);
-//		initialState.add(F);
-//		RenderState initial = new RenderState(initialState);
-//		machine = new RenderMachine(initial);
-//		machine.setAllFilters(allFilters);
-		
 		test();
-		
 	}
 	
 	public void test(){
@@ -147,7 +76,7 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		});
 		FiTransition<String> fiA = new FiTransition<>();
 //		fiA.when("1", "C");
-		fiA.any("B, C");
+		fiA.any("B");
 		A.setFiTransition(fiA);
 		
 		
@@ -175,24 +104,52 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		B.setFiTransition(fiB);
 		
 		
-		SelectOneRadio<String, String> C = new SelectOneRadio<>("C", "Filtro F");
+		SelectOneRadio<String, String> C = new SelectOneRadio<>("C", "Sexo");
 		FiTransition<String> fiC = new FiTransition<>();
 		C.setFiTransition(fiC);
 		C.setInitF(v -> {
 			List<String> l = new ArrayList<String>();
-			l.add("Sí");
-			l.add("No");
+			l.add("H");
+			l.add("M");
 			return l;
+		});
+		C.setLabelFunction(s -> {
+			if(s.equals("H")){
+				return "Hombre";
+			}
+			return "Mujer";
 		});
 		
 		
+		CalendarFilter<Date> fecha = new CalendarFilter<>("D", "Fecha de nacimiento");
+		FiTransition<Date> fiFecha = new FiTransition<>();
+		fecha.setFiTransition(fiFecha);
+		
+		
+		InputTextFilter<String> nombre = new InputTextFilter<>("F", "Nombre completo");
+		FiTransition<String> fiNombre = new FiTransition<>();
+		nombre.setFiTransition(fiNombre);
+		
+		
 		List<DFilter> allFilters = new ArrayList<DFilter>();
+		allFilters.add(C);
+		allFilters.add(fecha);
 		allFilters.add(A);
 		allFilters.add(B);
-		allFilters.add(C);
+		allFilters.add(nombre);
+
 		
 		List<DFilter> initialFilters = new ArrayList<DFilter>();
+		initialFilters.add(nombre);
+		initialFilters.add(C);
+		initialFilters.add(fecha);
 		initialFilters.add(A);
+		
+		
+		for(DFilter s : allFilters){
+			s.setRequired(true);
+		}
+		
 		
 		DinamicFormBuilder builder = new DinamicFormBuilder(allFilters, initialFilters);
 		try {
@@ -210,6 +167,10 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		}
 		
 		
+	}
+	
+	public void doSomething() {
+		log.info("DoSomething");
 	}
 	
 	public RenderMachine getMachine() {

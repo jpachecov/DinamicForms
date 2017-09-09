@@ -10,13 +10,12 @@
 	xmlns:sec="http://www.springframework.org/security/tags"
 	xmlns:pe="http://primefaces.org/ui/extensions"
 	xmlns:deceyec="http://ine.mx/ui" template="/templates/template.xhtml">
-
 	<ui:define name="CONTENT">
 		<p:panel id="panel" styleClass="card">
-			<h2>Hola mundo!</h2>
-
+			<h2>Hola mundo dinámico!</h2>
 			<h:form id="dinamicForm" styleClass="container-fluid">
 				<div class="ui-g">
+					<h2 class="ui-g-12 ui-md-12 ui-sm-12">Filtros:</h2>
 					<c:forEach var="filter"
 						items="#{mbDinamic.machine.current.filtros}">
 						<c:if test="#{filter.type eq 'CALENDAR'}">
@@ -25,11 +24,14 @@
 									for="dinamic_calendar_#{filter.id}" value="#{filter.name}" />
 								<p:calendar id="dinamic_calendar_#{filter.id}"
 									pattern="dd/MM/yyyy" placeholder="dd/MM/yyyy"
-									rendered="#{filter.visible}" value="#{filter.value}">
+									rendered="#{filter.visible}" value="#{filter.value}"
+									required="#{filter.required}"
+									requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
 									<p:ajax event="dateSelect"
 										listener="#{mbDinamic.machine.actionOn(filter.id)}"
 										update="@form"></p:ajax>
 								</p:calendar>
+								<p:message for="dinamic_calendar_#{filter.id}" id="dinamic_calendar_message_#{filter.id}"/>
 							</div>
 						</c:if>
 						<c:if test="#{filter.type eq 'INPUT_TEXT'}">
@@ -38,12 +40,14 @@
 
 									<p:inputText id="dinamic_input_text_#{filter.id}"
 										rendered="#{filter.visible}" value="#{filter.value}"
-										required="true">
+										required="#{filter.required}"
+										requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
 										<p:ajax listener="#{mbDinamic.machine.actionOn(filter.id)}"
 											update="@form" async="false"></p:ajax>
 									</p:inputText>
 									<p:outputLabel id="label_input_text_#{filter.id}"
 										for="dinamic_input_text_#{filter.id}" value="#{filter.name}" />
+									<p:message for="dinamic_input_text_#{filter.id}" id="dinamic_input_text_message_#{filter.id}"/>
 								</div>
 							</div>
 						</c:if>
@@ -52,14 +56,17 @@
 								<p:outputLabel for="dinamic_select_one_menu_#{filter.id}"
 									value="#{filter.name}" />
 								<p:selectOneMenu id="dinamic_select_one_menu_#{filter.id}"
-									value="#{filter.value}">
+									value="#{filter.value}" required="#{filter.required}"
+									requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
 									<f:selectItem itemLabel="Selecciona " itemValue="#{null}" />
 									<f:selectItems value="#{filter.data}" var="element"
-										itemLabel="#{filter.getLabelOf(element)}" itemValue="#{filter.getValueOf(element)}" />
+										itemLabel="#{filter.getLabelOf(element)}"
+										itemValue="#{filter.getValueOf(element)}" />
 									<p:ajax event="change"
 										listener="#{mbDinamic.machine.actionOn(filter.id)}"
 										update="@form" />
 								</p:selectOneMenu>
+								<p:message for="dinamic_select_one_menu_#{filter.id}" id="dinamic_select_one_menu_message_#{filter.id}"/>
 							</div>
 						</c:if>
 						<c:if test="#{filter.type eq 'SELECT_ONE_RADIO'}">
@@ -68,18 +75,34 @@
 									value="#{filter.name}" />
 								<p:selectOneRadio layout="responsive" columns="2"
 									id="dinamic_select_one_radio_#{filter.id}"
-									value="#{filter.value}" required="true"
+									value="#{filter.value}" required="#{filter.required}"
 									requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
-									<f:selectItems value="#{filter.data}" var="c" itemLabel="#{c}"
+									<f:selectItems value="#{filter.data}" var="c" itemLabel="#{filter.getLabelOf(c)}"
 										itemValue="#{c}" />
 									<p:ajax event="change"
 										listener="#{mbDinamic.machine.actionOn(filter.id)}"
 										update="@form" />
 								</p:selectOneRadio>
+								<p:message for="dinamic_select_one_radio_#{filter.id}" id="dinamic_select_one_radio_message_#{filter.id}"/>
 							</div>
 						</c:if>
-
 					</c:forEach>
+					<h2 class="ui-g-12 ui-md-12 ui-sm-12">Valores de los filtros:</h2>
+					<c:forEach var="filter"
+						items="#{mbDinamic.machine.current.filtros}">
+						<h3 class="ui-g-12 ui-md-12 ui-sm-12">#{filter.name} : #{filter.value}</h3>
+					</c:forEach>
+					<!-- BOTONES -->
+					<div class="ui-g">
+						<div class="center-block">
+							<p:commandButton 
+								actionListener="#{mbDinamic.doSomething()}"
+								process="@form"
+								update="@form"
+								value="Aceptar">
+							</p:commandButton>
+						</div>
+					</div>				
 				</div>
 			</h:form>
 		</p:panel>
