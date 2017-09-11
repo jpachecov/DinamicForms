@@ -2,9 +2,15 @@ package mx.ine.observadoresINE.dto.dinamicForm;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import mx.ine.observadoresINE.mb.MBDinamicForm;
 
 /**
  * Clase que sirve para construir un Formulario Dinámico Válido
@@ -17,6 +23,8 @@ public class DinamicFormBuilder implements Serializable{
 	 * Serial
 	 */
 	private static final long serialVersionUID = -5960774487262797499L;
+	
+	private static final Log log = LogFactory.getLog(DinamicFormBuilder.class);
 
 	/**
 	 * Lista interna con todos los filtros definidos y construidos.
@@ -80,18 +88,19 @@ public class DinamicFormBuilder implements Serializable{
 	*/
 	public void setInitialFilters(String filtros) throws Exception{
 		boolean hay = false;
-		List<String> flts = mapString(filtros){
-			for(String id : flts){
-				if(!existFilter(id)){
-					hay &= true;
-					errores.add("El id: " + id + " no se encuentra asociado a ningun filtro.");
-				} 
-			}
+		List<String> flts = mapString(filtros);
+		for(String id : flts){
+			if(!existFilter(id)){
+				hay = true;
+				errores.add("El id: " + id + " no se encuentra asociado a ningun filtro.");
+			} 
 		}
+	
 		if(!hay){
 			agregaIniciales(flts);
+			return;
 		}
-		throw Exception("No se pudieron definir los filtros iniciales del formulario.");
+		throw new Exception("No se pudieron definir los filtros iniciales del formulario.");
 
 	}
 
@@ -102,7 +111,7 @@ public class DinamicFormBuilder implements Serializable{
 	*/
 	public void agregaIniciales(List<String> ids){
 		for(String id : ids){
-			initialState.add(filtros.get(id));
+			initialState.add(filtros.get(id).get(0));
 		}
 
 	}
@@ -133,11 +142,14 @@ public class DinamicFormBuilder implements Serializable{
 	* al Hash.
 	*/
 	public void addFilter(DFilter filter) throws Exception{
-		if(existFilter(filter)){
+		if(existFilter(filter.getId())){
 			throw new Exception("El id: " + filter.getId() + " ya existe.");
 		}
+		filter.setFiTransition(new FiTransition<>());
 		l_filtros.add(filter);
-		filtros.put(filter.getId(), filter);
+		List<DFilter> l = new ArrayList<DFilter>();
+		l.add(filter);
+		filtros.put(filter.getId(), l);
 	}	
 
 	/**
@@ -150,7 +162,7 @@ public class DinamicFormBuilder implements Serializable{
 	*/
 	public FiTransition setFor(String idF) throws Exception {
 		if(existFilter(idF)){
-			return filtros.get(idF).getFiTransition();
+			return filtros.get(idF).get(0).getFiTransition();
 		}
 		throw new Exception("El filtro con id: " + idF + " no existe.");
 	}
@@ -276,9 +288,6 @@ public class DinamicFormBuilder implements Serializable{
 		boolean exist = false;
 		for(DFilter d : l_filtros){
 			exist |= d.getId().equals(id);
-		}
-		if(!exist){
-			errores.add("El filtro con id: " + id + " no existe en la lista de todos los filtros.");
 		}
 		return exist;
 	}

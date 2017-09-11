@@ -567,6 +567,9 @@ public class MBObservadores extends MBGeneric implements Serializable {
 			this.listaReglas = obtenReglasE(this.observadorCaptura);
 			Boolean bandera = false;
 			DTOReglasEvalucaion reglaMetodo = new DTOReglasEvalucaion();
+			this.regla1 = false;
+			this.regla2 = false;
+			this.regla3 = false;
 			for (DTOReglasEvalucaion dtoR : listaReglas) {
 				if (dtoR.getDTOReglasEvalucaionPK().getIdRegla().equals(new Integer(1))) {
 					bandera = true;
@@ -574,12 +577,12 @@ public class MBObservadores extends MBGeneric implements Serializable {
 					break;
 				}
 			}
+			
 			if (this.listaEvaluaciones != null && bandera) {
 				for (DTOCEvaluacion dto : listaEvaluaciones) {
-					if (this.observadorCaptura.getIdEvaluacion()
-							.equals(new Short("" + dto.getDTOCEvaluacionPK().getIdEvaluacion() + ""))) {
+					if (this.observadorCaptura.getIdEvaluacion().equals(new Short("" + dto.getDTOCEvaluacionPK().getIdEvaluacion() + ""))) {
 						this.listaCursos = obtenListaCursos(this.usuario, reglaMetodo);
-						break;
+						break;//TODO aqui podemos meter el id_agrupacion
 					}
 				}
 			} else {
@@ -611,23 +614,23 @@ public class MBObservadores extends MBGeneric implements Serializable {
 								this.observadorCaptura.setIdJustificacion(new Short("0"));
 								this.observadorCaptura.setIdCurso(null);
 								this.habilitaJustificacion = true;
-								this.regla1 = false;
-								this.regla2 = true;
-								this.regla3 = true;
+//								this.regla1 = false;
+//								this.regla2 = true;
+//								this.regla3 = true;
 							} else if (dto.getDTOCEvaluacionPK().getIdEvaluacion()
 									.equals(listaEvaluaciones.size() )) {
 								LOGGER.info("Encontre al PENDIENTE");
 								this.observadorCaptura.setIdJustificacion(null);
 								this.observadorCaptura.setIdCurso(null);
 								this.observadorCaptura.setFechaSesion(null);
-								this.regla1 = false;
-								this.regla2 = false;
-								this.regla3 = false;
+//								this.regla1 = false;
+//								this.regla2 = false;
+//								this.regla3 = false;
 							} else {
 								this.habilitaJustificacion = false;
-								this.regla1 = true;
-								this.regla2 = true;
-								this.regla3 = true;
+//								this.regla1 = true;
+//								this.regla2 = true;
+//								this.regla3 = true;
 								if (this.observadorCaptura.getIdJustificacion() != null) {
 
 								} else {

@@ -49,9 +49,6 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 	
 	private String prueba;
 	
-
-	
-	@SuppressWarnings("rawtypes")
 	public void init(){
 		log.info("MBDinamicForm");
 		test();
@@ -76,13 +73,6 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		A.setValueFunction(edo -> {
 			return edo.getIdEstado() + "";
 		});
-		//FiTransition<String> fiA = new FiTransition<>();
-//		fiA.when("1", "C");
-		/*
-		fiA.any("B");
-		A.setFiTransition(fiA);
-		*/
-		
 		
 		SelectOneMenuFilter<String, DTOMunicipio> B = new SelectOneMenuFilter<>("B", "Municipios");
 		
@@ -103,13 +93,7 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			return dtto.getIdMunicipio() + "";
 		});
 		
-		//FiTransition<String> fiB = new FiTransition<>();
-		//B.setFiTransition(fiB);
-		
-		
 		SelectOneRadio<String, String> C = new SelectOneRadio<>("C", "Sexo");
-		//FiTransition<String> fiC = new FiTransition<>();
-		//C.setFiTransition(fiC);
 		C.setInitF(v -> {
 			List<String> l = new ArrayList<String>();
 			l.add("H");
@@ -125,35 +109,8 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		
 		
 		CalendarFilter<Date> fecha = new CalendarFilter<>("D", "Fecha de nacimiento");
-		//FiTransition<Date> fiFecha = new FiTransition<>();
-		//fecha.setFiTransition(fiFecha);
-		
-		
 		InputTextFilter<String> nombre = new InputTextFilter<>("F", "Nombre completo");
-		//FiTransition<String> fiNombre = new FiTransition<>();
-		//nombre.setFiTransition(fiNombre);
 		
-		/*
-		List<DFilter> allFilters = new ArrayList<DFilter>();
-		allFilters.add(C);
-		allFilters.add(fecha);
-		allFilters.add(A);
-		allFilters.add(B);
-		allFilters.add(nombre);
-
-		
-		List<DFilter> initialFilters = new ArrayList<DFilter>();
-		initialFilters.add(nombre);
-		initialFilters.add(C);
-		initialFilters.add(fecha);
-		initialFilters.add(A);
-		*/
-		
-		for(DFilter s : allFilters){
-			s.setRequired(true);
-		}
-		
-		//DinamicFormBuilder builder = new DinamicFormBuilder(allFilters, initialFilters);
 		DinamicFormBuilder builder = new DinamicFormBuilder();
 
 		try {
@@ -162,10 +119,8 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			builder.addFilter(A);
 			builder.addFilter(B);
 			builder.addFilter(nombre);
-			builder.setInitialFilters("F,C,K");
-			builder.setFor("F").any("A");
-			builder.setFor("C").any("B");
-			builder.setFor("B").any("F");
+			builder.setInitialFilters("A,B,C,D,F");
+			builder.setFor("A").any("B");
 
 			if(builder.isValidDefinition()){
 				log.info("Bien definido!");
@@ -178,6 +133,7 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			log.error(e);
 			log.error("Ocurrió un error inesperado al verificar definición de formulario.");
 			log.error(builder.getErrores());
+			e.printStackTrace();
 		}
 		
 		
