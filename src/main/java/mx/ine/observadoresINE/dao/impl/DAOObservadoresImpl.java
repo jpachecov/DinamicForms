@@ -623,6 +623,46 @@ public class DAOObservadoresImpl extends DAOGeneric<DTOObservadores, DTOObservad
 		}
 	}
 
+
+	@Override
+	public List<DTOCursos> obtenCursosAgrupaciones(Integer idProcesoElectoral, Integer idDetalleProceso, Integer origen,
+			Integer edo, Integer dtt, Integer idAgrupacionCurso) {
+		 List<DTOCursos> resultado = new ArrayList<DTOCursos>();
+			String sql =  this.getContainer().getQuery("query_obten_cursos_agrupaciones_observadores");
+			Query query = getSession().createSQLQuery(sql)
+					  .addScalar("idProcesoElectoral", StandardBasicTypes.INTEGER)
+				      .addScalar("idDetalleProceso", StandardBasicTypes.INTEGER)
+				      .addScalar("idCurso", StandardBasicTypes.INTEGER)
+					      .addScalar("origenCurso", StandardBasicTypes.INTEGER)
+						  .addScalar("fecha", StringType.INSTANCE )
+						  .addScalar("horaInicio", StringType.INSTANCE )
+						  .addScalar("horaFin", StringType.INSTANCE )
+						  .addScalar("observaciones", StringType.INSTANCE )
+						  .addScalar("etiqueta", StringType.INSTANCE );
+			
+			query.setInteger("idProceso", idProcesoElectoral );
+	        query.setInteger("idDetalleProceso", idDetalleProceso );
+	        query.setInteger("origenSolicitud", origen);
+	        query.setInteger("idEstado", edo);
+	        query.setInteger("idDistrito", dtt);
+	        query.setInteger("idAgrupacion", idAgrupacionCurso);
+	        
+	        try{
+	        List<Object[]> tmp = (List<Object[]>)query.list();
+	        for (Object[] objects : tmp) {
+	        	DTOCursosPK tmpPk = new DTOCursosPK ((Integer)objects[0]  , (Integer)objects[1] , (Integer)objects[2] ); 
+	        	DTOCursos observador = new DTOCursos(tmpPk , (Integer)objects[3] ,(Date)this.regresaFecha((String)objects[4]), 
+	            (Date)this.regresaFecha((String)objects[5]),(Date)this.regresaFecha((String)objects[6]), (String)objects[7] , (String)objects[8]); 
+	        	resultado.add(observador);
+	        
+			}
+	        return resultado;
+	        }catch (Exception e) {
+	        	LOGGER.error("Ups! , se genero un error al tratar de obtener al obsevador", e);
+	        	return null;
+			}
+	}
+
  
 
  

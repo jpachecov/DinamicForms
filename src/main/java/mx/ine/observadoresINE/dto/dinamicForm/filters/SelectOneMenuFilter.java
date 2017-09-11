@@ -26,10 +26,7 @@ public class SelectOneMenuFilter<S,T> extends DFilter<S,T> implements LabelValue
 	 */
 	private static final long serialVersionUID = 5843849093252844112L;
 	
-	private S value;
 	private T data;
-	private S itemV;
-	private String itemL;
 
 	private TransitionFunction<T, String> labelFunction;
 	
@@ -47,12 +44,7 @@ public class SelectOneMenuFilter<S,T> extends DFilter<S,T> implements LabelValue
 	protected void init(S value) {
 		setData((T)getInitF().apply(value));
 	}
-	public S getValue() {
-		return value;
-	}
-	public void setValue(S value) {
-		this.value = value;
-	}
+
 	public T getData() {
 		return data;
 	}
@@ -60,18 +52,7 @@ public class SelectOneMenuFilter<S,T> extends DFilter<S,T> implements LabelValue
 	public void setData(T data) {
 		this.data = data;
 	}
-	public S getItemV() {
-		return itemV;
-	}
-	public void setItemV(S itemV) {
-		this.itemV = itemV;
-	}
-	public String getItemL() {
-		return itemL;
-	}
-	public void setItemL(String itemL) {
-		this.itemL = itemL;
-	}
+
 	
 	public TransitionFunction<T, String> getLabelFunction() {
 		return labelFunction;

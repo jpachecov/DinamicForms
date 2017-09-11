@@ -39,7 +39,7 @@
 					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" >
 					<f:selectItem itemLabel="#{messageSource['etiqueta_individual']}" itemValue="0" />
 					<f:selectItem itemLabel="#{messageSource['etiqueta_agrupacion']}" itemValue="1" />
-					<p:ajax event="change"  update="escondeAgrupacion1" listener="#{mbObservadores.escondeNombreAgrupacion()}" />
+					<p:ajax event="change"  update="escondeAgrupacion1, comboEvaluacion , escondeEstatusP " listener="#{mbObservadores.escondeNombreAgrupacion()}" />
 				</p:selectOneRadio>
 				<p:message for="radioAgrupacion" display="text" id="msgAgrupacion" />
 			</div>

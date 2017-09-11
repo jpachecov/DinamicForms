@@ -44,11 +44,18 @@ public class DTOFiltroReporteAcciones implements Serializable{
 	private String[] selectTipoCurso = new String[2];
 	
 	
-	public Map<String, Serializable> getDatosPdf(List<Object[]> datos){
+	public Map<String, Serializable> getDatosPdf(List<Object[]> datos , String palabra){
 		
 		Map<String, Serializable> parametrosPDF = new LinkedHashMap<>();
-		String n_rep = Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion");
-		String n_pdf = Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion_pdf");
+		String n_rep = "";
+		String n_pdf = "";
+		if(!palabra.equals("cursos")){
+		 n_rep = Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion");
+		 n_pdf = Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion_pdf");
+		} else {
+			 n_rep = "Reportes de Cursos de Capacitación ";
+			 n_pdf = " RepoCursosCapa";
+		}
 		parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 3);
 		parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO, n_rep);
 		parametrosPDF.put(Constantes.PARAMETRO_STRING_FILENAME, n_pdf);

@@ -10,7 +10,6 @@ import java.util.Map;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import mx.ine.observadoresINE.mb.MBDinamicForm;
 
 /**
  * Clase que sirve para construir un Formulario Dinámico Válido
@@ -24,22 +23,26 @@ public class DinamicFormBuilder implements Serializable{
 	 */
 	private static final long serialVersionUID = -5960774487262797499L;
 	
+	@SuppressWarnings("unused")
 	private static final Log log = LogFactory.getLog(DinamicFormBuilder.class);
 
 	/**
 	 * Lista interna con todos los filtros definidos y construidos.
 	 */
+	@SuppressWarnings("rawtypes")
 	private List<DFilter> l_filtros;
 	
 	/**
 	 * Lista de DFilters que aparecerán desde el inicio en la vista
 	 */
+	@SuppressWarnings("rawtypes")
 	private List<DFilter> initialState;
 	
 	/**
 	 * Hash con todos los filtros.
 	 * La llave es el id del filtro
 	 */
+	@SuppressWarnings("rawtypes")
 	private Map<String, List<DFilter>> filtros;
 	
 	/**
@@ -51,6 +54,7 @@ public class DinamicFormBuilder implements Serializable{
 	/**
 	* Constructor
 	*/
+	@SuppressWarnings("rawtypes")
 	public DinamicFormBuilder(){
 		this.l_filtros = new ArrayList<DFilter>();
 		this.filtros = new LinkedHashMap<String, List<DFilter>>();
@@ -65,6 +69,7 @@ public class DinamicFormBuilder implements Serializable{
 	 * @param todos
 	 * @param transitions
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public DinamicFormBuilder(List<DFilter> todos, List<DFilter> initialState){
 		this.l_filtros = todos;
 		this.initialState = initialState;
@@ -141,6 +146,7 @@ public class DinamicFormBuilder implements Serializable{
 	* Agrega un nuevo filtro a la lista de todos los filtros y
 	* al Hash.
 	*/
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void addFilter(DFilter filter) throws Exception{
 		if(existFilter(filter.getId())){
 			throw new Exception("El id: " + filter.getId() + " ya existe.");
@@ -160,7 +166,7 @@ public class DinamicFormBuilder implements Serializable{
     * id dado.
 	*
 	*/
-	public FiTransition setFor(String idF) throws Exception {
+	public FiTransition<?> setFor(String idF) throws Exception {
 		if(existFilter(idF)){
 			return filtros.get(idF).get(0).getFiTransition();
 		}
@@ -178,7 +184,7 @@ public class DinamicFormBuilder implements Serializable{
 	public RenderMachine getMagia(){
 		RenderState initial = new RenderState(initialState);
 		RenderMachine machine = new RenderMachine(initial);
-		machine.setAllFilters(l_filtros);
+		machine.setFiltersMap(obtenHash());
 		return machine;
 	}
 	
@@ -219,6 +225,7 @@ public class DinamicFormBuilder implements Serializable{
 	 * Verifica que el estado inicial sea valido
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public boolean checkInitiaState(){
 		boolean valid = true;
 		if(initialState == null || initialState.isEmpty()){
@@ -238,6 +245,8 @@ public class DinamicFormBuilder implements Serializable{
 	 * Verifica que esten bien definidas todas las transiciones.
 	 * @return
 	 */
+	
+	@SuppressWarnings("rawtypes")
 	public boolean checkTransitions(){
 		boolean cool = true;
 		for(DFilter f : l_filtros){
@@ -254,6 +263,7 @@ public class DinamicFormBuilder implements Serializable{
 	 * @param fi
 	 * @return
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public boolean checkFi(DFilter f, FiTransition fi){
 		boolean valid = true;
 		//Vamos por los casos definidos en fi
@@ -284,6 +294,7 @@ public class DinamicFormBuilder implements Serializable{
 	 * @param id
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	public boolean existFilter(String id){
 		boolean exist = false;
 		for(DFilter d : l_filtros){
@@ -293,11 +304,31 @@ public class DinamicFormBuilder implements Serializable{
 	}
 	
 	/**
+	 * Convierte un mapa de listas de filtros a un
+	 * mapa de filtros.
+	 * 
+	 * En este punto el objeto filtros
+	 * tendrá por cada id de filtro una lista de filtros 
+	 * cuyo tamaño es 1, puesto que representa a 
+	 * los filtros de un formulario dinamico bien construido, ie, 
+	 * sin ids repetidos.
+	 * 
+	 * @return hash : Un hash que asocia un id con un filtro
+	 */
+	@SuppressWarnings("rawtypes")
+	public Map<String, DFilter> obtenHash(){
+		Map<String, DFilter> hash = new LinkedHashMap<String, DFilter>();
+		for(String s : filtros.keySet()){
+			hash.put(s, filtros.get(s).get(0));
+		}
+		return hash;
+	}
+	
+	/**
 	 * Obtiene la lista de errores.
 	 * @return
 	 */
 	public List<String> getErrores(){
 		return this.errores;
 	}
-	
 }

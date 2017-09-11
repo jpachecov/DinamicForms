@@ -1,13 +1,6 @@
 package mx.ine.observadoresINE.dto.dinamicForm;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-
-import javax.faces.component.UIComponent;
-import javax.faces.component.UIComponentBase;
 
 /**
  * 
@@ -42,17 +35,6 @@ public abstract class DFilter<T, S> implements Serializable{
 	 */
 	protected T value;
 	
-	/**
-	 * 
-	 * Objeto que el Filtro necesita para que pueda funcionar.
-	 * Por ejemplo:
-	 * 
-	 * Si este filtro representa un SelectOneMenu entonces este objeto
-	 * es la lista que el componente muestra es la vista.
-	 * 
-	 */
-	//protected  Object data;
-
 	/**
 	 * Variable para saber el tipo del filtro
 	 * Por ejemplo: SELECT_ONE_MENU

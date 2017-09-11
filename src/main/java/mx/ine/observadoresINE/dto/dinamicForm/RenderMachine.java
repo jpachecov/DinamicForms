@@ -2,6 +2,7 @@ package mx.ine.observadoresINE.dto.dinamicForm;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,6 @@ import org.apache.tika.detect.NNExampleModelDetector;
  * La vista renderiza sólo los filtros que pertenezcan
  * al estado actual de la máquina.
  * 
- * TODO ver si usamos mejor hashmap para hacer consultas constantes
  * 
  * @author jpachecov
  *
@@ -38,8 +38,9 @@ public class RenderMachine implements Serializable{
 	/**
 	 * Lista con todos los filtros
 	 */
-	@SuppressWarnings("rawtypes")
-	private List<DFilter> allFilters;
+	@SuppressWarnings("rawtypes")	
+	private Map<String, DFilter> filtersMap;
+	
 	
 	/**
 	 * Estado actual de la máquina
@@ -53,6 +54,7 @@ public class RenderMachine implements Serializable{
 	 * 
 	 * @param initial
 	 */
+	@SuppressWarnings("rawtypes")
 	public RenderMachine(RenderState initial){
 		this.current = initial;
 		for(DFilter ft : current.getFiltros()){
@@ -107,12 +109,7 @@ public class RenderMachine implements Serializable{
 	 */
 	@SuppressWarnings("rawtypes")
 	public DFilter F(String id) throws Exception{
-		for(DFilter f: current.getFiltros()){
-			if(f.getId().equals(id)){
-				return f;
-			}
-		}
-		throw new Exception("Filtro no encontrado");
+		return filtersMap.get(id);
 	}
 	
 	/**
@@ -125,21 +122,19 @@ public class RenderMachine implements Serializable{
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void obtenNuevoEstado(RenderState crt, DFilter f) throws Exception {
-		// TODO revisar si es mejor usar F
 		List<String> target = f.getFiTransition().getImagen(f.getValue());
 		for(String n : target){
-			for(DFilter ft: getAllFilters()){
-				if(n.equals(ft.getId())){
-					if(ft.getInitF() != null){
-						ft.init(f.getValue());
-					}
-					if(!ft.isVisible()){
-						ft.setVisible(true);
-						crt.getFiltros().add(ft);
-					}
+			DFilter ft = F(n);
+			if(n.equals(ft.getId())){
+				if(ft.getInitF() != null){
+					ft.init(f.getValue());
+				}
+				if(!ft.isVisible()){
+					ft.setVisible(true);
+					crt.getFiltros().add(ft);
 				}
 			}
-		}
+		}		
 	}
 	
 	public RenderState getCurrent() {
@@ -151,12 +146,12 @@ public class RenderMachine implements Serializable{
 	}
 
 	@SuppressWarnings("rawtypes")
-	public List<DFilter> getAllFilters() {
-		return allFilters;
+	public Map<String, DFilter> getFiltersMap() {
+		return filtersMap;
 	}
 
 	@SuppressWarnings("rawtypes")
-	public void setAllFilters(List<DFilter> allFilters) {
-		this.allFilters = allFilters;
+	public void setFiltersMap(Map<String, DFilter> filtersMap) {
+		this.filtersMap = filtersMap;
 	}
 }

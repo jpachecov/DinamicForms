@@ -31,6 +31,7 @@ public class CalendarFilter<D> extends DFilter<D, Date> {
 		this.data = data;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void init(D value) {
 		setData((D)getInitF().apply(value));

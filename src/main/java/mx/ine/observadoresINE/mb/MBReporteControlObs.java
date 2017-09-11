@@ -61,6 +61,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
     int opcionConsultarReporte;
     private Integer[] valoresSegundoNivel;
     private Boolean requeridoSegundoNivel;
+    private Boolean mostarTotalPDF;
 
     @Override
     public void init() {
@@ -473,14 +474,12 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
         reporteConTotales = true;
         tituloReporte = new StringBuffer();
         opcionConsultarReporte = 1;
+        mostarTotalPDF = true;
         switch (formFiltros.getValorPrimerFiltro()) {
             case 1:// Solicitudes de Acreditación
                 tituloReporte.append("Solicitudes de acreditación");
-                if (formFiltros.getNivelOficinas() == 1
-                        || formFiltros.getNivelOficinas() == 2) { // OC y JL se
-                    // obtiene el
-                    // valor del
-                    // CheckBox
+                if (formFiltros.getNivelOficinas() == 1 || formFiltros.getNivelOficinas() == 2) {
+                    // OC y JL se obtiene el valor del CheckBox
                     switch (formFiltros.getValorSegundoFiltroCheck().length) {
                         case 1:// Seleccionó sólo una opción
                             switch (formFiltros.getValorSegundoFiltroCheck()[0]) {
@@ -491,6 +490,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setPrimerColumna(" ");
                                     formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesNacional_OC");
                                     nombreReporte = "repSolAcreNacional";
+                                    mostarTotalPDF = false; //Mostrar Total en PDF
                                     break;
                                 case 1:// Entidad
                                     LOGGER.info("Reporte: Solicitudes de acreditación Entidad");
@@ -500,6 +500,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 1 ? "query_reporte_controlObs_SolicitudesEntidad_OC"
                                             : "query_reporte_controlObs_SolicitudesEntidad_JL");
                                     nombreReporte = "repSolAcreEntidad";
+                                    mostarTotalPDF = formFiltros.getNivelOficinas() == 1; //Mostrar Total en PDF para  JL
                                     break;
                                 case 2:// Agrupación
                                     LOGGER.info("Reporte: Solicitudes de acreditación Agrupación");
@@ -537,9 +538,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                 tituloReporte.append(" Por Entidad y Por Agrupación");
                                 formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesEntAgru_OC");
                                 nombreReporte = "repSolAcreEntAgru";
-                            } else {// Junta Local. Para JL pueden existir las
-                                // combinaciones (Entidad, Distrito) y
-                                // (Distrito,Agrupacion)
+                            } else {// Junta Local. Para JL pueden existir las combinaciones (Entidad, Distrito) y (Distrito,Agrupacion)
                                 List<Integer> opcionesSeleccionadas;
                                 opcionesSeleccionadas = Arrays.asList(formFiltros
                                         .getValorSegundoFiltroCheck());
@@ -550,6 +549,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setPrimerColumna(" ");
                                     formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesEntDist_JL");
                                     nombreReporte = "repSolAcreEntDist";
+                                    mostarTotalPDF = false; //Mostrar Total en PDF
                                 } else {// Selecciono Distrito y Agrupación
                                     LOGGER.info("Reporte: Solicitudes de acreditación Por Distrito y Por Agrupación");
                                     tituloReporte.append(" Por Agrupación");
@@ -570,8 +570,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             nombreReporte = "repSolAcreEntDistAgru";
                             break;
                     }
-                } else// Solicitudes de Acrecitación JD. Se obtiene el valor del
-                // Radio
+                } else// Solicitudes de Acrecitación JD. Se obtiene el valor del Radio
                 {
                     switch (formFiltros.getValorSegundoFiltroRadio()) {
                         case 1: // Por Distrito
@@ -581,6 +580,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             formFiltros.setPrimerColumna(" ");
                             formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesDistrito_JD");
                             nombreReporte = "repSolAcreDist";
+                            mostarTotalPDF = false;//Mostrar Total en PDF
                             break;
                         case 2:// Por Agrupación
                             LOGGER.info("Reporte: Solicitudes de acreditación Por Agrupación JD");
@@ -589,6 +589,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             formFiltros.setPrimerColumna(" ");
                             formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesAgrupacion_JD");
                             nombreReporte = "repSolAcreAgru";
+                            mostarTotalPDF = false;//Mostrar Total en PDF
                             break;
                     }
                 }
@@ -641,6 +642,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             formFiltros.setNombreQuery("query_reporte_controlObs_AcreditacionesNoApConcentrado_OC");
                             this.obtenerFiltroReporte();
                             nombreReporte = "repConAcreNoAprobadas";
+                            mostarTotalPDF = false;
                             break;
                         case 2:// Por Agrupación
                             LOGGER.info("Reporte: Acreditaciones No Aprobadas Por Agrupación OC");
@@ -679,6 +681,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     : "query_reporte_controlObs_AcreditacionesNoApConcentrado_JD");
                             this.obtenerFiltroReporte();
                             nombreReporte = "repConAcreNoAprob";
+                            mostarTotalPDF = false;
                             break;
                         case 5: // Listado
                             LOGGER.info("Reporte: Listado Acreditaciones No Aprobadas");
@@ -713,15 +716,17 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
     public void obtenerEncabezadoPDF() {
         Map<String, Serializable> parametrosPDF;
         parametrosPDF = new LinkedHashMap<>();
-        parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS,hlpControlObs.getColumnas());
+        parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, hlpControlObs.getColumnas());
         parametrosPDF.put(Constantes.PARAMETRO_STRING_TITULO, tituloReporte);
         parametrosPDF.put(Constantes.PARAMETRO_STRING_FILENAME, nombreReporte);
-        parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, dtoParametros.getListaDatos().size());
-        if(formFiltros.getNivelOficinas()== 1 || formFiltros.getNivelOficinas()==2 ){
+        if (mostarTotalPDF) {//Mostrar total global en encabezado PDF
+            parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, dtoParametros.getListaDatos().size());
+        }
+        if (formFiltros.getNivelOficinas() == 1 || formFiltros.getNivelOficinas() == 2) {
             parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario().getEstadoSeleccionado());
-        }else{
-           parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario().getEstadoSeleccionado());
-	   parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, getUsuario().getDistritoSeleccionado()); 
+        } else {
+            parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, getUsuario().getEstadoSeleccionado());
+            parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, getUsuario().getDistritoSeleccionado());
         }
         setParametros(parametrosPDF);
     }

@@ -288,7 +288,7 @@ public class MBReportesCursos extends MBReportesMenu {
 	 */
 	public void exportPDF() {
 		try {
-			setParametros(filtroReportes.getDatosPdf(dtoParametros.getListaDatos()));
+			setParametros(filtroReportes.getDatosPdf(dtoParametros.getListaDatos() , "cursos"  ));
 			super.exportPDF();
 		} catch (Exception e) {
 //			addErrorMessage("Ocurrió un error al exportar archivo PDF");

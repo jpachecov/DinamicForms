@@ -507,6 +507,9 @@ public class MBObservadores extends MBGeneric implements Serializable {
 	 */
 	public void escondeNombreAgrupacion() {
 		LOGGER.info("Entre a escondeNombreAgrupacion ");
+		this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario); //   para actualizar la lista de valores de estatus
+		this.observadorCaptura.setIdEvaluacion(null);
+		this.obtenReglas();
 		this.busqueda = "";
 		if (this.tipoSolicitud > 0) {
 			this.habilitaAgrupacion = true;
@@ -563,13 +566,13 @@ public class MBObservadores extends MBGeneric implements Serializable {
 	 * de combos que tenemos en la vista, que estan asociados a una regla en especifico
 	 */
 	public void obtenReglas() {
+		this.regla1 = false;
+		this.regla2 = false;
+		this.regla3 = false;
 		if (this.observadorCaptura.getIdEvaluacion() != null) {
 			this.listaReglas = obtenReglasE(this.observadorCaptura);
 			Boolean bandera = false;
 			DTOReglasEvalucaion reglaMetodo = new DTOReglasEvalucaion();
-			this.regla1 = false;
-			this.regla2 = false;
-			this.regla3 = false;
 			for (DTOReglasEvalucaion dtoR : listaReglas) {
 				if (dtoR.getDTOReglasEvalucaionPK().getIdRegla().equals(new Integer(1))) {
 					bandera = true;
@@ -577,10 +580,15 @@ public class MBObservadores extends MBGeneric implements Serializable {
 					break;
 				}
 			}
-			
 			if (this.listaEvaluaciones != null && bandera) {
 				for (DTOCEvaluacion dto : listaEvaluaciones) {
-					if (this.observadorCaptura.getIdEvaluacion().equals(new Short("" + dto.getDTOCEvaluacionPK().getIdEvaluacion() + ""))) {
+					if (this.observadorCaptura.getIdEvaluacion().
+							equals(new Short("" + dto.getDTOCEvaluacionPK().getIdEvaluacion() + ""))) {
+						if(this.observadorCaptura.getIdAgupacion() != null ){
+						reglaMetodo.setIdAgrupacionCurso(new Integer (this.observadorCaptura.getIdAgupacion()));
+						}else{
+							reglaMetodo.setIdAgrupacionCurso(null);
+						}
 						this.listaCursos = obtenListaCursos(this.usuario, reglaMetodo);
 						break;//TODO aqui podemos meter el id_agrupacion
 					}
@@ -588,7 +596,6 @@ public class MBObservadores extends MBGeneric implements Serializable {
 			} else {
 				this.listaCursos = new ArrayList<DTOCursos>();
 			}
-
 			if (!listaReglas.isEmpty()) {
 				for (DTOReglasEvalucaion dto : listaReglas) {
 					if (dto.getDTOReglasEvalucaionPK().getIdRegla().equals(1)) {
@@ -614,23 +621,13 @@ public class MBObservadores extends MBGeneric implements Serializable {
 								this.observadorCaptura.setIdJustificacion(new Short("0"));
 								this.observadorCaptura.setIdCurso(null);
 								this.habilitaJustificacion = true;
-//								this.regla1 = false;
-//								this.regla2 = true;
-//								this.regla3 = true;
-							} else if (dto.getDTOCEvaluacionPK().getIdEvaluacion()
-									.equals(listaEvaluaciones.size() )) {
+							} else if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size() )) {
 								LOGGER.info("Encontre al PENDIENTE");
 								this.observadorCaptura.setIdJustificacion(null);
 								this.observadorCaptura.setIdCurso(null);
 								this.observadorCaptura.setFechaSesion(null);
-//								this.regla1 = false;
-//								this.regla2 = false;
-//								this.regla3 = false;
 							} else {
 								this.habilitaJustificacion = false;
-//								this.regla1 = true;
-//								this.regla2 = true;
-//								this.regla3 = true;
 								if (this.observadorCaptura.getIdJustificacion() != null) {
 
 								} else {
@@ -642,19 +639,12 @@ public class MBObservadores extends MBGeneric implements Serializable {
 					}
 				}
 			} else {
-				this.regla1 = false;
-				this.regla2 = false;
-				this.regla3 = false;
 				LOGGER.info("Encontre al PENDIENTE");
 				this.observadorCaptura.setIdJustificacion(null);
 				this.observadorCaptura.setIdCurso(null);
 				this.observadorCaptura.setFechaSesion(null);
 			}
-		} else {
-			this.regla1 = false;
-			this.regla2 = false;
-			this.regla3 = false;
-		}
+		} 
 	}
 	
 	/**
@@ -893,7 +883,25 @@ public class MBObservadores extends MBGeneric implements Serializable {
 
 	private List<DTOCEvaluacion> obtenListaEvaluaciones(DTOUsuarioLogin user) {
 		List<DTOCEvaluacion> resultado = bsdObservadorInterface.obtenListaEvaluaciones(user);
-		return resultado;
+		if(this.tipoSolicitud.equals(1)){
+			if(this.observadorCaptura.getIdAgupacion() != null){
+				
+			}else{
+				this.observadorCaptura.setIdAgupacion(new Short ("0"));
+			}
+			
+			return resultado;
+		}else { // tipo solicitud es =
+			DTOCEvaluacion tmp = new DTOCEvaluacion();
+			for (DTOCEvaluacion dtocEvaluacion : resultado) {
+				if(dtocEvaluacion.getDTOCEvaluacionPK().getIdEvaluacion().equals(3)){ // Aqui esta en duro 
+					tmp = dtocEvaluacion;
+					break;
+				}
+			}
+			LOGGER.info("El resultado de eliminar el elemento es ::" + resultado.remove(tmp));
+			return resultado;
+		}	
 	}
 
 	private List<DTOAgrupaciones> obtenListaAgrupaciones(DTOUsuarioLogin user) {

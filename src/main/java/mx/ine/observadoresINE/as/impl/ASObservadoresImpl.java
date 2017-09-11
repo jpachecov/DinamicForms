@@ -290,14 +290,23 @@ public class ASObservadoresImpl implements ASObservadoresInterface {
 			LOGGER.info("El origen del curso  es :: " + origen);
 			Integer edo = user.getIdEstado() > 0 ? user.getIdEstado() : user.getIdEstadoSeleccionado();
 			Integer dtt = user.getIdDistrito() > 0 ? user.getIdDistrito()  : user.getIdDistritoSeleccionado();
-			return daoObservadores.obtenCursos(user.getIdProcesoElectoral(), user.getIdDetalleProceso(), origen, edo, dtt );
-																			
+			
+			if(evaluacion.getIdAgrupacionCurso() != null){
+				LOGGER.info("EN EL IF DE obtenListaCursos con el idAgrupacion := " + evaluacion.getIdAgrupacionCurso());
+				return daoObservadores.obtenCursosAgrupaciones(user.getIdProcesoElectoral(), user.getIdDetalleProceso(), origen, edo, dtt , evaluacion.getIdAgrupacionCurso() );
+			} else{
+				LOGGER.info("EN EL ELSE " );
+				return daoObservadores.obtenCursos(user.getIdProcesoElectoral(), user.getIdDetalleProceso(), origen, edo, dtt );
+			}			
+			
 		} catch (Exception e) {
 			LOGGER.error("Ups! se genero un error en  obtenListaCursos ::", e);
 			return new ArrayList<DTOCursos>();
 		}
 	}
 
+	
+	
 	@Override
 	public List<DTOCJustificaciones> obtenerJustificacion(DTOUsuarioLogin user) {
 		return daoObservadores.obtenerJustificacion(user);

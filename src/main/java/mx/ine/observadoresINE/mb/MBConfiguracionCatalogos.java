@@ -1403,12 +1403,13 @@ public class MBConfiguracionCatalogos implements Serializable {
 				int tamañoDetalles = listaDetalles.size() - 1;
 				for (int i = 0; i < tamañoDetalles; i++) {
 					// TODO AQUI TAMBIEN
-//					listValida = bsdConfiguracionCatalogos.getCEvaluaciones(
-//							listaDetalles.get(i).getIdProcesoElectoral(),
-//							listaDetalles.get(i).getIdDetalleProceso());
+					listValida = bsdConfiguracionCatalogos.getCEvaluaciones(
+							listaDetalles.get(i).getIdProcesoElectoral(),
+							listaDetalles.get(i).getIdDetalleProceso());
 
-					listValida = bsdConfiguracionCatalogos.getCEvaluaciones(9,
-							38);
+					// listValida =
+					// bsdConfiguracionCatalogos.getCEvaluaciones(9,
+					// 38);
 
 					if (listValida.size() > 0) {
 						listaDetallesConsulta.add(listaDetalles.get(i));
@@ -4881,9 +4882,9 @@ public class MBConfiguracionCatalogos implements Serializable {
 		// cargamos ese detalle-proceso a nuestro objeto
 		if (listaDetalles.size() == 2) {
 			// TODO AQUI
-//			procesoDetalle = listaDetalles.get(0);
-			procesoDetalle.setIdProcesoElectoral(9);
-			procesoDetalle.setIdDetalleProceso(38);
+			procesoDetalle = listaDetalles.get(0);
+			// procesoDetalle.setIdProcesoElectoral(9);
+			// procesoDetalle.setIdDetalleProceso(38);
 			comboDetalleUnico = true;
 			cambiaCombo();
 		}
@@ -4902,9 +4903,9 @@ public class MBConfiguracionCatalogos implements Serializable {
 					if (detalle.getIdDetalleProceso().equals(
 							idDetalleSeleccionado)) {
 						// TODO AQUI
-//						procesoDetalle = detalle;
-						 procesoDetalle.setIdProcesoElectoral(9);
-						 procesoDetalle.setIdDetalleProceso(38);
+						procesoDetalle = detalle;
+						// procesoDetalle.setIdProcesoElectoral(9);
+						// procesoDetalle.setIdDetalleProceso(38);
 					}
 				}
 			}

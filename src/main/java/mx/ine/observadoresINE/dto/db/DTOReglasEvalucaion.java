@@ -21,6 +21,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import javax.validation.constraints.Size;
 
 import mx.org.ine.servicios.dto.DTOBase;
@@ -45,13 +46,20 @@ public class DTOReglasEvalucaion extends DTOBase implements Serializable {
     @Column(name = "FECHA_HORA")
     @Temporal(TemporalType.TIMESTAMP)
     private Date fechaHora;
-    
     @Column (name = "ORIGEN_CURSO")
     private Integer origenCurso;
-    
+    @Transient
+    private Integer idAgrupacionCurso;
     
  
 
+	public Integer getIdAgrupacionCurso() {
+		return idAgrupacionCurso;
+	}
+
+	public void setIdAgrupacionCurso(Integer idAgrupacionCurso) {
+		this.idAgrupacionCurso = idAgrupacionCurso;
+	}
 	@JoinColumns({
         @JoinColumn(name = "ID_PROCESO_ELECTORAL", referencedColumnName = "ID_PROCESO_ELECTORAL", insertable = false, updatable = false),
         @JoinColumn(name = "ID_DETALLE_PROCESO", referencedColumnName = "ID_DETALLE_PROCESO", insertable = false, updatable = false),

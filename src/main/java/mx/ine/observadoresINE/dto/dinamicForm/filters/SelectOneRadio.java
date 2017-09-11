@@ -22,31 +22,22 @@ public class SelectOneRadio<S, T> extends DFilter<S, T> implements LabelValueInt
 	 */
 	private static final long serialVersionUID = -9145084702861942667L;
 
-	private S value;
 	private T data;
-	private S itemV;
-	private String itemL;
 
 	private TransitionFunction<T, String> labelFunction;
 	
 	private TransitionFunction<T, String> valueFunction;
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void init() {
 		setData((T)getInitF().apply(getValue()));
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void init(S value) {
 		setData((T)getInitF().apply(getValue()));
-	}
-	
-	public S getValue() {
-		return value;
-	}
-
-	public void setValue(S value) {
-		this.value = value;
 	}
 
 	public T getData() {
@@ -55,22 +46,6 @@ public class SelectOneRadio<S, T> extends DFilter<S, T> implements LabelValueInt
 
 	public void setData(T data) {
 		this.data = data;
-	}
-
-	public S getItemV() {
-		return itemV;
-	}
-
-	public void setItemV(S itemV) {
-		this.itemV = itemV;
-	}
-
-	public String getItemL() {
-		return itemL;
-	}
-
-	public void setItemL(String itemL) {
-		this.itemL = itemL;
 	}
 
 	@Override

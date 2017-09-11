@@ -14,6 +14,7 @@ import java.util.List;
  * @author jpachecov
  *
  */
+@SuppressWarnings("rawtypes")
 public class RenderState implements MachineState<List<DFilter>>, Serializable{
 
 

@@ -72,5 +72,8 @@ public interface DAOObservadoresInterface {
 
 	public DTOCJustificaciones obtenerJustificacionNA(short idProcesoElectoral, short idDetalleProceso);
 
+	public List<DTOCursos> obtenCursosAgrupaciones(Integer idProcesoElectoral, Integer idDetalleProceso, Integer origen,
+			Integer edo, Integer dtt, Integer idAgrupacionCurso);
+
 	 
 }
