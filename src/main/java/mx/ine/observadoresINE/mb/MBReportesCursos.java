@@ -162,7 +162,7 @@ public class MBReportesCursos extends MBReportesMenu {
 					+ " to_char( o.FECHA_SOLICITUDES , 'dd/mm/yyyy' ) fechaSolicitud   , to_char( fecha , 'dd/mm/yyyy' ) fechaCurso , "
 					+ " (  TO_CHAR(HORA_INICIO,'HH24:MI') || ' - ' ||  TO_CHAR(HORA_FIN,'HH24:MI') || 'hrs.' ) horario , "
 					+ " (c.nombre ||' '|| c.apellido_paterno ||' '|| c.apellido_materno ) impartido , r.DESCRIPCION  cargo , "
-					+ " to_char(  o.FECHA_ACREDITACION  , 'dd/mm/yyyy' ) fechaAcreditacion from  observadores o  join cursos c on "
+					+ " to_char(  o.FECHA_SESION  , 'dd/mm/yyyy' ) fechaAcreditacion from  observadores o  join cursos c on "
 					+ " o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
 					+ " o.id_curso = c.id_curso   join C_cargo_responsable r  on r.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and "
 					+ " r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO      -subFiltros- order by -ordenamiento-  ";

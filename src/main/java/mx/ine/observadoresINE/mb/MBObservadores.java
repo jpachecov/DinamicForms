@@ -789,6 +789,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		this.tipoSolicitud = this.observadorCaptura.getIdAgupacion() != null ? 1 : 0;
 		if (this.observadorCaptura.getIdAgupacion() != null) {
 			this.busqueda = this.obtenNombreAgrupacion(this.observadorCaptura.getIdAgupacion());
+			this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario);//TODO
 		}
 		this.escondeNombreAgrupacionModifica();
 		this.muestraAgrupacion();

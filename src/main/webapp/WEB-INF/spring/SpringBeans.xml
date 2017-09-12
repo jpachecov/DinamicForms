@@ -77,7 +77,8 @@
 		<constructor-arg value="keystore/certINE.jks"/>
 	</bean>
 
+	<jee:jndi-lookup id="jndiCertPassWS" jndi-name="${jndi.certPass.ws}"/>
 	<bean id="certPass" class="java.lang.String">
-		<constructor-arg value="pwd_llave_ine"/>
+		<constructor-arg value="#{jndiCertPassWS}"/>
 	</bean>
 </beans>

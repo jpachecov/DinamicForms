@@ -84,15 +84,15 @@ public class FiltroSeguridadComplementaria extends UsernamePasswordAuthenticatio
         this.obtainPassword(request);
              
         if (!ipAddress.equalsIgnoreCase("127.0.0.1")) {
-            // cuando NO es localhost procede a validar captcha
+            //cuando NO es localhost procede a validar captcha
             codigoSeguridad = this.obtainSecurityCode(request);
             captcha = this.obtainCaptcha(request);
             validador = this.validaCaptcha(captcha, codigoSeguridad);
-            if (validador) {
+        if (validador) {
                 auth = autenticador(request, response);
             }
         } else {
-            // cuando es localhost no valida captcha
+            //cuando es localhost no valida captcha
             auth = autenticador(request, response);
         }
         return auth;

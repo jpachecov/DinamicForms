@@ -58,7 +58,9 @@ public class ASObservadoresImpl implements ASObservadoresInterface {
 
 	private void generaEtiquetas(DTOObservadores obsTmp) {
 		try {
-
+			
+			LOGGER.info("El observador contiene el idEvaluacion:::::" + obsTmp.getIdEvaluacion());
+			
 			List<DTOEstado> listaEdos = daoServiciosGenerales.obtenEstados();
 			for (DTOEstado dtoEstado : listaEdos) {
 				if (dtoEstado.getIdEstado().equals(new Integer(obsTmp.getIdEstadoDomicilio()))) {
@@ -131,9 +133,22 @@ public class ASObservadoresImpl implements ASObservadoresInterface {
 			}
 			LOGGER.info("Saliendo del ciclo de Escolaridades");
 
-			List<DTOCEvaluacion> listaEvaluaciones = daoObservadores.obtenListaEvaluaciones(
+			
+			List<DTOCEvaluacion>  listaEvaluaciones =  daoObservadores.obtenListaEvaluaciones(
 					obsTmp.getDTOObservadoresPK().getIdProcesoElectoral(),
-					obsTmp.getDTOObservadoresPK().getIdDetalleProceso());
+					obsTmp.getDTOObservadoresPK().getIdDetalleProceso());	;
+			
+			if(!(obsTmp.getIdAgupacion() != null)){
+				DTOCEvaluacion tmp = new DTOCEvaluacion();
+				for (DTOCEvaluacion dtocEvaluacion : listaEvaluaciones) {
+					if(dtocEvaluacion.getDTOCEvaluacionPK().getIdEvaluacion().equals(3)){
+						tmp = dtocEvaluacion;
+					}
+				}
+				
+				listaEvaluaciones.remove(tmp);
+			} 
+			
 			for (DTOCEvaluacion dtoE : listaEvaluaciones) {
 				if (dtoE.getDTOCEvaluacionPK().getIdEvaluacion().equals(new Integer(obsTmp.getIdEvaluacion()))) {
 					obsTmp.setEtiquetaEvaluacion(dtoE.getDescripcion());
@@ -144,11 +159,23 @@ public class ASObservadoresImpl implements ASObservadoresInterface {
 								dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(2) ){
 							
 							if (obsTmp.getIdCurso() != null) {
-								List<DTOCursos> listaCurso = daoObservadores.obtenCursos(
+								List<DTOCursos> listaCurso = null;
+								
+								if(obsTmp.getIdAgupacion() != null ){
+									listaCurso = daoObservadores.obtenCursosAgrupaciones( 
+											new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
+											new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()),   
+													dtoReglasEvalucaion.getOrigenCurso().intValue() , 
+											obsTmp.getIdEstado().intValue(), obsTmp.getIdDistrito().intValue(), new Integer (obsTmp.getIdAgupacion()) );
+								
+								} else{
+								listaCurso = daoObservadores.obtenCursos(
 										new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
 										new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()),  dtoReglasEvalucaion.getOrigenCurso() != null ? 
 												dtoReglasEvalucaion.getOrigenCurso() : 0	, 
 										obsTmp.getIdEstado().intValue(), obsTmp.getIdDistrito().intValue()); 
+								}
+								
 								for (DTOCursos dtoCurso : listaCurso) {
 									if (dtoCurso.getPk().getIdCurso().equals(obsTmp.getIdCurso())) {
 										obsTmp.setEtiquetaCurso(dtoCurso.getEtiqueta());  
