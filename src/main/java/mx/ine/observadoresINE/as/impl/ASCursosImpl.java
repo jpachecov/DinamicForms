@@ -56,10 +56,10 @@ public class ASCursosImpl implements ASCursosInterface {
 	@Override
 	@Transactional(readOnly = false, rollbackFor={Exception.class})
 	public void guardarOActualizar(DTOCursos dto) throws Exception {
-		if(dto.getIdEstadoDomicilio().equals(0)){
+		if(dto.getIdEstadoDomicilio() == null || dto.getIdEstadoDomicilio().equals(0)){
 			dto.setIdEstadoDomicilio(null);
 		}
-		if(dto.getIdMunicipioDomicilio().equals(0)){
+		if(dto.getIdMunicipioDomicilio() == null || dto.getIdMunicipioDomicilio().equals(0)){
 			dto.setIdMunicipioDomicilio(null);
 		}
 		daoCursos.guardarOActualizar(dto);

@@ -411,7 +411,8 @@ public class DTOReportesParametros implements Serializable {
                 encabezadoTabla.setHeight((short) 500);
             }
             for (Integer index : hlp.getIndex()) {
-                if (hlp.getTipoFila().get(index) != 3 && tipoEncabezado == 1) {
+                //if (hlp.getTipoFila().get(index) != 3 && tipoEncabezado == 1) { se quitan los totales del encabezado
+                if (hlp.getTipoFila().get(index) == 1  && tipoEncabezado == 1) {
                     HSSFCell celdaEncabezadoTabla = encabezadoTabla.createCell(primerasColumnas.get(primerColumna));
                     celdaEncabezadoTabla.setCellStyle(estiloEncabezadoCampos);
                     CellRangeAddress cellRangeAddress = new CellRangeAddress(

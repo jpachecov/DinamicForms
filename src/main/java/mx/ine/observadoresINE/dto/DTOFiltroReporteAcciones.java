@@ -52,6 +52,14 @@ public class DTOFiltroReporteAcciones implements Serializable{
 		if(!palabra.equals("cursos")){
 		 n_rep = Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion");
 		 n_pdf = Utilidades.mensajeProperties("etiqueta_reportes_accionesDePromocion_pdf");
+		
+		 if(getTipoReporte().equals("C")){
+				parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, sumaTotales(datos) );
+			}
+			if(getTipoReporte().equals("L")){
+				parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, datos.size() );
+			}
+		 
 		} else {
 			 n_rep = "Reportes de Cursos de Capacitación ";
 			 n_pdf = " RepoCursosCapa";
@@ -68,15 +76,8 @@ public class DTOFiltroReporteAcciones implements Serializable{
 			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_ESTADO, estado);
 			parametrosPDF.put(Constantes.PARAMETRO_OBJECT_DISTRITO, distrito);
 		}
-		if(getTipoReporte().equals("C")){
-			parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, sumaTotales(datos) );
-		}
-		if(getTipoReporte().equals("L")){
-			parametrosPDF.put(Constantes.PARAMETRO_STRING_TOTALES, datos.size() );
-		}
+		
 		return parametrosPDF;
-		
-		
 	}
 	
 	

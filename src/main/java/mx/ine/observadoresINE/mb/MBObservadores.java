@@ -340,7 +340,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 				this.usuario.getIdDetalleProceso().shortValue(), ((Integer) Integer.parseInt("0")).shortValue());
 		this.observadorCaptura.setIdEstado(this.usuario.getIdEstado() > 0 ? this.usuario.getIdEstado().shortValue()
 				: this.usuario.getIdEstadoSeleccionado().shortValue());
-		this.observadorCaptura.setIdDistrito(this.usuario.getIdDistrito() > 0 //TODO mayor a 0 o diferente de 0 ??
+		this.observadorCaptura.setIdDistrito(this.usuario.getIdDistrito() > 0  
 				? this.usuario.getIdDistrito().shortValue() : this.usuario.getIdDistritoSeleccionado().shortValue());
 		this.observadorCaptura.setDTOObservadoresPK(tmpPK);
 		this.observadorCaptura.setClaveElector(claveCompleta);
@@ -507,7 +507,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 	 */
 	public void escondeNombreAgrupacion() {
 		LOGGER.info("Entre a escondeNombreAgrupacion ");
-		this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario); //   para actualizar la lista de valores de estatus
+		this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario);  
 		this.observadorCaptura.setIdEvaluacion(null);
 		this.obtenReglas();
 		this.busqueda = "";
@@ -590,7 +590,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 							reglaMetodo.setIdAgrupacionCurso(null);
 						}
 						this.listaCursos = obtenListaCursos(this.usuario, reglaMetodo);
-						break;//TODO aqui podemos meter el id_agrupacion
+						break; 
 					}
 				}
 			} else {
@@ -789,10 +789,10 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		this.tipoSolicitud = this.observadorCaptura.getIdAgupacion() != null ? 1 : 0;
 		if (this.observadorCaptura.getIdAgupacion() != null) {
 			this.busqueda = this.obtenNombreAgrupacion(this.observadorCaptura.getIdAgupacion());
-			this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario);//TODO
+			this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario); 
 		}
 		this.escondeNombreAgrupacionModifica();
-		this.muestraAgrupacion();
+		this.muestraAgrupacionModifica();
 		this.obtenReglas();
 		this.obtenMunicipiosSinBorrar();
 	}
@@ -818,6 +818,21 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		this.parteClaveElector3 = claveElector.substring(12, 18);
 	}
 
+	public void muestraAgrupacionModifica() {
+		try {
+			this.listaAgrupaciones = this.obtenListaAgrupaciones(this.usuario);
+			for (DTOAgrupaciones dto : this.listaAgrupaciones) {
+				if (dto.getNombreAgrupacion().equals(busqueda)) {
+					this.observadorCaptura.setIdAgupacion(dto.getPk().getIdAgrupacion().shortValue());
+					break;
+				}
+			}
+		} catch (Exception e) {
+			LOGGER.error(" Ups ! se genero un error en muestraAgrupacion ::  ", e);
+		}
+	}
+
+	
 	public void muestraAgrupacion() {
 		try {
 			this.listaAgrupaciones = this.obtenListaAgrupaciones(this.usuario);
@@ -827,6 +842,12 @@ public class MBObservadores extends MBGeneric implements Serializable {
 					break;
 				}
 			}
+			this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario);  
+			this.observadorCaptura.setIdEvaluacion(null);
+			this.observadorCaptura.setIdCurso(null);
+			this.observadorCaptura.setIdJustificacion(null);
+			this.observadorCaptura.setFechaSesion(null);
+			this.obtenReglas();
 		} catch (Exception e) {
 			LOGGER.error(" Ups ! se genero un error en muestraAgrupacion ::  ", e);
 		}

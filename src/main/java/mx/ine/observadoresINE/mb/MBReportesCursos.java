@@ -66,30 +66,37 @@ public class MBReportesCursos extends MBReportesMenu {
 
 	public void obtenCurso() {
 		this.filtroReportes.setOrigenCurso(this.regresaorigenCurso());
-		this.listaCursosMostrar = new ArrayList<DTOCursos>();  // id_agrupacion  is null
+		this.listaCursosMostrar = new ArrayList<DTOCursos>();   
 		if (this.filtroReportes.getOrigenCurso().length() >= 1) {
 			LOGGER.info("El origen curso es ::: " + this.filtroReportes.getOrigenCurso() );
-			
-			
 			this.listaCursosMostrar = this.obtenListaCursos(this.filtroReportes);
 		}
 		LOGGER.info("obtenCurso");
 	}
 
 	private String regresaorigenCurso() {
-		String resultado = ""; //TODO
-		
+		String resultado = ""; 
 		if(this.filtroReportes.getSelectTipoCurso().length == 1){
 			resultado += this.filtroReportes.getSelectTipoCurso()[0].equals("1") ? " and  id_agrupacion  is not null " : 
 		 		" and id_agrupacion  is null " ;
-			} else{
+			} else if (this.filtroReportes.getSelectTipoCurso().length == 2){
 				resultado = " ";
+			}else{
+				resultado = "";
+				limpiaTabla();
 			}
 		
 		 
 		return resultado;
 	}
 
+	public void limpiaTabla(){
+		LOGGER.info("En Limpia Tabla");
+		this.muestraTabla = false;
+		this.dtoParametros = new DTOReportesParametros();
+		this.dtoParametros.setListaDatos(new ArrayList<Object[]>());
+	}
+	
 	private List<DTOCursos> obtenListaCursos(DTOFiltroReporteAcciones filtros) {
 		this.filtroReportes.setQueryCurso(this.construyeQuery(filtros));
 		List<DTOCursos> resultado = bsdReportesCursos.obtenListaCursos(filtros);
@@ -158,14 +165,16 @@ public class MBReportesCursos extends MBReportesMenu {
 			return queryGeneral;
 		} else {
 			  queryGeneral = "select (o.nombre ||' '|| o.apellido_paterno ||' '|| o.apellido_materno ) nombre , "
-					+ " case when origen_curso = 1 then 'INE'  when origen_curso = 2 then 'OPLE' end origen , "
+					+ " case when origen_curso = 1 then 'INE'  when origen_curso = 2 then 'OPLE'  when origen_curso = 3  then NOMBRE_AGRUPACION end origen , "
 					+ " to_char( o.FECHA_SOLICITUDES , 'dd/mm/yyyy' ) fechaSolicitud   , to_char( fecha , 'dd/mm/yyyy' ) fechaCurso , "
 					+ " (  TO_CHAR(HORA_INICIO,'HH24:MI') || ' - ' ||  TO_CHAR(HORA_FIN,'HH24:MI') || 'hrs.' ) horario , "
 					+ " (c.nombre ||' '|| c.apellido_paterno ||' '|| c.apellido_materno ) impartido , r.DESCRIPCION  cargo , "
 					+ " to_char(  o.FECHA_SESION  , 'dd/mm/yyyy' ) fechaAcreditacion from  observadores o  join cursos c on "
 					+ " o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
 					+ " o.id_curso = c.id_curso   join C_cargo_responsable r  on r.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and "
-					+ " r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO      -subFiltros- order by -ordenamiento-  ";
+					+ " r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO  LEFT  join  agrupaciones A   on  A.ID_AGRUPACION =  "
+					+ " c.ID_AGRUPACION   and A.id_proceso_electoral =  c.ID_PROCESO_ELECTORAL   "
+					+ " and   A.id_detalle_proceso = c.ID_DETALLE_PROCESO      -subFiltros- order by -ordenamiento-  ";
 			  whereSubConsulta = " Where c.id_proceso_electoral = " + this.filtroReportes.getUsuario().getIdProcesoElectoral() + " and " +
 					 " c.id_detalle_proceso = " + this.filtroReportes.getUsuario().getIdDetalleProceso() + 
 					"  and c.id_estado = " +  this.filtroReportes.getUsuario().getIdEstadoSeleccionado() + "  "

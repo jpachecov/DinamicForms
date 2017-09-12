@@ -50,7 +50,7 @@
 								itemDisabled="true" noSelectionOption="true" />
 							<f:selectItem itemLabel="Por fecha del curso" itemValue="0" />
 							<f:selectItem itemLabel="Impartido por" itemValue="1" />
-							<p:ajax event="change"  update="mensajeLista"/>
+							<p:ajax event="change" listener="#{mbReporte.limpiaTabla()}" update="mensajeLista @form"/>
 							<p:ajax event="change" onstart="PF('progress').block()"
 								onsuccess="PF('progress').unblock()" />
 						</p:selectOneMenu>
@@ -61,7 +61,7 @@
 							requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}">
 							<f:selectItem itemLabel="Ascendente" itemValue="1" />
 							<f:selectItem itemLabel="Descendente" itemValue="2" />
-							<p:ajax process="@this" update="msgOrdenamiento @form" />
+							<p:ajax process="@this" listener="#{mbReporte.limpiaTabla()}" update="msgOrdenamiento @form" />
 						</p:selectOneRadio>
 						<p:message id="msgOrdenamiento" for="ordenamiento" />
 					</h:panelGrid>
@@ -127,9 +127,9 @@
 						<f:selectItem itemLabel="Seleccione..." itemValue="#{null}" itemDisabled="true" noSelectionOption="true" />
 						<f:selectItems value="#{mbReporte.listaCursosMostrar}" var="curso" itemLabel="#{curso.etiqueta}" 
 					itemValue="#{curso.getPk().idCurso}" />
-						<p:ajax event="change" update="mensajeIDCurso" />
+						<p:ajax event="change" listener="#{mbReporte.limpiaTabla()}"  update="@form" />
 						<p:ajax event="change" onstart="PF('progress').block()"
-							onsuccess="PF('progress').unblock()" />
+							onsuccess="PF('progress').unblock()"  />
 					</p:selectOneMenu>
 					<p:messages id="mensajeIDCurso" for="listaCursosFiltros"  />
 				</div>

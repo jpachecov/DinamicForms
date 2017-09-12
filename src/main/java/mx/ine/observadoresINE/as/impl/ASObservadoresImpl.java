@@ -156,24 +156,28 @@ public class ASObservadoresImpl implements ASObservadoresInterface {
 					List<DTOReglasEvalucaion> listaReglas = daoObservadores.obtenReglasE(obsTmp);
 					for (DTOReglasEvalucaion dtoReglasEvalucaion : listaReglas) {
 						if(dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(1) || 
-								dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(2) ){
+								dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(2) ||
+								dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(3) ){
 							
 							if (obsTmp.getIdCurso() != null) {
 								List<DTOCursos> listaCurso = null;
 								
-								if(obsTmp.getIdAgupacion() != null ){
+							
+								
+								
+								listaCurso = daoObservadores.obtenCursos(
+										new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
+										new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()),  dtoReglasEvalucaion.getOrigenCurso() != null ? 
+												dtoReglasEvalucaion.getOrigenCurso() : 0	, 
+										obsTmp.getIdEstado().intValue(), obsTmp.getIdDistrito().intValue()); 
+								
+								if( !(obsTmp.getIdAgupacion() != null)  && dtoReglasEvalucaion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(3) ){
 									listaCurso = daoObservadores.obtenCursosAgrupaciones( 
 											new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
 											new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()),   
 													dtoReglasEvalucaion.getOrigenCurso().intValue() , 
 											obsTmp.getIdEstado().intValue(), obsTmp.getIdDistrito().intValue(), new Integer (obsTmp.getIdAgupacion()) );
 								
-								} else{
-								listaCurso = daoObservadores.obtenCursos(
-										new Integer(obsTmp.getDTOObservadoresPK().getIdProcesoElectoral()),
-										new Integer(obsTmp.getDTOObservadoresPK().getIdDetalleProceso()),  dtoReglasEvalucaion.getOrigenCurso() != null ? 
-												dtoReglasEvalucaion.getOrigenCurso() : 0	, 
-										obsTmp.getIdEstado().intValue(), obsTmp.getIdDistrito().intValue()); 
 								}
 								
 								for (DTOCursos dtoCurso : listaCurso) {
@@ -318,7 +322,7 @@ public class ASObservadoresImpl implements ASObservadoresInterface {
 			Integer edo = user.getIdEstado() > 0 ? user.getIdEstado() : user.getIdEstadoSeleccionado();
 			Integer dtt = user.getIdDistrito() > 0 ? user.getIdDistrito()  : user.getIdDistritoSeleccionado();
 			
-			if(evaluacion.getIdAgrupacionCurso() != null){
+			if(evaluacion.getIdAgrupacionCurso() != null && evaluacion.getDTOReglasEvalucaionPK().getIdEvaluacion().equals(3)){
 				LOGGER.info("EN EL IF DE obtenListaCursos con el idAgrupacion := " + evaluacion.getIdAgrupacionCurso());
 				return daoObservadores.obtenCursosAgrupaciones(user.getIdProcesoElectoral(), user.getIdDetalleProceso(), origen, edo, dtt , evaluacion.getIdAgrupacionCurso() );
 			} else{

@@ -53,7 +53,7 @@
 					style="width:100%" scrollHeight="250" requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
 					required="true" 
 					onkeypress="if (event.keyCode == 13) { return false; }" placeholder="Nombre de la agrupación">
-					<p:ajax event="itemSelect"  listener="#{mbObservadores.muestraAgrupacion()}"  update="mensajeEscondeAgrupacion" />
+					<p:ajax event="itemSelect"  listener="#{mbObservadores.muestraAgrupacion()}"  update="mensajeEscondeAgrupacion , comboEvaluacion , escondeEstatusP "  />
 				</p:autoComplete>
 				<p:messages id="mensajeEscondeAgrupacion" for="nombreAgrupacion" />
 		</div>

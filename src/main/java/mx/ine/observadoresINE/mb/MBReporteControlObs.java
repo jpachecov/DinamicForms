@@ -16,8 +16,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import javax.faces.validator.ValidatorException;
-import mx.ine.common.ws.administracion.dto.response.DTODetalleDistritoProcesoWS;
-import mx.ine.common.ws.administracion.dto.response.DTODetalleEstadoProcesoWS;
 import mx.ine.observadoresINE.bsd.BSDReporteControlObsInterface;
 import mx.ine.observadoresINE.dto.DTOList;
 import mx.ine.observadoresINE.dto.form.FormRepControlObs;
