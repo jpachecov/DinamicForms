@@ -521,26 +521,41 @@ public class MBAcreditacionGafete extends MBGeneric implements Serializable{
 	
 	private String obtenRutaFirma(String nombreFirma) {
 		String rutaFirma = null;
-		String rutaFirmaCompleta = null;
-		/**
-		 * idImagen = -3 equivale a la ruta de la firma
-		 */
-		for (DTOCImagenes rutaImg : this.dtoFiltro.getListaRutasIMG()) {
-			if (rutaImg.getDTOCImagenesPK().getIdImagen() == -3) {
-				rutaFirma = rutaImg.getRuta();
-				continue;
+		String rutaFirmaCompleta = "";
+
+		if (!nombreFirma.trim().isEmpty()) {
+			/**
+			 * idImagen = -3 equivale a la ruta de la firma
+			 */
+			for (DTOCImagenes rutaImg : this.dtoFiltro.getListaRutasIMG()) {
+				if (rutaImg.getDTOCImagenesPK().getIdImagen() == -3) {
+					rutaFirma = rutaImg.getRuta();
+				}
+				break;
+			}
+			rutaFirmaCompleta = rutaGluster + File.separator + rutaFirma
+					+ File.separator + nombreFirma;
+
+			String firmaDirectory = rutaGluster + File.separator + rutaFirma;
+			File directory = new File(firmaDirectory);
+
+			// Si el directorio existe
+			if (directory.exists()) {
+				// valida si la imagen existe con su extensión correspondiente
+				File imagen_png = new File(firmaDirectory + File.separator + nombreFirma + ".png");
+				File imagen_jpg = new File(firmaDirectory + File.separator + nombreFirma + ".jpg");
+				File imagen_jpeg = new File(firmaDirectory + File.separator + nombreFirma + ".jpeg");
+				if (imagen_png.exists()) {
+					rutaFirmaCompleta = "/image//" + rutaFirma + File.separator + nombreFirma + ".png";
+				} else if (imagen_jpg.exists()) {
+					rutaFirmaCompleta = "/image//" + rutaFirma + File.separator + nombreFirma + ".jpg";
+				} else if (imagen_jpeg.exists()) {
+					rutaFirmaCompleta = "/image//" + rutaFirma + File.separator + nombreFirma + ".jpeg";
+				} else {
+					rutaFirmaCompleta = "";
+				}
 			}
 		}
-		rutaFirmaCompleta = rutaGluster + File.separator + rutaFirma + File.separator
-				+ nombreFirma;
-		File imagen = new File(rutaFirmaCompleta);
-		
-		if (imagen.exists()) {
-			rutaFirmaCompleta = "/image//"+ rutaFirma + File.separator + nombreFirma;
-		}else {
-			rutaFirmaCompleta = "";
-		}
-		
 		return rutaFirmaCompleta;
 	}
 	

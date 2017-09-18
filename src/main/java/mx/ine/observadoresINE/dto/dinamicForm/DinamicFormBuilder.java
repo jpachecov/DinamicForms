@@ -52,6 +52,11 @@ public class DinamicFormBuilder implements Serializable{
 	private List<String> errores = new ArrayList<String>();
 	
 	/**
+	 * Para mostrar errores en vista
+	 */
+	private boolean debugMode;
+	
+	/**
 	* Constructor
 	*/
 	@SuppressWarnings("rawtypes")
@@ -61,6 +66,17 @@ public class DinamicFormBuilder implements Serializable{
 		this.initialState = new ArrayList<DFilter>();
 	}
 
+	/**
+	 * Constructor con valor para el debugMode
+	 * @param debugMode
+	 */
+	public DinamicFormBuilder(boolean debugMode){
+		this.l_filtros = new ArrayList<DFilter>();
+		this.filtros = new LinkedHashMap<String, List<DFilter>>();
+		this.initialState = new ArrayList<DFilter>();
+		this.debugMode = debugMode;
+	}
+	
 	/**
 	 * Constructor
 	 * Construye la lista de todos los filtros
@@ -330,5 +346,13 @@ public class DinamicFormBuilder implements Serializable{
 	 */
 	public List<String> getErrores(){
 		return this.errores;
+	}
+
+	public boolean isDebugMode() {
+		return debugMode;
+	}
+
+	public void setDebugMode(boolean debugMode) {
+		this.debugMode = debugMode;
 	}
 }

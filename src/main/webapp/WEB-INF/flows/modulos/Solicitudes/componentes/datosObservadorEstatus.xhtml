@@ -21,7 +21,7 @@
 				<p:selectOneMenu id="comboEvaluacion" value="#{mbObservadores.observadorCaptura.idEvaluacion}"  
 					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
 					required="true">
-					<f:selectItem itemLabel="Selecciona " itemValue="#{null}" itemDisabled="true" noSelectionOption="true" />
+					<f:selectItem itemLabel="Selecciona " itemValue="#{null}"  />
 					<f:selectItems value="#{mbObservadores.listaEvaluaciones}" var="evaluacion" itemLabel="#{evaluacion.descripcion}"
 					 itemValue="#{evaluacion.getDTOCEvaluacionPK().idEvaluacion}" />
 					<p:ajax event="itemSelect" process="@this"  listener="#{mbObservadores.obtenReglas()}" update="escondeEstatusP" />

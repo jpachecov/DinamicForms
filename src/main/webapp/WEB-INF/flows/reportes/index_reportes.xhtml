@@ -46,12 +46,14 @@
                             <h:outputText value="#{messageSource['etiqueta_reportes_solicitudDeAcreditacion']}" />
                         </a>
                     </div>
-                    <div class="ui-g-12 ui-md-12">
-                        <i class="fa fa-check" aria-hidden="true" style="width:20px"></i>
-                        <a href="${request.contextPath}/app/reportes/solicitudDeRatificacion">
-                            <h:outputText value="#{messageSource['etiqueta_reportes_solicitudDeRatificacion']}" />
-                        </a>
-                    </div>
+                    <c:if test="#{mbAdmin.esProcesoExtraordinario()}">
+	                    <div class="ui-g-12 ui-md-12">
+	                        <i class="fa fa-check" aria-hidden="true" style="width:20px"></i>
+	                        <a href="${request.contextPath}/app/reportes/solicitudDeRatificacion">
+	                            <h:outputText value="#{messageSource['etiqueta_reportes_solicitudDeRatificacion']}" />
+	                        </a>
+	                    </div>                    
+                    </c:if>
                     <div class="ui-g-12 ui-md-12">
                         <i class="fa fa-users" aria-hidden="true" style="width:20px"></i>
                         <a href="${request.contextPath}/app/reportes/agrupaciones">

@@ -646,7 +646,7 @@ public class DTOObservadores extends DTOBase implements Serializable {
 			if(this.getFechaSolicitudes() != null){
 			return formatoDelTexto.format(this.getFechaSolicitudes())  ;
 			}else{
-				return "s/i";
+				return "";
 			}
 		} catch (Exception e) {
 			return "N/A";
@@ -662,7 +662,7 @@ public class DTOObservadores extends DTOBase implements Serializable {
 			if(this.getFechaSesion() != null){
 			return formatoDelTexto.format(this.getFechaSesion())   ;
 			}else{
-				return "s/i";
+				return "";
 			}
 		} catch (Exception e) {
 			return "N/A";

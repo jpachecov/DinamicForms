@@ -3,7 +3,7 @@
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:schemaLocation="http://www.springframework.org/schema/webflow
         				  http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
-	  start-state="modifica" parent="parent-flow">
+	  start-state="validaModuloMenu" parent="parent-flow">
 	  
 	  <secured
 		attributes="
@@ -17,6 +17,13 @@
 		match="any" />
 	  <!-- MB -->
 	  <var name="mbCursos" class="mx.ine.observadoresINE.mb.MBCursos"/>
+
+		<!-- VALIDA MODULO EN MENU LATERAL -->
+		<decision-state id="validaModuloMenu">
+			<if test="mbAdmin.existInLateralMenu(5)" 
+				then="modifica" 
+				else="vsErrorModuloNoVisible"/>
+		</decision-state>
 	  
 	  <view-state id="modifica" view="modifica.xhtml">
 	  	<on-entry>

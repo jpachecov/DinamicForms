@@ -5,6 +5,7 @@
         				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
       abstract="true">
 
+
 	<!--<end-state id="esHome" view="externalRedirect:servletRelative:/app/home"/>-->
 	
 	<end-state id="esHome" view="externalRedirect:servletRelative:/home"/>
@@ -13,6 +14,8 @@
 	<view-state id="vsErrorVersion" view="externalRedirect:servletRelative:/error=version" />
 	
 	<view-state id="vsErrorModuloCerrado" view="externalRedirect:servletRelative:/error=moduloCerrado" />
+
+	<view-state id="vsErrorModuloNoVisible" view="externalRedirect:servletRelative:/error=moduloNoVisible" />
 
 	<!--<view-state id="home" view="externalRedirect:servletRelative:/home" />-->
 	

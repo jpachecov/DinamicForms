@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.faces.validator.ValidatorException;
 import mx.ine.observadoresINE.bsd.BSDReporteControlObsInterface;
 import mx.ine.observadoresINE.dto.DTOList;
@@ -60,6 +61,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
     private Integer[] valoresSegundoNivel;
     private Boolean requeridoSegundoNivel;
     private Boolean mostarTotalPDF;
+    StringBuffer tituloFiltros;
 
     @Override
     public void init() {
@@ -173,14 +175,6 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
             formFiltros.getSegundoNivelFiltros().get(0).setDisabled(false);
             formFiltros.getSegundoNivelFiltros().get(1).setDisabled(false);
             formFiltros.getSegundoNivelFiltros().get(2).setDisabled(false);
-//            // Se envía el mensaje de Dato Requerido
-//            FacesMessage message = new FacesMessage();
-//            message.setSeverity(FacesMessage.SEVERITY_ERROR);
-//            message.setSummary(Utilidades
-//                    .mensajeProperties("validacion_mensajes_generales_dato_requerido"));
-//            FacesContext.getCurrentInstance().addMessage(
-//                    "msgSegundoNivelCheck", message);
-//            FacesContext.getCurrentInstance().renderResponse();
         } else {// Selecciono alguna opción
             requeridoSegundoNivel = false;
             List<Integer> seleccionado;
@@ -193,8 +187,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                     formFiltros.getSegundoNivelFiltros().get(0).setDisabled(true); // Bloquear Nacional
                 }
             } else // Junta Local
-            {
-                if (seleccionado.contains(1))// Selecciono Entidad
+             if (seleccionado.contains(1))// Selecciono Entidad
                 {
                     formFiltros.getSegundoNivelFiltros().get(2).setDisabled(true); // Bloquear
                     // Agrupación
@@ -202,7 +195,6 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                         formFiltros.getSegundoNivelFiltros().get(2).setDisabled(false); // Desbloquear Agrupación
                     }
                 }
-            }
         }
         this.muestraTabla = false;
     }
@@ -217,6 +209,8 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
         formFiltros.setOpcionDeFechas(false);
         formFiltros.setMostrarFiltroFechas(false);
         formFiltros.setOpcionDeFecha(null);
+        formFiltros.setFechaFin(null);
+        formFiltros.setFechaIncio(null);
         this.muestraTabla = false;
         switch (formFiltros.getValorPrimerFiltro()) {
             case 2:// Acreditaciones Aprobadas
@@ -434,6 +428,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
         if (formFiltros.getValorTercerFiltro() != null) {
             String campo;
             formFiltros.setFiltroReporte(new StringBuffer());
+            tituloFiltros = new StringBuffer();
             campo = formFiltros.getValorPrimerFiltro() == 2 ? "ID_JUSTIFICACION"
                     : "RESULTADO";
             formFiltros.getFiltroReporte().append("AND (");
@@ -444,6 +439,31 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                 } else {
                     formFiltros.getFiltroReporte().append(" OR ").append(campo).append(" = ").append(filtro);
                 }
+                //Se agregan los nombres de los filtros en el título del reporte para las Acreditaciones no Aprobadas
+                if (formFiltros.getValorPrimerFiltro() == 3) {
+                    switch (filtro) {
+                        case 2:
+                            tituloFiltros.append(", Denegadas");
+                            break;
+                        case 3:
+                            tituloFiltros.append(", Canceladas");
+                            break;
+                        case 5:
+                            tituloFiltros.append(", Declinadas");
+                            break;
+                        default:
+                            break;
+                    }
+                } else if (formFiltros.getValorPrimerFiltro() == 2) {
+                    //Se agregan los nombres de los filtros en el título del reporte para las Acreditaciones Aprobadas
+                    for (DTOList idFiltro : formFiltros.getTercerNivelFiltros()) {
+                        if (Objects.equals(filtro, idFiltro.getKey())) {
+                            tituloFiltros.append(", ").append(idFiltro.getValue());
+                            break;
+                        }
+                    }
+                }
+
                 indice++;
             }
             // Obtener filtros por fecha
@@ -457,10 +477,29 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                         .append("')  AND  TO_DATE('")
                         .append(dt.format(formFiltros.getFechaFin()))
                         .append("')");
+                tituloFiltros.append(", por fecha de sesión del ")
+                        .append(dt.format(formFiltros.getFechaIncio()))
+                        .append(" al ")
+                        .append(dt.format(formFiltros.getFechaFin()));
 
             }
 
         }
+    }
+    /**
+     * Método que agrega al título del reporte las opciones de filtro seleccionadas por el usuario.
+     * Se agrega una "y" al último filtro seleccionado
+     */
+    public void agregarFiltrosTitulo() {
+        int ultimaComa;
+       if(tituloFiltros != null && tituloFiltros.length()>0 ){
+           tituloReporte.append(tituloFiltros.toString().substring(1));//Se elimina la primera coma
+           ultimaComa = tituloReporte.toString().lastIndexOf(","); //Se busca la última coma
+           if(ultimaComa>0){ // si tiene comas
+               //Se reemplaza por una "y"
+           tituloReporte = tituloReporte.replace(ultimaComa, ultimaComa+2, " y ");
+           }
+       }
     }
 
     /**
@@ -487,7 +526,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setFormatoDeTabla(1);
                                     formFiltros.setPrimerColumna(" ");
                                     formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesNacional_OC");
-                                    nombreReporte = "repSolAcreNacional";
+                                    nombreReporte = "RepSolAcreditacionNal";
                                     mostarTotalPDF = false; //Mostrar Total en PDF
                                     break;
                                 case 1:// Entidad
@@ -497,7 +536,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setPrimerColumna(" ");
                                     formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 1 ? "query_reporte_controlObs_SolicitudesEntidad_OC"
                                             : "query_reporte_controlObs_SolicitudesEntidad_JL");
-                                    nombreReporte = "repSolAcreEntidad";
+                                    nombreReporte = "RepSolAcreEntidad";
                                     mostarTotalPDF = formFiltros.getNivelOficinas() == 1; //Mostrar Total en PDF para  JL
                                     break;
                                 case 2:// Agrupación
@@ -507,7 +546,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setPrimerColumna("Agrupaciones");
                                     formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 1 ? "query_reporte_controlObs_SolicitudesAgrupacion_OC"
                                             : "query_reporte_controlObs_SolicitudesAgrupacion_JL");
-                                    nombreReporte = "repSolAcreAgrupacion";
+                                    nombreReporte = "RepSolAcreAgrupacion";
                                     break;
                                 case 3:// Distrito
                                     LOGGER.info("Reporte: Solicitudes de acreditación Distrito JL");
@@ -517,7 +556,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setPrimerColumna("Distrito");
                                     formFiltros.setSegundaColumna("Rubro");
                                     formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesDistrito_JL");
-                                    nombreReporte = "repSolAcreDistrito";
+                                    nombreReporte = "RepSolAcreDistrito";
                                     break;
                                 default:
                                     break;
@@ -535,7 +574,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                 formFiltros.setFormatoDeTabla(7);
                                 tituloReporte.append(" Por Entidad y Por Agrupación");
                                 formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesEntAgru_OC");
-                                nombreReporte = "repSolAcreEntAgru";
+                                nombreReporte = "RepSolAcreEntAgru";
                             } else {// Junta Local. Para JL pueden existir las combinaciones (Entidad, Distrito) y (Distrito,Agrupacion)
                                 List<Integer> opcionesSeleccionadas;
                                 opcionesSeleccionadas = Arrays.asList(formFiltros
@@ -546,7 +585,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setFormatoDeTabla(1);
                                     formFiltros.setPrimerColumna(" ");
                                     formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesEntDist_JL");
-                                    nombreReporte = "repSolAcreEntDist";
+                                    nombreReporte = "RepSolAcreEntDist";
                                     mostarTotalPDF = false; //Mostrar Total en PDF
                                 } else {// Selecciono Distrito y Agrupación
                                     LOGGER.info("Reporte: Solicitudes de acreditación Por Distrito y Por Agrupación");
@@ -554,7 +593,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                                     formFiltros.setFormatoDeTabla(6);
                                     formFiltros.setPrimerColumna("Agrupaciones");
                                     formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesDistAgru_JL");
-                                    nombreReporte = "repSolAcreDistAgru";
+                                    nombreReporte = "RepSolAcreDistAgru";
                                 }
                             }
                             break;
@@ -565,7 +604,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             formFiltros.setFormatoDeTabla(2);
                             formFiltros.setPrimerColumna("Agrupaciones");
                             formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesEntDistAgru_JL");
-                            nombreReporte = "repSolAcreEntDistAgru";
+                            nombreReporte = "RepSolAcreEntDistAgru";
                             break;
                     }
                 } else// Solicitudes de Acrecitación JD. Se obtiene el valor del Radio
@@ -577,7 +616,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             formFiltros.setFormatoDeTabla(4);
                             formFiltros.setPrimerColumna(" ");
                             formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesDistrito_JD");
-                            nombreReporte = "repSolAcreDist";
+                            nombreReporte = "RepSolAcreDist";
                             mostarTotalPDF = false;//Mostrar Total en PDF
                             break;
                         case 2:// Por Agrupación
@@ -586,7 +625,7 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             formFiltros.setFormatoDeTabla(6);
                             formFiltros.setPrimerColumna(" ");
                             formFiltros.setNombreQuery("query_reporte_controlObs_SolicitudesAgrupacion_JD");
-                            nombreReporte = "repSolAcreAgru";
+                            nombreReporte = "RepSolAcreAgru";
                             mostarTotalPDF = false;//Mostrar Total en PDF
                             break;
                     }
@@ -602,29 +641,31 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                     formFiltros.setFormatoDeTabla(7);
                     tituloReporte.append("Acreditaciones Aprobadas");
                     formFiltros.setNombreQuery("query_reporte_controlObs_AcreditacionesAp_OC");
-                    nombreReporte = "repAcreAprobadas";
+                    nombreReporte = "RepAcreAprobadas";
                 } else {
                     switch (formFiltros.getValorSegundoFiltroRadio()) {
                         case 4:
                             LOGGER.info("Reporte: Concentrado de Acreditaciones Aprobadas");
-                            tituloReporte.append("Concentrado de Acreditaciones Aprobadas");
                             formFiltros.setFormatoDeTabla(formFiltros.getNivelOficinas() == 2 ? 8 : 9);
                             formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 2
                                     ? "query_reporte_controlObs_AcreditacionesApConcentrado_JL"
                                     : "query_reporte_controlObs_AcreditacionesApConcentrado_JD");
                             obtenerFiltroReporte();
-                            nombreReporte = "repConAcreAprobadas";
+                            tituloReporte.append("Concentrado de Acreditaciones Aprobadas ");
+                            agregarFiltrosTitulo();
+                            nombreReporte = "RepConAcreAprobadas";
                             break;
                         case 5:
                             LOGGER.info("Reporte: Listado de Acreditaciones Aprobadas");
                             reporteConTotales = false; // Los listados no llevan totales
-                            tituloReporte.append("Concentrado de Acreditaciones Aprobadas");
                             formFiltros.setFormatoDeTabla(formFiltros.getNivelOficinas() == 2 ? 10 : 11);
                             formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 2
                                     ? "query_reporte_controlObs_AcreditacionesApListado_JL"
                                     : "query_reporte_controlObs_AcreditacionesApListado_JD");
                             obtenerFiltroReporte();
-                            nombreReporte = "repLisAcreAprobadas";
+                            tituloReporte.append("Concentrado de Acreditaciones Aprobadas ");
+                            agregarFiltrosTitulo();
+                            nombreReporte = "RepLisAcreAprobadas";
                             break;
                     }
                 }
@@ -635,11 +676,12 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                     switch (formFiltros.getValorSegundoFiltroRadio()) {
                         case 4: // Concentrado
                             LOGGER.info("Reporte: Acreditaciones No Aprobadas OC");
-                            tituloReporte.append("Concentrado de Acreditaciones no aprobadas");
                             formFiltros.setFormatoDeTabla(12);
                             formFiltros.setNombreQuery("query_reporte_controlObs_AcreditacionesNoApConcentrado_OC");
                             this.obtenerFiltroReporte();
-                            nombreReporte = "repConAcreNoAprobadas";
+                            tituloReporte.append("Concentrado de Acreditaciones no aprobadas ");
+                            agregarFiltrosTitulo();
+                            nombreReporte = "RepConAcreNoAprobadas";
                             mostarTotalPDF = false;
                             break;
                         case 2:// Por Agrupación
@@ -649,11 +691,12 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             abreviaturaEstados = consultarAbreviaturaEstados(); // Se obtienen las abreviaturas
                             formFiltros.setAbreviaturaEstados(abreviaturaEstados);
                             formFiltros.setFormatoDeTabla(7);
-                            tituloReporte.append("Acreditaciones No Aprobadas por Agrupación");
                             formFiltros.setNombreQuery("query_reporte_controlObs_AcreditacionesNoApAgrupacion_OC");
                             reporteConTotales = true;
                             this.obtenerFiltroReporte();
-                            nombreReporte = "repAcreNoAprobAgru";
+                            tituloReporte.append("Acreditaciones No Aprobadas por Agrupación  ");
+                            agregarFiltrosTitulo();
+                            nombreReporte = "RepAcreNoAprobAgru";
                             break;
                         case 1:// Por Entidad
                             LOGGER.info("Reporte: Acreditaciones No Aprobadas Por Entidad OC");
@@ -661,10 +704,11 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                             this.obtenerFiltroReporte();
                             consultarEncabezadoDecDenDecl();
                             formFiltros.setFormatoDeTabla(15);
-                            tituloReporte.append("Acreditaciones No Aprobadas por Entidad");
+                            tituloReporte.append("Acreditaciones No Aprobadas por Entidad ");
+                            agregarFiltrosTitulo();
                             formFiltros.setNombreQuery("query_reporte_controlObs_AcreditacionesNoApEntidad_OC");
                             reporteConTotales = true;
-                            nombreReporte = "repAcreNoAprobEnt";
+                            nombreReporte = "RepAcreNoAprobEnt";
                             break;
                         default:
                             break;
@@ -673,22 +717,24 @@ public class MBReporteControlObs extends MBReportesMenu implements Serializable 
                     switch (formFiltros.getValorSegundoFiltroRadio()) {
                         case 4: // Concentrado
                             LOGGER.info("Reporte: Acreditaciones No Aprobadas JD");
-                            tituloReporte.append("Concentrado de Acreditaciones no aprobadas");
                             formFiltros.setFormatoDeTabla(12);
                             formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 2 ? "query_reporte_controlObs_AcreditacionesNoApConcentrado_JL"
                                     : "query_reporte_controlObs_AcreditacionesNoApConcentrado_JD");
                             this.obtenerFiltroReporte();
-                            nombreReporte = "repConAcreNoAprob";
+                            tituloReporte.append("Concentrado de Acreditaciones No Aprobadas ");
+                            agregarFiltrosTitulo();
+                            nombreReporte = "RepConAcreNoAprob";
                             mostarTotalPDF = false;
                             break;
                         case 5: // Listado
                             LOGGER.info("Reporte: Listado Acreditaciones No Aprobadas");
-                            tituloReporte.append("Listado de Acreditaciones no aprobadas");
                             formFiltros.setFormatoDeTabla(formFiltros.getNivelOficinas() == 2 ? 13 : 14);
                             formFiltros.setNombreQuery(formFiltros.getNivelOficinas() == 2 ? "query_reporte_controlObs_AcreditacionesNoApListado_JL"
                                     : "query_reporte_controlObs_AcreditacionesNoApListado_JD");
                             this.obtenerFiltroReporte();
-                            nombreReporte = "repLisAcreNoAprob";
+                            tituloReporte.append("Listado de Acreditaciones No Aprobadas ");
+                            agregarFiltrosTitulo();
+                            nombreReporte = "RepLisAcreNoAprob";
                             break;
                     }
                 }

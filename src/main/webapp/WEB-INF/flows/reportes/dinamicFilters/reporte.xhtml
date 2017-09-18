@@ -87,6 +87,21 @@
 							</div>
 						</c:if>
 					</c:forEach>
+					<p:outputPanel id="panelErrores" rendered="#{mbDinamic.builder.debugMode}">
+						<c:if test="#{mbDinamic.builder.errores.size() > 0}">
+							<h3 style="color:red" class="ui-g-12 ui-md-12 ui-sm-12">Hubo errores al crear formulario (Esto aparece porque el debugMode del DinamicFormBuilder esta activado)</h3>
+						</c:if>
+						<c:if test="#{mbDinamic.builder.errores.size() eq 0}">
+							<h3 style="color:green" class="ui-g-12 ui-md-12 ui-sm-12">No hubo errores al crear formulario (Esto aparece porque el debugMode del DinamicFormBuilder esta activado)</h3>
+						</c:if>
+						
+						<div class="ui-g-12 ui-md-12 ui-sm-12">
+							<c:forEach var="error" items="#{mbDinamic.builder.errores}">
+								<span style="color:red" class="ui-g-12 ui-md-12 ui-sm-12">#{error}</span>
+							</c:forEach>
+						</div>
+					</p:outputPanel>
+					
 					<h2 class="ui-g-12 ui-md-12 ui-sm-12">Valores de los filtros:</h2>
 					<c:forEach var="filter"
 						items="#{mbDinamic.machine.current.filtros}">

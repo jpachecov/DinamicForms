@@ -10,6 +10,8 @@ import javax.faces.context.FacesContext;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.primefaces.context.RequestContext;
+import org.primefaces.json.JSONArray;
+import org.primefaces.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -142,6 +144,10 @@ public class MBAgrupaciones extends MBGeneric implements Serializable {
 			littleInit();
 			setEntidades(getEstados());
 			setShowForm(true);
+			log.info("JSON");
+			log.info(mbAdmin.getDto().getJsonMenuLateral());
+			log.info("existe en lateral : " + mbAdmin.existInLateralMenu(2));
+			
 		} catch (Exception e) {
 			log.error("Error en mbAgrupaciones - init()");
 			log.error(e);
@@ -150,6 +156,8 @@ public class MBAgrupaciones extends MBGeneric implements Serializable {
 		}
 	}
 
+
+	
 	/**
 	 * Método que inicializa el objeto que guarda los datos de captura y el
 	 * objeto DTOUsuarioLogin.

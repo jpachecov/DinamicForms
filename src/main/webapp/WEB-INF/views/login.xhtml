@@ -14,8 +14,8 @@
 	<ui:define name="CONTENT">
 
 
-		<form name="f"  styleClass="formContainer" action="${request.contextPath}/j_spring_security_check"
-			method="post">
+		<form name="f" styleClass="formContainer"
+			action="${request.contextPath}/j_spring_security_check" method="post">
 
 			<div class="container-fluid">
 				<div class="ui-g "></div>
@@ -25,16 +25,17 @@
 
 						<div class="ui-g headerLogin">
 							<div class="ui-g-12 ">
-								<h2 style="color: #FFFFFF">Accede con tu cuenta Institucional</h2>
+								<h2 style="color: #FFFFFF">Accede con tu cuenta
+									Institucional</h2>
 
 								<div class="">
-									<label>
-										<h:outputLabel
+									<label> <h:outputLabel
 											value="#{sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message.contains('Bad credentials') ?
 								 						  'El Usuario y/o la Contraseña son incorrectos, favor de introducirlos nuevamente.' :
 								 						  (sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message.contains('LDAP') ?
-								 						  'El tiempo de respuesta para el inicio de sesión se ha agotado, intente de nuevo por favor.' :  
-								 						  sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message)}" />
+								 						  'El tiempo de respuesta para el inicio de sesión se ha agotado, intente de nuevo por favor.' : 
+								 						  (sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message.contains('Maximum sessions') ? 'El número máximo de sesiones permitidas para este usuario ha sido excedido' : sessionScope.SPRING_SECURITY_LAST_EXCEPTION.message)) 
+								 						  }" />
 									</label>
 								</div>
 							</div>
@@ -45,7 +46,8 @@
 					<c:if test="${empty param.error}">
 						<div class="ui-g headerLogin">
 							<div class="ui-g-12">
-								<h2 class="text-color-white"  style="color: #FFFFFF">Accede con tu cuenta Institucional</h2>
+								<h2 class="text-color-white" style="color: #FFFFFF">Accede
+									con tu cuenta Institucional</h2>
 							</div>
 						</div>
 					</c:if>
@@ -64,7 +66,8 @@
 						<div class="ui-g-12">
 
 							<div class="md-inputfield">
-								<p:inputText id="j_password" required="true" type="password" autocomplete="false"/>
+								<p:inputText id="j_password" required="true" type="password"
+									autocomplete="false" />
 								<p:outputLabel value="Contraseña " for="j_password" />
 							</div>
 						</div>
@@ -85,16 +88,16 @@
 
 						<div class="divider"></div>
 						<div class="ui-g-8">
-							<div class="logoPieLogin" ></div>
+							<div class="logoPieLogin"></div>
 						</div>
 						<div class="ui-g-4">
-						
+
 							<input class="loginButton" type="submit" value="Ingresar" />
 						</div>
 					</div>
-					<div class="ui-g ui-g-nopad ui-g-nomargin creditos">
-							Derechos reservados INE 2017 &nbsp; - &nbsp; Compatibilidad &oacute;ptima con Google Chrome. 
-						</div>
+					<div class="ui-g ui-g-nopad ui-g-nomargin creditos">Derechos
+						reservados INE 2017 &nbsp; - &nbsp; Compatibilidad &oacute;ptima
+						con Google Chrome.</div>
 				</div>
 				<!-- card end -->
 			</div>

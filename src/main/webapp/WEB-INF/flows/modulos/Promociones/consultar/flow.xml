@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/webflow
         				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
-	start-state="consultar" parent="parent-flow">
+	start-state="validaModuloMenu" parent="parent-flow">
 
 	<secured
 		attributes="ROLE_OBSERVADORES.ADMIN.PARAM.CAPTURA.OC,
@@ -17,6 +17,13 @@
  	 ROLE_OBSERVADORES.CAPTURA.JD,  
  	 ROLE_OBSERVADORES.CONSULTA.JD"
 		match="any" />
+
+	<!-- VALIDA MODULO EN MENU LATERAL -->
+	<decision-state id="validaModuloMenu">
+		<if test="mbAdmin.existInLateralMenu(6)" 
+			then="consultar" 
+			else="vsErrorModuloNoVisible"/>
+	</decision-state>
 
 	<view-state id="consultar" view="consultar.xhtml">
 		<on-entry>

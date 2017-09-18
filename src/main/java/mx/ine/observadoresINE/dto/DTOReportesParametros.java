@@ -22,6 +22,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import javax.faces.context.FacesContext;
 import mx.ine.observadoresINE.helper.HLPReportesEncabezado;
 import org.apache.commons.logging.Log;
@@ -191,7 +192,7 @@ public class DTOReportesParametros implements Serializable {
         HSSFRow titulo = hoja.createRow(numRow);
         titulo.setHeight((short) 350); // alto de fila
         HSSFCell celdaTitulo = titulo.createCell(0);
-        celdaTitulo.setCellValue(getTituloReporte());
+        celdaTitulo.setCellValue(getTituloReporte().toUpperCase(Locale.getDefault()));
         CellRangeAddress rangeTitulo = new CellRangeAddress(0, 0, 0, numColumnas);
         hoja.addMergedRegion(rangeTitulo);
         celdaTitulo.setCellStyle(estiloTitulo);
@@ -256,7 +257,7 @@ public class DTOReportesParametros implements Serializable {
         HSSFRow infoFecha = hoja.createRow(numRow);
         infoFecha.setHeight((short) 300); // alto de fila	
         HSSFCell fecha = infoFecha.createCell(0);
-        fecha.setCellValue("Fecha de impresión: " + getFechaHora() + " hrs.");
+        fecha.setCellValue("Fecha y hora de impresión: " + getFechaHora() + " hrs.");
         CellRangeAddress rangefecha = new CellRangeAddress(numRow, numRow, 0, numColumnas);
         hoja.addMergedRegion(rangefecha);
         fecha.setCellStyle(estiloInfo);
@@ -297,11 +298,15 @@ public class DTOReportesParametros implements Serializable {
                 Iterator<Cell> cellIterator = row.cellIterator();
                 Cell celda;
                 Integer columna = 0;
+                estiloInfo = wb.createCellStyle();
+                estiloInfo.setWrapText(true);
+                estiloInfo.setAlignment(HSSFCellStyle.ALIGN_CENTER);
                 while (cellIterator.hasNext()) {
                     celda = cellIterator.next();
                     if (celda.getStringCellValue() != null) {
                         HSSFCell hssfCell = hssfRow.createCell(columna);
                         hssfCell.setCellValue(celda.getStringCellValue());
+                        hssfCell.setCellStyle(estiloInfo);
                         CellRangeAddress range = new CellRangeAddress(fila, fila, columna, columna);
                         hoja.addMergedRegion(range);
                         hoja.setColumnWidth(columna, 4000);
@@ -491,7 +496,7 @@ public class DTOReportesParametros implements Serializable {
         cell.setBorder(0);
         encabezado.addCell(cell);
 //            Fecha
-        cell = new PdfPCell(new Phrase("Fecha de impresión: " + getFechaHora() + " hrs.", fuenteEncabezado));
+        cell = new PdfPCell(new Phrase("Fecha y hora de impresión: " + getFechaHora() + " hrs.", fuenteEncabezado));
         cell.setHorizontalAlignment(Element.ALIGN_RIGHT);
         cell.setVerticalAlignment(Element.ALIGN_TOP);
         cell.setBorder(0);

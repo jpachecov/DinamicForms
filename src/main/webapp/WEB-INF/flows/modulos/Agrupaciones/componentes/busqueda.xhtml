@@ -15,12 +15,12 @@
 	<p:messages id="msj" closable="false" for="mensaje"
 		styleClass="ui-g-12" style="margin-top: 0px;" />
 	<div id="mensaje" />
+	<p:outputPanel id="titulo">
+		<div class="card">
+			<h1>#{messageSource['etiqueta_nombre_modulo_agrupaciones']}</h1>
+		</div>
+	</p:outputPanel>
 	<div class="ui-g card" style="margin: 15px 0px">
-		<h2 class="ui-g-12 ui-md-12">#{messageSource['etiqueta_nombre_modulo_agrupaciones']}</h2>
-<!-- 		<h:outputLabel id="msjCamposRequeridos" class="ui-g-12 ui-md-12" -->
-<!-- 			value="#{messageSource['validacion_mensaje_generales_campos_requeridos']}" -->
-<!-- 			escape="false" /> -->
-		<div class="divider" />
 		<div class="ui-g-5 ui-md-6 ui-sm-12" style="padding-left: 15px">
 			<p:outputLabel
 				value="#{messageSource['etiqueta_agrupaciones_busqueda']}" />

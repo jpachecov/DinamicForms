@@ -313,10 +313,17 @@ public class DAOObservadoresImpl extends DAOGeneric<DTOObservadores, DTOObservad
 
 	@Override
 	public List<DTOObservadores> obtenerObservadores(DTOUsuarioLogin user) {
+		
 		Integer edo = user.getIdEstado() > 0 ? user.getIdEstado() : user.getIdEstadoSeleccionado() ;
 		Integer dtt = user.getIdDistrito() > 0 ? user.getIdDistrito() : user.getIdDistritoSeleccionado();
 		List<DTOObservadores> resultado = new ArrayList<DTOObservadores>();
-		String sql =  this.getContainer().getQuery("query_obten_observador_proceso");
+		String sql = "";
+		
+		if(user.getIdEstado().equals(0) &&  user.getIdDistrito().equals(0)){
+		  sql =  this.getContainer().getQuery("query_obten_observador_proceso_OC");
+		}else{
+			sql =  this.getContainer().getQuery("query_obten_observador_proceso");	
+		}
 		Query query = getSession().createSQLQuery(sql)
 				  .addScalar("idProcesoElectoral", StandardBasicTypes.SHORT)
 			      .addScalar("idDetalleProceso", StandardBasicTypes.SHORT)
@@ -360,8 +367,17 @@ public class DAOObservadoresImpl extends DAOGeneric<DTOObservadores, DTOObservad
 		
 		query.setInteger("idProceso", user.getIdProcesoElectoral()  );
         query.setInteger("idDetalleProceso", user.getIdDetalleProceso() );
+        if(user.getIdEstado().equals(0) &&  user.getIdDistrito().equals(0)){
+        	
+        }else{
         query.setInteger("idEstado", edo);
         query.setInteger("idDistrito", dtt);
+        }
+        
+        
+        
+        
+        
         try{
         List<Object[]> objects = (List<Object[]>)query.list();
         

@@ -278,26 +278,42 @@ public class MBObservadores extends MBGeneric implements Serializable {
 			return false;
 		}
 		
-		
-		
+		 if(this.tipoSolicitud.equals(1)){
+		 List<DTOAgrupaciones> listaAgrup = new ArrayList<DTOAgrupaciones>();
+		 listaAgrup = this.obtenListaAgrupaciones(this.usuario);
+		 boolean decide = false;
+		 for (DTOAgrupaciones dtoAgrupaciones : listaAgrup) {
+			 LOGGER.info(" LO que TRAE busqueda es ::: " + this.busqueda );
+			if(dtoAgrupaciones.getNombreAgrupacion().equals(this.busqueda)){
+				decide = true;
+				break;
+			}
+		}
+		 
+		 if(decide){
+			 
+		 }else{
+			 this.busqueda = null;
+			 this.agregaMensaje(TipoMensaje.ERROR_MENSAJE, "Es necesario seleccionar una agrupación válida.");
+			 return false; 
+		 }
+		 }else{
+			 this.observadorCaptura.setIdAgupacion(null); 
+		 }
 		return true;
 	}
 
 	
 	private boolean validacionesDatosRequeridosModifica() {
-		
 		 if(this.observadorCaptura.getCorreoElectronico() != null && !this.observadorCaptura.getCorreoElectronico().equals("")){
 			 java.util.regex.Matcher matcher = VALID_EMAIL_ADDRESS_REGEX .matcher(this.observadorCaptura.getCorreoElectronico());
-			 
 			if(matcher.matches()){
-				 
 			}else{
 				this.agregaMensaje(TipoMensaje.ERROR_MENSAJE, "El correo no es válido.");
 				return false;
 			}
 			 }
 	
-		
 		if (!this.observadorCaptura.getApellidoMaterno().equals("")
 				|| !this.observadorCaptura.getApellidoPaterno().equals("")) {
 		} else {
@@ -326,6 +342,33 @@ public class MBObservadores extends MBGeneric implements Serializable {
 				return false;
 			}
 		 }
+		 
+		 
+		 if(this.tipoSolicitud.equals(1)){
+		 List<DTOAgrupaciones> listaAgrup = new ArrayList<DTOAgrupaciones>();
+		 listaAgrup = this.obtenListaAgrupaciones(this.usuario);
+		 boolean decide = false;
+		 for (DTOAgrupaciones dtoAgrupaciones : listaAgrup) {
+			 LOGGER.info(" LO que TRAE busqueda es ::: " + this.busqueda );
+			if(dtoAgrupaciones.getNombreAgrupacion().equals(this.busqueda)){
+				decide = true;
+				break;
+			}
+		}
+		 
+		 if(decide){
+			 
+		 }else{
+			 this.busqueda = null;
+			 this.agregaMensaje(TipoMensaje.ERROR_MENSAJE, "Es necesario seleccionar una agrupación válida.");
+			 return false; 
+		 }
+		 
+		 }else{
+			 this.observadorCaptura.setIdAgupacion(null);
+			  
+		 }
+		 
 		return true;
 	}
 	
@@ -508,7 +551,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 	public void escondeNombreAgrupacion() {
 		LOGGER.info("Entre a escondeNombreAgrupacion ");
 		this.listaEvaluaciones = this.obtenListaEvaluaciones(this.usuario);  
-		this.observadorCaptura.setIdEvaluacion(null);
+		this.observadorCaptura.setIdEvaluacion(null); 
 		this.obtenReglas();
 		this.busqueda = "";
 		if (this.tipoSolicitud > 0) {
@@ -615,13 +658,23 @@ public class MBObservadores extends MBGeneric implements Serializable {
 						if (this.observadorCaptura.getIdEvaluacion()
 								.equals(new Short("" + dto.getDTOCEvaluacionPK().getIdEvaluacion() + ""))) {
 							this.listaJustificaciones = this.obtenerJustificacion(this.usuario);
-							if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size() - 1)) {
+							LOGGER.info(" el id_de la evaluacion   " + dto.getDTOCEvaluacionPK().getIdEvaluacion() );
+							LOGGER.info(" el id_de la evaluacion DEL OBSERVADOR  " + this.observadorCaptura.getIdEvaluacion() );
+							LOGGER.info("La longitus de la lista es ::: " + listaEvaluaciones.size());
+							LOGGER.info("EL ID DEL ULTIMO ELEMENTO ::: " + listaEvaluaciones.get(listaEvaluaciones.size()-1).getDTOCEvaluacionPK().getIdEvaluacion());
+							 
+							
+							
+							if(listaEvaluaciones.size() == 
+									listaEvaluaciones.get(listaEvaluaciones.size()-1).getDTOCEvaluacionPK().getIdEvaluacion()){
+							//
+							if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size() -1)) {
 								LOGGER.info("Encontre al No acreditado");
 								this.listaJustificaciones = this.obtenJustificacionNA();
 								this.observadorCaptura.setIdJustificacion(new Short("0"));
 								this.observadorCaptura.setIdCurso(null);
 								this.habilitaJustificacion = true;
-							} else if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size() )) {
+							} else if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size()  )) {
 								LOGGER.info("Encontre al PENDIENTE");
 								this.observadorCaptura.setIdJustificacion(null);
 								this.observadorCaptura.setIdCurso(null);
@@ -634,6 +687,34 @@ public class MBObservadores extends MBGeneric implements Serializable {
 									this.observadorCaptura.setIdJustificacion(new Short("-1"));
 								}
 							}
+							///
+							} else{
+								
+								//
+								if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size() )) {
+									LOGGER.info("Encontre al No acreditado del else ");
+									this.listaJustificaciones = this.obtenJustificacionNA();
+									this.observadorCaptura.setIdJustificacion(new Short("0"));
+									this.observadorCaptura.setIdCurso(null);
+									this.habilitaJustificacion = true;
+								} else if (dto.getDTOCEvaluacionPK().getIdEvaluacion().equals(listaEvaluaciones.size() +1 )) {
+									LOGGER.info("Encontre al PENDIENTE del else ");
+									this.observadorCaptura.setIdJustificacion(null);
+									this.observadorCaptura.setIdCurso(null);
+									this.observadorCaptura.setFechaSesion(null);
+								} else {
+									this.habilitaJustificacion = false;
+									if (this.observadorCaptura.getIdJustificacion() != null) {
+
+									} else {
+										this.observadorCaptura.setIdJustificacion(new Short("-1"));
+									}
+								}
+								///
+								
+								
+							}
+							
 
 						}
 					}
@@ -681,6 +762,8 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		this.listaMunicipios = bsdObservadorInterface.obtenMunicipios(this.observadorCaptura);
 	}
 
+
+
 	public List<String> filtraAgrupaciones(String q) {
 		List<String> lista = new ArrayList<String>();
 		for (DTOAgrupaciones ag : this.listaAgrupaciones) {
@@ -688,8 +771,12 @@ public class MBObservadores extends MBGeneric implements Serializable {
 				lista.add(ag.getNombreAgrupacion());
 			}
 		}
+		LOGGER.info("SALIENDO DE FILTRA");
 		return lista;
+		 
 	}
+	
+	 
 	/**
 	 * Método que valida si una clave de electos existe en UN PROCESO Y UN DETALLE
 	 * @param user
@@ -729,6 +816,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		return bsdObservadorInterface.habilitaRatifica(user);
 	}
 
+
 	public List<DTOObservadores> filtraObservadoresNombres(String q) {
 		List<DTOObservadores> lista = new ArrayList<DTOObservadores>();
 		if (!this.listaObservadores.isEmpty()) {
@@ -748,6 +836,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		}
 		return lista;
 	}
+	
 
 	public List<DTOObservadores> filtraObservadoresClaves(String q) {
 		List<DTOObservadores> lista = new ArrayList<DTOObservadores>();
@@ -838,6 +927,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 			this.listaAgrupaciones = this.obtenListaAgrupaciones(this.usuario);
 			for (DTOAgrupaciones dto : this.listaAgrupaciones) {
 				if (dto.getNombreAgrupacion().equals(busqueda)) {
+					LOGGER.info("muestraAgrupacion ::  IF :: equals");
 					this.observadorCaptura.setIdAgupacion(dto.getPk().getIdAgrupacion().shortValue());
 					break;
 				}
@@ -935,7 +1025,7 @@ public class MBObservadores extends MBGeneric implements Serializable {
 		if (observador.getIdEstadoDomicilio() != null) {
 			resultado = bsdObservadorInterface.obtenMunicipios(observador);
 		}
-		this.observadorCaptura.setIdMunicipio(null);// TODO validar
+		this.observadorCaptura.setIdMunicipio(null); 
 		return resultado;
 	}
 
@@ -1267,4 +1357,6 @@ public class MBObservadores extends MBGeneric implements Serializable {
 	public void setMatcher(Matcher matcher) {
 		this.matcher = matcher;
 	}
+
+ 
 }

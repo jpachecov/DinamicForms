@@ -100,7 +100,7 @@ public class CustomUserDetailsService {
             }
         }catch (ServiceAdminLdapException e) {
             LOGGER.error("Warn CustomUserDetailsService - cargaUsuario()", e);
-            throw new BadCredentialsException(e.getMessage()); 
+            throw new BadCredentialsException("El usuario y/o la contraseña son incorrectos, favor de introducirlos nuevamente.");
         } catch (Exception e) {
             LOGGER.error("Error CustomUserDetailsService - Al obtener la información de Usuario", e);
             throw new BadCredentialsException("El usuario no tiene permisos para este sistema");

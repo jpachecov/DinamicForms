@@ -28,8 +28,8 @@
                                 converter="#{javax.faces.convert.DateTimeConverter}"
                                 converterMessage="#{messageSource['validacion_mensaje_formato_fecha']}"      
                                 >
-                        <p:ajax event="change" update="msgFechaInicio,fechaFin"  process="@this"/>
-                        <p:ajax event="dateSelect" update="msgFechaInicio,fechaFin"  process="@this"/>
+                        <p:ajax event="change" update="@form" listener="#{mbReporte.setMuestraTabla(false)}"  process="@this"/>
+                        <p:ajax event="dateSelect" update="@form" listener="#{mbReporte.setMuestraTabla(false)}"  process="@this"/>
                     </p:calendar>
                     <p:messages id="msgFechaInicio" for="fechaInicio" />
                 </div>
@@ -51,8 +51,8 @@
                                 converterMessage="#{messageSource['validacion_mensaje_formato_fecha']}" 
                                 validatorMessage="La fecha incio no puede ser mayor a la fecha fin."
                                 >
-                        <p:ajax event="change" update="msgFechaFin"  process="@this" />
-                        <p:ajax event="dateSelect" update="msgFechaFin"  process="@this"/>
+                        <p:ajax event="change" update="@form"  listener="#{mbReporte.setMuestraTabla(false)}" process="@this" />
+                        <p:ajax event="dateSelect" update="@form" listener="#{mbReporte.setMuestraTabla(false)}" process="@this"/>
                         <f:attribute name="startDate" value="#{mbReporte.formFiltros.fechaIncio}" />
                         <f:validator validatorId="primeDateRangeValidator" />
                     </p:calendar>

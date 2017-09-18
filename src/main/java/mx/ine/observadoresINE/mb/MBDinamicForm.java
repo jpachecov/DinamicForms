@@ -45,6 +45,8 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 	@Qualifier("bsdServiciosGenerales")
 	private transient BSDServiciosGeneralesInterface bsdServicios;
 	
+	private DinamicFormBuilder builder;
+
 	private RenderMachine machine;
 	
 	private String prueba;
@@ -111,7 +113,7 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 		CalendarFilter<Date> fecha = new CalendarFilter<>("D", "Fecha de nacimiento");
 		InputTextFilter<String> nombre = new InputTextFilter<>("F", "Nombre completo");
 		
-		DinamicFormBuilder builder = new DinamicFormBuilder();
+		builder = new DinamicFormBuilder(true);
 
 		try {
 			builder.addFilter(C);
@@ -141,6 +143,14 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 	
 	public void doSomething() {
 		log.info("DoSomething");
+	}
+	
+	public DinamicFormBuilder getBuilder() {
+		return builder;
+	}
+
+	public void setBuilder(DinamicFormBuilder builder) {
+		this.builder = builder;
 	}
 	
 	public RenderMachine getMachine() {

@@ -39,7 +39,8 @@
 					requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}" >
 					<f:selectItem itemLabel="#{messageSource['etiqueta_individual']}" itemValue="0" />
 					<f:selectItem itemLabel="#{messageSource['etiqueta_agrupacion']}" itemValue="1" />
-					<p:ajax event="change"  update="escondeAgrupacion1 , comboEvaluacion , escondeEstatusP " listener="#{mbObservadores.escondeNombreAgrupacion()}" />
+					<p:ajax event="change"  update="escondeAgrupacion1 , comboEvaluacion , escondeEstatusP " 
+					listener="#{mbObservadores.escondeNombreAgrupacion()}" />
 				</p:selectOneRadio>
 				<p:message for="radioAgrupacion" display="text" id="msgAgrupacion" />
 			</div>
@@ -47,13 +48,12 @@
 		<p:panel id="escondeAgrupacion1"  styleClass="ui-g-12 ui-md-12 ui-sm-12" style="border-color: white;" >		
 		<p:outputPanel id="escondeAgrupacion" rendered="#{mbObservadores.habilitaAgrupacion}"  styleClass="ui-g-10 ui-md-10 ui-sm-12">
 		<div class="md-inputfield ui-g-12 ui-md-12 ui-sm-12">
-				<p:autoComplete id="nombreAgrupacion" dropdown="true"
-					value="#{mbObservadores.busqueda}"
+				<p:autoComplete id="nombreAgrupacion" dropdown="true" 
+					value="#{mbObservadores.busqueda}"   
 					completeMethod="#{mbObservadores.filtraAgrupaciones}"
-					style="width:100%" scrollHeight="250" requiredMessage="#{messageSource['validacion_mensajes_generales_dato_requerido']}"
-					required="true" 
-					onkeypress="if (event.keyCode == 13) { return false; }" placeholder="Nombre de la agrupación">
-					<p:ajax event="itemSelect"  listener="#{mbObservadores.muestraAgrupacion()}"  update="mensajeEscondeAgrupacion , comboEvaluacion , escondeEstatusP "  />
+					style="width:100%" scrollHeight="250"  onkeypress="if (event.keyCode == 13 ) { return false; }" placeholder="Nombre de la agrupación">
+					<p:ajax event="itemSelect"  listener="#{mbObservadores.muestraAgrupacion()}" 
+					 update="mensajeEscondeAgrupacion , comboEvaluacion , escondeEstatusP"  />
 				</p:autoComplete>
 				<p:messages id="mensajeEscondeAgrupacion" for="nombreAgrupacion" />
 		</div>

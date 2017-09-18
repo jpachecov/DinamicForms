@@ -61,7 +61,20 @@ public class DTOFiltroReporteAcciones implements Serializable{
 			}
 		 
 		} else {
-			 n_rep = "Reportes de Cursos de Capacitación ";
+			if(this.tipoReporte.equals("C")){
+			if(this.nivel.equals("JL")){
+			 n_rep = "Cursos de capacitación impartidos y/o supervisados por Junta Local.";
+			}else{
+				 n_rep = "Cursos de capacitación impartidos y/o supervisados por Junta Distrital.";
+			}
+			}else{
+				if(this.nivel.equals("JL")){
+					 n_rep = "Listado de integrantes de los cursos por Junta Local.";
+					}else{
+						 n_rep = "Listado de integrantes de los cursos por Junta Distrital.";
+					}
+			}
+			 
 			 n_pdf = " RepoCursosCapa";
 		}
 		parametrosPDF.put(Constantes.PARAMETRO_INTEGER_COLUMNAS, 3);
@@ -80,8 +93,16 @@ public class DTOFiltroReporteAcciones implements Serializable{
 		return parametrosPDF;
 	}
 	
-	
-	
+	/**
+	 * Obtiene los datos del pdf uy asigna nombre al reporte
+	 * @param dto
+	 * @return
+	 */
+	public Map<String, Serializable> getDatosPdf(DTOReportesParametros dto) {
+		Map<String, Serializable> datos = getDatosPdf(dto.getListaDatos(), "");
+		datos.put(Constantes.PARAMETRO_STRING_TITULO, dto.getTituloReporte());
+		return datos;
+	}
 	
 	@Override
 	public String toString() {

@@ -3,7 +3,7 @@
 	  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	  xsi:schemaLocation="http://www.springframework.org/schema/webflow
         				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
-	  start-state="observadorCaptura_view"  parent="parent-flow" >
+	  start-state="validaModuloMenu"   parent="parent-flow"  >
 	  	
 	 <secured
 		attributes="
@@ -18,6 +18,13 @@
 	  	
   	<!-- Flujos Internos-->
 	<var name="mbObservadores" class="mx.ine.observadoresINE.mb.MBObservadores" />
+	
+	<!-- VALIDA MODULO EN MENU LATERAL -->
+	<decision-state id="validaModuloMenu">
+		<if test="mbAdmin.existInLateralMenu(3)" 
+			then="observadorCaptura_view" 
+			else="vsErrorModuloNoVisible"/>
+	</decision-state>	
 	
 	<view-state id="observadorCaptura_view" view="capturar.xhtml">
 		<on-entry>

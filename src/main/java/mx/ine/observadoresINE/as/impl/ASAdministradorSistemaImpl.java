@@ -83,6 +83,15 @@ public class ASAdministradorSistemaImpl implements ASAdministradorSistemaInterfa
         return hlpAdmin.obtenEstatusModulo(idProceso, idDetalle, idSistema, idEstado, idDistrito, grupo, idModulo);
     }
 
+    /**
+     * {@inheritDoc}
+     */
+	@Override
+	public EnumEstatusModulo obtenEstatusModuloINE(Integer idProceso, Integer idDetalle, Integer idSistema,
+			Integer idEstado, Integer idDistrito, String grupo, Integer idModulo) throws ClienteWebServiceException {
+		return hlpAdmin.obtenEstatusModuloINE(idProceso, idDetalle, idSistema, idEstado, idDistrito, grupo, idModulo);
+	}
+	
     /* (non-Javadoc)
 		 * @see mx.ine.sije.as.ASAdministradorSistemaInterface#obtieneListaPermisosSistema(java.lang.Integer)
      */
@@ -101,5 +110,6 @@ public class ASAdministradorSistemaImpl implements ASAdministradorSistemaInterfa
             LOGGER.error("[Error] ASAdministradorSistema.guardarRegistroAcceso(): ", e);
         }
     }
+
 
 }

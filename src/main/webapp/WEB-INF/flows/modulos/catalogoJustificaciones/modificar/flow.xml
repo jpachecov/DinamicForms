@@ -3,9 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/webflow
         				  http://www.springframework.org/schema/webflow/spring-webflow-2.0.xsd"
-	start-state="moduloInicio" parent="parent-flow">
+	start-state="validaModuloMenu" parent="parent-flow">
 
 	<var name="constantes" class="mx.ine.observadoresINE.util.Constantes" />
+
+	<!-- VALIDA MODULO EN MENU LATERAL -->
+	<decision-state id="validaModuloMenu">
+		<if test="mbAdmin.existInLateralMenu(14)" 
+			then="moduloInicio" 
+			else="vsErrorModuloNoVisible"/>
+	</decision-state>
 
 	<view-state id="moduloInicio" view="modificar.xhtml">
 		<on-entry>

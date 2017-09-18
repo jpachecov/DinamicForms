@@ -107,6 +107,14 @@ public class BSDAdministradorSistemaImpl implements BSDAdministradorSistemaInter
              throws ClienteWebServiceException {
          return asAdmin.obtenEstatusModulo(idProceso, idDetalle, idSistema, idEstado, idDistrito, grupo, idModulo);
      }
+     /**
+      * {@inheritDoc}
+      */
+ 	@Override
+ 	public EnumEstatusModulo obtenEstatusModuloINE(Integer idProceso, Integer idDetalle, Integer idSistema,
+ 			Integer idEstado, Integer idDistrito, String grupo, Integer idModulo) throws ClienteWebServiceException {
+ 		return asAdmin.obtenEstatusModuloINE(idProceso, idDetalle, idSistema, idEstado, idDistrito, grupo, idModulo);
+ 	}
 
     /* (non-Javadoc)
      * @see mx.ine.sije.bsd.BSDAdministradorSistemaInterface#obtieneListaPermisosSistema(java.lang.Integer)

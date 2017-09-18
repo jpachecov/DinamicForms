@@ -31,10 +31,19 @@
 								<c:when test="#{requestScope['javax.servlet.error.status_code']==403}">
 									Acceso denegado.
 								</c:when>
+								<c:when
+									test="#{requestScope['javax.servlet.error.request_uri'].toString().contains('moduloCerrado')}">
+                                    El m&oacute;dulo se encuentra cerrado.
+                                </c:when>
+                                <c:when
+									test="#{requestScope['javax.servlet.error.request_uri'].toString().contains('moduloNoVisible')}">
+                                    Por favor no  manipule manualmente la URL, navegue sólo a través del sistema.
+                                </c:when>									
 								<c:when test="#{requestScope['javax.servlet.error.status_code']==404}">
 									El recurso requerido no est&aacute; disponible.<br/>
 									<!-- #{requestScope['javax.servlet.error.request_uri']} -->
-								</c:when>
+								</c:when>							
+								
 								<c:when test="#{requestScope['javax.servlet.error.exception'].toString().contains('BadlyFormattedFlowExecutionKeyException')}">
 									Por favor no  manipule manualmente la URL, navegue sólo a través del sistema.
 								</c:when>
@@ -51,10 +60,15 @@
 					</td>
 				</tr>
 			</table>
-					<a  href="${request.contextPath}/app/home/?GLO=true" >
+<!-- 					<a  href="${request.contextPath}/app/home/?GLO=true" > -->
+<!-- 					  <h:outputText value="Aceptar"/>	 -->
+					  
+<!-- 					</a> -->
+					<a  href="${request.contextPath}/app/home" >
 					  <h:outputText value="Aceptar"/>	
 					  
 					</a>
+
 			
 		</td></tr></table>
 		</h:form>

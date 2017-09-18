@@ -109,6 +109,28 @@ public interface BSDAdministradorSistemaInterface{
      */
     EnumEstatusModulo obtenEstatusModulo(Integer idProceso, Integer idDetalle, Integer idSistema, Integer idEstado, Integer idDistrito, String grupo, Integer idModulo) 
             throws ClienteWebServiceException;
+
+    /**
+     * Método encargado de obtener el estatus del modulo 
+     * consumiento el NUEVO SERVICIO.
+     * 
+     * @param idProceso : Id proceso electoral
+     * @param idDetalle : Id detalle proceso
+     * @param idSistema : Id sistema
+     * @param idEstado : Id estado
+     * @param idDistrito : Id distrito
+     * @param grupo : Grupo
+     * @param idModulo : Id modulo
+     * 
+     * @return EnumEstatusModulo : estatus
+     * 
+     * @throws ClienteWebServiceException : En caso de ocurrir un error durante la conexi&oacute;n con el webservice.
+     *
+     * @since 13/09/2017 
+     */
+    EnumEstatusModulo obtenEstatusModuloINE(Integer idProceso, Integer idDetalle, Integer idSistema, Integer idEstado, Integer idDistrito, String grupo, Integer idModulo) 
+            throws ClienteWebServiceException;
+    
     /**
 	 * Método para obtener la lista de grupos por sistema
 	 * @author Pablo Zuñiga Mata

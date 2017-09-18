@@ -772,15 +772,19 @@ public class PDFAcreditacionesGafetes extends PdfPageEventHelper{
     public String obtenRutaFirma(String ruta, String nombreFirma){
   	  String rutaImagen = "";
   	  if( ruta != null && !ruta.isEmpty() && !nombreFirma.equalsIgnoreCase(" ")){
-  		  rutaImagen = rutaGluster
-						+ File.separator
-						+ ruta
-						+ File.separator
-						+ nombreFirma;
+  		  String rutaImagen_png = rutaGluster + File.separator + ruta + File.separator + nombreFirma + ".png";
+  		  String rutaImagen_jpg = rutaGluster + File.separator + ruta + File.separator + nombreFirma + ".jpg";
+  		  String rutaImagen_jpeg = rutaGluster + File.separator + ruta + File.separator + nombreFirma + ".jpeg";
 			//Al cargar el archivo existente es con el nombre de la clave de elector			
-			File imagen = new File(rutaImagen);
-			if (!imagen.exists()) {
-				rutaImagen = "";
+			File imagen_png = new File(rutaImagen_png);
+			File imagen_jpg = new File(rutaImagen_jpg);
+			File imagen_jpeg = new File(rutaImagen_jpeg);
+			if (imagen_png.exists()) {
+				return rutaImagen_png;
+			} else if (imagen_jpg.exists()) {
+				return rutaImagen_jpg;
+			} else if (imagen_jpeg.exists()) {
+				return rutaImagen_jpeg;
 			}
 		}
   	  return rutaImagen;

@@ -1116,7 +1116,7 @@ public class MBCursos extends MBGeneric implements Serializable {
 				bsdCursos.guardarOActualizar(dto);
 				respuesta = "guardar";
 				FacesContext.getCurrentInstance().addMessage(null,
-						new FacesMessage(FacesMessage.SEVERITY_INFO, "Exito", "Curso guardado exitosamente."));
+						new FacesMessage(FacesMessage.SEVERITY_INFO, "Éxito", "Curso guardado exitosamente."));
 			}
 		}catch(Exception e){
 			logger.error("Error en método guardaCurso(): ", e);

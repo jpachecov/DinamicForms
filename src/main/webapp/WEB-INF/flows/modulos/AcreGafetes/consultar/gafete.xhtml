@@ -79,7 +79,9 @@
 								!mbAcreditacionGafete.hlpAcreditacionGafete.conFirma}"><br/></c:if>
 				
 				<c:if test="#{mbAcreditacionGafete.hlpAcreditacionGafete.sinFirma}"><br/></c:if>
-				<c:if test="#{mbAcreditacionGafete.hlpAcreditacionGafete.conFirma}"><br/><br/></c:if>
+				<c:if test="#{mbAcreditacionGafete.hlpAcreditacionGafete.conFirma and not empty mbAcreditacionGafete.firmaRuta}"><br/><br/></c:if>
+				<c:if test="#{mbAcreditacionGafete.hlpAcreditacionGafete.conFirma and empty mbAcreditacionGafete.firmaRuta}"><br/></c:if>
+				
 					<h:outputText style="color: #ffffff;font-size: 55%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteD}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbAcreditacionGafete.hlpAcreditacionGafete.distrito ne '0'}"/>
 					<h:outputText style="color: #ffffff;font-size: 55%" value="#{mbAcreditacionGafete.hlpAcreditacionGafete.vocalPresidenteE}" rendered="#{mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2'}"/>
 					<hr style="color: #7f7f7f; background-color: #7f7f7f; height: 2px; width: 100%;" />
@@ -92,11 +94,11 @@
 				</td>
 				<!-- <td align="center"/> -->
 				<td align="center" width="49%">
-					<c:if test="#{mbAcreditacionGafete.firmaRuta ne null and mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2'}">
+					<c:if test="#{mbAcreditacionGafete.firmaRuta ne null and not empty mbAcreditacionGafete.firmaRuta and mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '2'}">
 						<p:graphicImage id="firmaConsejoLocal" width="80" height="41" cache="false" 
 										value="#{mbAcreditacionGafete.firmaRuta}" />
 					</c:if>
-					<c:if test="#{mbAcreditacionGafete.firmaRuta ne null and mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbAcreditacionGafete.hlpAcreditacionGafete.distrito ne '0'}">
+					<c:if test="#{mbAcreditacionGafete.firmaRuta ne null and not empty mbAcreditacionGafete.firmaRuta and mbAcreditacionGafete.hlpAcreditacionGafete.idJustificacion eq '1' and mbAcreditacionGafete.hlpAcreditacionGafete.distrito ne '0'}">
 						<p:graphicImage id="firmaConsejoDistrital" width="80" height="41" cache="false"
 										value="#{mbAcreditacionGafete.firmaRuta}" />
 					</c:if>

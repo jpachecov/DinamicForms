@@ -3,7 +3,7 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/webflow
         				  http://www.springframework.org/schema/webflow/spring-webflow.xsd"
-	start-state="capturar" parent="parent-flow">
+	start-state="validaModuloMenu" parent="parent-flow">
 
 
 	<secured
@@ -15,6 +15,21 @@
 		match="any" />
 
 	<var name="mbAgrupaciones" class="mx.ine.observadoresINE.mb.MBAgrupaciones" />
+
+	<!-- VALIDA MODULO EN MENU LATERAL -->
+	<decision-state id="validaModuloMenu">
+		<if test="mbAdmin.existInLateralMenu(2)" 
+			then="capturar" 
+			else="vsErrorModuloNoVisible"/>
+	</decision-state>
+	
+		<!-- VALIDA MODULO ABIERTO -->
+	<decision-state id="validaModulo">
+		<if test="mbAdmin.validaModuloAbiertoINE(2)" 
+			then="capturar" 
+			else="vsErrorModuloCerrado"/>
+	</decision-state>
+	
 	<view-state id="capturar" view="capturar.xhtml">
 		<on-entry>
 			<evaluate expression="mbAgrupaciones.init()"></evaluate>

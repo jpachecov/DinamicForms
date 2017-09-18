@@ -118,31 +118,29 @@ public class MBReportesCursos extends MBReportesMenu {
 
 	// TODO
 	private String construyeQuery(DTOFiltroReporteAcciones filtros) {
-		String queryGeneral = "select  FECHACURSO, ORIGEN, DOMICILIO, HORARIO, IMPARTIDO, CARGO, OBSERVACIONES, totalPersonas , totalAcreditados from ("
-				+ "   select TO_CHAR( fecha , 'dd/mm/yyyy') fechaCurso , origen_curso , "
-				+ " case   when origen_curso = 1 then 'INE'   when origen_curso = 3  then NOMBRE_AGRUPACION when origen_curso = 2  then 'OPLE'  end origen  "
-				+ " ,( case when c.CALLE is not null and c.COLONIA is not null and NOMBRE_MUNICIPIO is not null and c.CODIGO_POSTAL "
-				+ " is not null and c.NUMERO_EXTERIOR is not null and c.NUMERO_INTERIOR is not null then c.CALLE ||' '|| ' No. Ext. ' || c.NUMERO_EXTERIOR "
-				+ " ||' '|| ' No. Int. ' || c.NUMERO_INTERIOR ||' '||' Col. '|| c.COLONIA ||' '|| ' Del/Mun: ' || NOMBRE_MUNICIPIO || ' C.P '|| "
-				+ " c.CODIGO_POSTAL when c.CALLE is not null and c.COLONIA is not null and NOMBRE_MUNICIPIO is not null and c.CODIGO_POSTAL is not null "
-				+ " and c.NUMERO_EXTERIOR is not null and c.NUMERO_INTERIOR is null then c.CALLE ||' '|| ' No. Ext. ' || c.NUMERO_EXTERIOR ||' '|| ' No. "
-				+ " Int. S/N '||' Col. '|| c.COLONIA ||' '|| ' Del/Mun: ' || NOMBRE_MUNICIPIO || ' C.P '|| c.CODIGO_POSTAL when c.CALLE is not null and "
-				+ " c.COLONIA is not null and NOMBRE_MUNICIPIO is not null and c.CODIGO_POSTAL is not null and c.NUMERO_EXTERIOR is null and "
-				+ " c.NUMERO_INTERIOR is not null then c.CALLE ||' '|| ' No. Ext. S/N ' || ' No. Int. ' || c.NUMERO_INTERIOR || ' Col. '|| "
-				+ " c.COLONIA ||' '|| ' Del/Mun: ' || NOMBRE_MUNICIPIO || ' C.P '|| c.CODIGO_POSTAL else 'S/N' end ) domicilio , ( TO_CHAR(HORA_INICIO, "
-				+ "  'HH24:MI') || ' - ' || TO_CHAR(HORA_FIN, 'HH24:MI') || 'hrs.' ) horario , (c.nombre ||' '|| c.apellido_paterno ||' '|| "
-				+ " c.apellido_materno ) impartido, r.DESCRIPCION cargo , OBSERVACIONES , c.id_curso , c.id_estado , c.id_distrito , "
-				+ " c.id_proceso_electoral , c.id_detalle_proceso from cursos c LEFT join C_cargo_responsable r on r.ID_PROCESO_ELECTORAL = "
-				+ " c.ID_PROCESO_ELECTORAL and r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and r.ID_CARGO = c.ID_CARGO LEFT join geograficoINE.municipios"
-				+ "  M on M.ID_ESTADO = c.ID_ESTADO and M.ID_MUNICIPIO = c.ID_MUNICIPIO_domicilio LEFT join geograficoINE.estados E on E.ID_ESTADO ="
-				+ "  c.ID_ESTADO  LEFT  join  agrupaciones A   on  A.ID_AGRUPACION =  c.ID_AGRUPACION   and A.id_proceso_electoral =  c.ID_PROCESO_ELECTORAL   "
-				+ " and   A.id_detalle_proceso = c.ID_DETALLE_PROCESO   ) T  "
+		String queryGeneral = "select  FECHACURSO, ORIGEN, DOMICILIO, HORARIO, IMPARTIDO, CARGO, OBSERVACIONES, totalPersonas , totalAcreditados from ( "
+				+ "  select fechaCurso ,  origen_curso , origen ,    case      when MISMO_DOMICILIO = 'N' then  calleC ||   neC  || niC   || coloniaC || cpC  || municipio "
+				+ " when MISMO_DOMICILIO = 'S' then  calleO ||   neO  || niO    || coloniaO || cpO  || municipio    else '' end DOMICILIO ,  HORARIO, IMPARTIDO, CARGO, "
+				+ "OBSERVACIONES, id_curso , id_estado , id_distrito , id_proceso_electoral , id_detalle_proceso  from  ( select TO_CHAR( fecha , 'dd/mm/yyyy') fechaCurso , "
+				+ "origen_curso , case    when origen_curso = 1 then 'INE'    when origen_curso = 3  then NOMBRE_AGRUPACION  when origen_curso = 2  then 'OPLE'   end origen   , "
+				+ "case when  c.CALLE is not null then c.calle else ' ' end calleC , case when  c.COLONIA is not null then ' Col. '|| c.COLONIA else ' ' end coloniaC , "
+				+ " case when  NOMBRE_MUNICIPIO is not null then ' Del/Mun: '|| NOMBRE_MUNICIPIO else ' ' end municipio ,  case when  c.CODIGO_POSTAL is not null then ' C.P '|| c.CODIGO_POSTAL else ' ' end cpC , "
+				+ " case when  c.NUMERO_EXTERIOR is not null then ' No. Ext. '|| c.NUMERO_EXTERIOR else ' ' end neC ,  case when  c.NUMERO_INTERIOR is not null then ' No. Int.  '|| c.NUMERO_INTERIOR else ' ' end niC , "
+				+ " case when  A.CALLE is not null then A.calle else '' end calleO ,  case when  A.COLONIA is not null then ' Col. '|| A.COLONIA else ' ' end coloniaO , "
+				+ " case when  A.CODIGO_POSTAL is not null then ' C.P '|| A.CODIGO_POSTAL else ' ' end cpO ,  case when  A.NUMERO_EXTERIOR is not null then ' No. Ext. '|| A.NUMERO_EXTERIOR else ' ' end neO , "
+				+ " case when  A.NUMERO_INTERIOR is not null then ' No. Int.  '|| A.NUMERO_INTERIOR else ' ' end niO , "
+				+ " ( TO_CHAR(HORA_INICIO, 'HH24:MI') || ' - ' || TO_CHAR(HORA_FIN,  'HH24:MI')  ) horario ,  (c.nombre ||' '|| c.apellido_paterno ||' '||  c.apellido_materno ) impartido, "
+				+ " r.DESCRIPCION cargo ,  OBSERVACIONES , c.id_curso , c.id_estado , c.id_distrito , c.id_proceso_electoral , c.id_detalle_proceso , c.MISMO_DOMICILIO "
+				+ " from cursos c  LEFT join C_cargo_responsable r  on r.ID_PROCESO_ELECTORAL =  c.ID_PROCESO_ELECTORAL  and r.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO "
+				+ " and r.ID_CARGO = c.ID_CARGO  LEFT join geograficoINE.municipios  M  on M.ID_ESTADO = c.ID_ESTADO  and M.ID_MUNICIPIO = c.ID_MUNICIPIO_domicilio "
+				+ " LEFT join geograficoINE.estados E  on E.ID_ESTADO =  c.ID_ESTADO   LEFT  join agrupaciones A    on  A.ID_AGRUPACION =  c.ID_AGRUPACION    and A.id_proceso_electoral =  c.ID_PROCESO_ELECTORAL "
+				+ " and   A.id_detalle_proceso = c.ID_DETALLE_PROCESO   ) t2  ) T  "
 				+ " join (  select s1.id_curso , totalpersonas , nvl( totalAcreditados , 0) totalAcreditados  from ( select c.id_curso , count(o.id_observador) totalPersonas "
 				+ " from cursos c LEFT join observadores o on o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO =  c.ID_DETALLE_PROCESO  "
 				+ " and o.id_curso = c.id_curso group by c.id_curso   ) S1 LEFT   join ( select c.id_curso , count( o.id_observador) totalAcreditados from cursos c "
 				+ "LEFT join observadores o on o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO =  c.ID_DETALLE_PROCESO and o.id_curso = c.id_curso "
-				+ " LEFT join c_justificaciones J on o.ID_PROCESO_ELECTORAL = J.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO =  J.ID_DETALLE_PROCESO and o.ID_JUSTIFICACION =  J.ID_JUSTIFICACION  "
-				+ " group by c.id_curso,  J.RESULTADO having J.RESULTADO = 1 ) S2 on s1.id_curso = s2.id_curso ) S on T.id_curso = S.id_curso -filtros- order by -ordenamiento- ";
+				+ "    LEFT join c_evaluacion e  on o.ID_PROCESO_ELECTORAL = e.ID_PROCESO_ELECTORAL  and o.ID_DETALLE_PROCESO =  e.ID_DETALLE_PROCESO  "
+				+ " and o.ID_EVALUACION =  e.ID_EVALUACION group by c.id_curso, e.TIPO having e.TIPO = 'A'   ) S2 on s1.id_curso = s2.id_curso ) S on T.id_curso = S.id_curso -filtros- order by -ordenamiento- ";
 		
 		String whereSubConsulta = " Where id_proceso_electoral = " + this.filtroReportes.getUsuario().getIdProcesoElectoral() + " and  "
 				+	 " id_detalle_proceso = " + this.filtroReportes.getUsuario().getIdDetalleProceso() 
@@ -151,7 +149,7 @@ public class MBReportesCursos extends MBReportesMenu {
 		if (filtros.getTipoReporte().equals("C")) {
 			String cadenaFiltro = "";
 			if (filtros.getCampoOrdenamiento().equals(0)) {
-				cadenaFiltro += " fechacurso ";
+				cadenaFiltro += " to_date(fechacurso) ";
 			} else {
 				cadenaFiltro += " impartido ";
 			}
@@ -167,7 +165,7 @@ public class MBReportesCursos extends MBReportesMenu {
 			  queryGeneral = "select (o.nombre ||' '|| o.apellido_paterno ||' '|| o.apellido_materno ) nombre , "
 					+ " case when origen_curso = 1 then 'INE'  when origen_curso = 2 then 'OPLE'  when origen_curso = 3  then NOMBRE_AGRUPACION end origen , "
 					+ " to_char( o.FECHA_SOLICITUDES , 'dd/mm/yyyy' ) fechaSolicitud   , to_char( fecha , 'dd/mm/yyyy' ) fechaCurso , "
-					+ " (  TO_CHAR(HORA_INICIO,'HH24:MI') || ' - ' ||  TO_CHAR(HORA_FIN,'HH24:MI') || 'hrs.' ) horario , "
+					+ " (  TO_CHAR(HORA_INICIO,'HH24:MI') || ' - ' ||  TO_CHAR(HORA_FIN,'HH24:MI')  ) horario , "
 					+ " (c.nombre ||' '|| c.apellido_paterno ||' '|| c.apellido_materno ) impartido , r.DESCRIPCION  cargo , "
 					+ " to_char(  o.FECHA_SESION  , 'dd/mm/yyyy' ) fechaAcreditacion from  observadores o  join cursos c on "
 					+ " o.ID_PROCESO_ELECTORAL = c.ID_PROCESO_ELECTORAL and o.ID_DETALLE_PROCESO = c.ID_DETALLE_PROCESO and "
@@ -248,20 +246,20 @@ public class MBReportesCursos extends MBReportesMenu {
 		
 		if(this.filtroReportes.getTipoReporte().equals("L") ){
 		hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Nombre", 1);
-		hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Curso impartido por Agrupacion / INE / OPLE", 1);
+		hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Curso impartido por Agrupación / INE / OPLE", 1);
 		hlpEncabezadoo.ingresarEncabezado(2, 1, 1, "Fecha Solicitud", 1);
 		hlpEncabezadoo.ingresarEncabezado(3, 1, 1, "Fecha Curso", 1);
 		hlpEncabezadoo.ingresarEncabezado(4, 1, 1, "Horario", 1);
-		hlpEncabezadoo.ingresarEncabezado(5, 1, 1, "Persona que impartio", 1);
+		hlpEncabezadoo.ingresarEncabezado(5, 1, 1, "Persona que impartió", 1);
 		hlpEncabezadoo.ingresarEncabezado(6, 1, 1, "Cargo", 1);
 		hlpEncabezadoo.ingresarEncabezado(7, 1, 1, "Fecha de aprobación", 1);
 		lista.add(hlpEncabezadoo);
 		}else{
 			hlpEncabezadoo.ingresarEncabezado(0, 1, 1, "Fecha", 1);
 			hlpEncabezadoo.ingresarEncabezado(1, 1, 1, "Impartido por ", 1);
-			hlpEncabezadoo.ingresarEncabezado(2, 1, 1, "Domicilio de quien impartio ", 1);
+			hlpEncabezadoo.ingresarEncabezado(2, 1, 1, "Domicilio de quien impartió ", 1);
 			hlpEncabezadoo.ingresarEncabezado(3, 1, 1, "Horario", 1);
-			hlpEncabezadoo.ingresarEncabezado(4, 1, 1, "Persona que lo impartio y/o superviso ", 1);
+			hlpEncabezadoo.ingresarEncabezado(4, 1, 1, "Persona que lo impartió y/o supervisó ", 1);
 			hlpEncabezadoo.ingresarEncabezado(5, 1, 1, "Cargo ", 1);
 			hlpEncabezadoo.ingresarEncabezado(6, 1, 1, "Nota ", 1);
 			hlpEncabezadoo.ingresarEncabezado(7, 1, 1, "No. de ciudadanas/os que tomaron el curso ", 1);
@@ -380,12 +378,6 @@ public class MBReportesCursos extends MBReportesMenu {
 			this.dtoParametros.setColumnas(9);	
 			}
 			this.dtoParametros.setListaDatos(dto.getListaDatos());
-			if(this.filtroReportes.getTipoReporte().equals("C") ){
-			this.dtoParametros.setTituloReporte(  this.filtroReportes.getUsuario().getIdDistritoSeleccionado() > 0 ?
-			"Cursos de capacitación impartidos y/o supervisados por Distrito." :		"Cursos de capacitación impartidos y/o supervisados por junta local.");
-			}else{
-				this.dtoParametros.setTituloReporte( "Listado de integrantes de los cursos.");	
-			}
 			super.setNombreReporte("reporteCursos");
 		} catch (Exception e) {
 			LOGGER.error("Ups! se genero un error en  asignaParametrosReporte ::::", e);

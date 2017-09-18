@@ -22,6 +22,8 @@ import mx.ine.observadoresINE.util.Utilidades;
 
 import org.jboss.logging.Logger;
 import org.primefaces.context.RequestContext;
+import org.primefaces.json.JSONArray;
+import org.primefaces.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -630,6 +632,37 @@ public class MBAdministradorSistema extends MBGeneric implements Serializable {
         return respuesta;
     }
     
+    /**
+     * 
+     * Método para validar si el modulop esta abiero.
+     * 
+     * Consume el NUEVO SERVICIO.
+     * 
+     * @param idModulo
+     * @return
+     * @since 13/09/2017
+     * @author Toño, Rey, Jean
+     */
+    public boolean validaModuloAbiertoINE(Integer idModulo){
+        boolean respuesta = false;
+        try{
+            EnumEstatusModulo estatus = bsdAdmin.obtenEstatusModuloINE(
+                    dto.getUsuario().getIdProcesoElectoral(), 
+                    dto.getUsuario().getIdDetalleProceso(), 
+                    dto.getUsuario().getIdSistema(), 
+                    obtenEstadoMenu(), 
+                    obtenDistritoMenu(), 
+                    dto.getUsuario().getRolUsuario(), 
+                    idModulo);
+            if(estatus.equals(EnumEstatusModulo.A)){
+                respuesta = true;
+            }
+        }catch(ClienteWebServiceException e){
+            LOGGER.error("Error MBAdministradorSistema - validaModuloAbierto()", e);
+        }
+        return respuesta;
+    }
+    
     
     /**
      * Método encargado de localizar el estado seleccionado 
@@ -702,6 +735,66 @@ public class MBAdministradorSistema extends MBGeneric implements Serializable {
             }
         }
         return distritos;
+    }
+    
+    
+    /**
+     * 
+     * Nos dice si el proceso electoral actual es extradordinario
+     * 
+     * @return true : Si el proceso es extradordinario
+     * @return false :  En cualquier otro caso.
+     */
+    public boolean esProcesoExtraordinario() {
+    	boolean esExtra = false;
+    	
+    	Integer idProceso = dto.getUsuario().getIdProcesoElectoral();
+    	Integer idDetalle = dto.getUsuario().getIdDetalleProceso();
+    	
+    	if(idProceso == null){
+    		idProceso = 0;
+    	}
+    	if(idDetalle == null){
+    		idDetalle = 0;
+    	}
+    	
+    	for(DTODetalleProcesoWS s : dto.getUsuario().getListaDetalles()){
+    		if(s.getIdProcesoElectoral().equals(idProceso) && s.getIdDetalleProceso().equals(idDetalle)){
+    			esExtra = s.getTipoProceso().equals("E");
+    			break;
+    		}
+    	}
+    	return esExtra;
+    }
+    
+	/**
+	 * Método que nos dice si un módulo aparece en la lista o menu lateral
+	 * 
+	 * @param idModulo : El id del módulo que queremos saber si esta en el menu
+	 * lateral.
+	 * @return true : Si existe en el menu lateral. false en otro caso.
+	 * @author jpachecov
+	 */
+    public boolean existInLateralMenu(int idModulo){
+    	boolean exist = false;
+    	JSONObject menuLateral = new JSONObject(dto.getJsonMenuLateral());
+    	JSONArray menus = menuLateral.getJSONArray("listMenu");
+    	for(int i = 0; i < menus.length(); i++){
+    		JSONObject crt = menus.getJSONObject(i);
+    		JSONArray submenus = crt.getJSONArray("subMenus");
+    		for(int j = 0; j < submenus.length(); j++){
+    			JSONObject subm = submenus.getJSONObject(j);
+    			JSONArray modulos = subm.getJSONArray("modulos");
+    			for(int k = 0; k < modulos.length(); k++){
+    				JSONObject mod = modulos.getJSONObject(k);
+    				if(idModulo == mod.getInt("idModulo")){
+    					exist = true;
+    					break;
+    				}
+    			}
+    		}
+    	}
+    	return exist;
     }
     
     /**

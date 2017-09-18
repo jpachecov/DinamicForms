@@ -126,7 +126,7 @@ public class MBReporteAcciones extends MBReportesMenu {
 	 */
 	public void exportPDF() {
 		try {
-			setParametros(datos.getDatosPdf(dtoParametros.getListaDatos(), ""));
+			setParametros(datos.getDatosPdf(dtoParametros));
 			super.exportPDF();
 		} catch (Exception e) {
 			addErrorMessage("Ocurrió un error al exportar archivo PDF");
