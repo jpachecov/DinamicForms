@@ -121,7 +121,7 @@ public class MBDinamicForm extends MBGeneric implements Serializable{
 			builder.addFilter(A);
 			builder.addFilter(B);
 			builder.addFilter(nombre);
-			builder.setInitialFilters("A,B,C,D,F");
+			builder.setInitialFilters("A,C,D,F");
 			builder.setFor("A").any("B");
 
 			if(builder.isValidDefinition()){

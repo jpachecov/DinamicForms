@@ -76,9 +76,7 @@ public class RenderMachine implements Serializable{
 	@SuppressWarnings({ "rawtypes" })
 	private RenderState delta(RenderState crt, String id) throws Exception{
 		DFilter f = F(id);
-		RenderState newState = new RenderState();
-		obtenNuevoEstado(crt, f);
-		newState.setFiltros(crt.getFiltros());
+		RenderState newState = obtenNuevoEstado(crt, f);
 		return newState;
 	}
 	
@@ -121,20 +119,33 @@ public class RenderMachine implements Serializable{
 	 * @throws Exception
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void obtenNuevoEstado(RenderState crt, DFilter f) throws Exception {
+	public RenderState obtenNuevoEstado(RenderState crt, DFilter f) throws Exception {
 		List<String> target = f.getFiTransition().getImagen(f.getValue());
-		for(String n : target){
-			DFilter ft = F(n);
-			if(n.equals(ft.getId())){
-				if(ft.getInitF() != null){
-					ft.init(f.getValue());
-				}
-				if(!ft.isVisible()){
-					ft.setVisible(true);
-					crt.getFiltros().add(ft);
+		RenderState nState = new RenderState();
+		for(DFilter df : crt.getFiltros()){
+			log.info("agregando: " + df.getId());
+			nState.addFilter(df);
+
+		}
+		
+		//if(df.getId().equals(f.getId())){
+			for(String n : target){
+				DFilter ft = F(n);
+				if(n.equals(ft.getId())){
+					if(ft.getInitF() != null){
+						ft.init(f.getValue());
+					}
+					if(!ft.isVisible()){
+						ft.setVisible(true);
+						//crt.getFiltros().add(ft);
+						log.info("agregando: " + ft.getId());
+						nState.addFilter(ft);
+					}
 				}
 			}
-		}		
+		//}
+		
+		return nState;
 	}
 	
 	public RenderState getCurrent() {

@@ -57,6 +57,14 @@ public class RenderState implements MachineState<List<DFilter>>, Serializable{
 		return 0;
 	}
 
+	/**
+	 * Agrega un nuevo filtro
+	 * @param s
+	 */
+	public void addFilter(DFilter s){
+		filtros.add(s);
+	}
+	
 	public List<DFilter> getFiltros() {
 		return filtros;
 	}
